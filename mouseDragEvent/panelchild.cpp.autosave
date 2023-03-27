@@ -33,12 +33,10 @@ Panelchild::Panelchild(QWidget *parent) : QWidget(parent)
 SubGphItem *Panelchild::gradientArc(qreal radius, qreal startAngle, qreal spanAngle, qreal arcHeight)
 {
     SubGphItem* subgphitem=new SubGphItem;
-
-
     QRectF rect(-radius,-radius,radius*2,radius*2);
+    
     QPainterPath* path=new QPainterPath;
     path->arcTo(rect,startAngle,spanAngle);
-
     QPainterPath* subpath=new QPainterPath;
     subpath->addEllipse(rect.adjusted(arcHeight,arcHeight,-arcHeight,-arcHeight));
 
@@ -46,14 +44,10 @@ SubGphItem *Panelchild::gradientArc(qreal radius, qreal startAngle, qreal spanAn
     const double Pi=3.1415926535;
     qreal posx=midradius*cos((startAngle+spanAngle/2)/180*Pi);
     qreal posy=-midradius*sin((startAngle+spanAngle/2)/180*Pi);
-//    QFont font;
-//    font.setBold(true);
-//    font.setPointSize(12);
-
-//    //path->addText(QPointF(posx,posy),font,QString("Ohayou"));
+  
     subgphitem->setTextPos(QPointF(posx,posy));
     *path-=*subpath;
-    //path->closeSubpath();
+
     subgphitem->setPath(*path);
     subgphitem->setPen(Qt::NoPen);
     subgphitem->setAcceptHoverEvents(true);

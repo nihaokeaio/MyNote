@@ -29,10 +29,10 @@ void SubPanelObj::setbuild(bool flag)
     isbuild_=flag;
 }
 
-void SubPanelObj::setLabelText(QString str)
-{
-    objLabel_=str;
-}
+//void SubPanelObj::setLabelText(QString str)
+//{
+//    objLabel_=str;
+//}
 
 void SubPanelObj::setSubGphItemText(QString str)
 {
@@ -90,20 +90,11 @@ void SubPanelObj::setExchangeObj(bool flag)
     }
 }
 
-QString SubPanelObj::getLabelText()
-{
-    qDebug()<<objLabel_;
-    return objLabel_;
-}
-
-void SubPanelObj::manualInstallFilter()
-{
-    if(subGphItem_)
-    {
-        subGphItem_->installEventFilter(this);
-    }
-}
-
+//QString SubPanelObj::getLabelText()
+//{
+//    qDebug()<<objLabel_;
+//    return objLabel_;
+//}
 
 void SubPanelObj::setLinkButton(QPushButton *linkBtn)
 {

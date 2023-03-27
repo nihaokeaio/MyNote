@@ -188,6 +188,11 @@ void SubGphItem::setTextPos(const QPointF &pos)
     gphtext->setPos(textPos_);
 }
 
+QPointF& SubGphItem::getTextPos()
+{
+    return textPos_;
+}
+
 
 bool SubGphItem::isDeletePanel()
 {

@@ -80,8 +80,11 @@ void SubGphItem::performDrag()
 {
     qDebug()<<this->objectName();
     QMimeData *mimeData = new QMimeData;
-    QString thistype=QString("type:%1").arg(this->type())+"-"+this->objectName();
-    mimeData->setText(thistype);
+    QString strType=QString("type=%1-").arg(this->type());
+    QString strPanel=QString("isDeletePanel=%1-").arg(this->isDeletePanel_);
+    QString strObjName=QString("objectName=%1").arg(this->objectName());
+    QString strInfo=strType+strPanel+strObjName;
+    mimeData->setText(strInfo);
     QDrag *drag = new QDrag(this);
     drag->setMimeData(mimeData);
     isDraging_=true;
@@ -136,20 +139,27 @@ void SubGphItem::dropEvent(QGraphicsSceneDragDropEvent *event)
     QMimeData* mimeData=const_cast<QMimeData*>(event->mimeData());
     //\说明被拖拽的对象是grapItem，只有交换或者删除两种功能
     //qDebug()<<mimeData->text();
-    if(mimeData->text().indexOf("type:")==0)
+    if(mimeData->text().indexOf("type")==0)
     {
         QStringList list=mimeData->text().split('-');
-        if(list.size()>=2)
+        if(list.size()==3)
         {
-            mimeData->setText(list[1]);
+            QStringList strObjName=list.back().split('=');
+            mimeData->setText(strObjName[1]);
+        }
+        QStringList strPanel=list[1].split('=');
+        int strisDeletePanel=1;
+        if(strPanel.size()==2)
+        {
+            strisDeletePanel=strPanel[1].toInt();
         }
 
-        if(isDeletePanel_==true&&isDraging_==false)
+        if(this->isDeletePanel_==true&& strisDeletePanel==0 && isDraging_==false)
         {
             //qDebug()<<"Need delete widget"<<mimeData->text();
             emit removeGphItem(mimeData);
         }
-        if(isExchangePanel_==true&&isDraging_==false)
+        if(this->isDeletePanel_==false && strisDeletePanel==0 && isDraging_==false)
         {
             //qDebug()<<"Need Exchange between" << mimeData->text()<<" and "<< this->objectName();
             emit exchangeGphItem(this->objectName(),mimeData);

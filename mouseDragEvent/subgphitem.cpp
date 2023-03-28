@@ -14,6 +14,7 @@ SubGphItem::SubGphItem(QGraphicsPathItem *parent) : QGraphicsPathItem(parent)
     this->setAcceptDrops(true);
     isDeletePanel_=false;
     isExchangePanel_=true;
+    isDraging_=false;
     linkBtn_=nullptr;
     this->setAcceptHoverEvents(true);
 
@@ -26,16 +27,16 @@ SubGphItem::SubGphItem(QGraphicsPathItem *parent) : QGraphicsPathItem(parent)
 
 void SubGphItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-//    if(event->type()==QEvent::GraphicsSceneMousePress)
-//    {
-//        if(event->button()==Qt::LeftButton)
-//        {
-//            dragStartPostion_=event->pos();
-//            QPen pen;
-//            pen.setColor(Qt::red);
-//            this->setPen(pen);
-//            qDebug()<<QString("subgphitem LeftButton Press");
-//        }
+   if(event->type()==QEvent::GraphicsSceneMousePress)
+   {
+       if(event->button()==Qt::LeftButton)
+       {
+           dragStartPostion_=event->pos();
+        //    QPen pen;
+        //    pen.setColor(Qt::red);
+        //    this->setPen(pen);
+        //    qDebug()<<QString("subgphitem LeftButton Press");
+       }
 //        if(event->button()==Qt::RightButton)
 //        {
 //            QPen pen;
@@ -43,7 +44,7 @@ void SubGphItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 //            this->setPen(pen);
 //            qDebug()<<QString("subgphitem RightButton Press");
 //        }
-//    }
+    }
 
 
 }

@@ -11,6 +11,8 @@
 #include <QMimeData>
 #include <QPushButton>
 
+#include <QKeyEvent>
+
 class SubGphItem :public QObject, public QGraphicsPathItem
 {
     Q_OBJECT
@@ -43,23 +45,29 @@ signals:
 
     void exchangeGphItem(const QString objName,const QMimeData* mimeData);
 protected:
+    //鼠标事件
     void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
 
     void mouseMoveEvent(QGraphicsSceneMouseEvent *event) override;
 
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) override;
 
-//    void hoverMoveEvent(QGraphicsSceneHoverEvent *event) override;
+    //悬浮事件
+    void hoverMoveEvent(QGraphicsSceneHoverEvent *event) override;
 
     void hoverLeaveEvent(QGraphicsSceneHoverEvent *event) override;
 
 
     void hoverEnterEvent(QGraphicsSceneHoverEvent *event) override;
 
-
+    //拖拽事件
     void dropEvent(QGraphicsSceneDragDropEvent *event) override;
 
-    virtual void dragEnterEvent(QGraphicsSceneDragDropEvent *event) override;
+    void dragEnterEvent(QGraphicsSceneDragDropEvent *event) override;
+
+    //键盘事件
+    void keyPressEvent(QKeyEvent *event) override; //键盘按下事件
+    void keyReleaseEvent(QKeyEvent *event) override; //键盘松开事件
 
 public:
     //\文本图样，最终显示在圆盘上的文本对象
@@ -80,6 +88,8 @@ private:
 
       //用于排除拖和放对象都是自身的情况
       bool isDraging_;
+
+      bool btnFuncIsVaild_;
 
       //\全局的一个按钮指针，用来承接被拖拽对象的按钮功能，发出信号用
       QPushButton* linkBtn_;

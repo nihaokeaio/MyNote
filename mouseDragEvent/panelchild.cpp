@@ -5,8 +5,7 @@
 
 
 Panelchild::Panelchild(QWidget *parent) : QWidget(parent)
-{
-
+{ 
     QVBoxLayout *vlay=new QVBoxLayout(this);
     distributId=2;
     aliveObj=distributId;
@@ -15,9 +14,12 @@ Panelchild::Panelchild(QWidget *parent) : QWidget(parent)
     //scene->setBackgroundBrush(Qt::green);
     //Paintcircle();
     View=new QGraphicsView(scene,this);
-    scene->setBackgroundBrush(QBrush(QColor(Qt::gray)));
+    //->setBackgroundBrush(QBrush(QColor(Qt::gray)));
+    scene->setBackgroundBrush(Qt::transparent);
     //View->setScene(scene);;
     //View->scale(this->width(),this->height());
+    View->setAutoFillBackground(false);
+    View->setBackgroundBrush(Qt::transparent);
     View->setAlignment(Qt::AlignCenter);
     View->show();
     vlay->addWidget(View);
@@ -66,6 +68,7 @@ SubGphItem *Panelchild::gradientArc(qreal radius, qreal startAngle, qreal spanAn
 
 void Panelchild::buildArcPanel()
 {
+    scene->setFocus();
     scene->clear();
     //绘制背景矩形框
     sceneRect=new QGraphicsRectItem;

@@ -16,8 +16,12 @@ SubGphItem::SubGphItem(QGraphicsPathItem *parent) : QGraphicsPathItem(parent)
     isExchangePanel_=true;
     isDraging_=false;
     linkBtn_=nullptr;
+    btnFuncIsVaild_=false;
     this->setAcceptHoverEvents(true);
-
+    //设置图形可被聚焦
+    this->setFlag(QGraphicsItem::ItemIsFocusable,true);
+    //\图形处于ACTIVE状态才能获得焦点
+    this->setActive(true);
 
     QRadialGradient gradient(0,0,100);
     gradient.setColorAt(0,Qt::white);
@@ -106,7 +110,7 @@ void SubGphItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
                 if(linkBtn_)
                 {
                     linkBtn_->click();
-                    linkBtn_->isChecked();
+                    //linkBtn_->isChecked();
                 }
                 else {
                     qDebug()<<"subBtn_ is Null Value";
@@ -116,21 +120,35 @@ void SubGphItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     }
 }
 
+void SubGphItem::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
+{
+    qDebug()<<"isPanel:"<<this->isPanel();
+    qDebug()<<"isSelected:"<<this->isSelected();
+    qDebug()<<"isWidget:"<<this->isWidget();
+    qDebug()<<"isActive:"<<this->isActive();
+    qDebug()<<"hasFocus:"<<this->hasFocus();
+    qDebug()<<"isUnderMouse:"<<this->isUnderMouse();
+}
+
 void SubGphItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 {
     QRadialGradient gradient(0,0,100);
     gradient.setColorAt(0,Qt::white);
     gradient.setColorAt(1.0,qRgb(200,200,0));
     this->setBrush(gradient);
+    btnFuncIsVaild_=false;
+    this->clearFocus();
     QGraphicsItem::hoverLeaveEvent(event);
 }
 
 void SubGphItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 {
+    btnFuncIsVaild_=true;
     QRadialGradient gradient(0,0,100);
     gradient.setColorAt(0,Qt::white);
     gradient.setColorAt(1.0,qRgb(100,100,0));
     this->setBrush(gradient);
+    //\获得焦点
     this->setFocus();
     QGraphicsItem::hoverEnterEvent(event);
 }
@@ -181,6 +199,24 @@ void SubGphItem::dropEvent(QGraphicsSceneDragDropEvent *event)
 void SubGphItem::dragEnterEvent(QGraphicsSceneDragDropEvent *event)
 {
     event->acceptProposedAction();
+}
+
+void SubGphItem::keyPressEvent(QKeyEvent *event)
+{
+
+}
+
+void SubGphItem::keyReleaseEvent(QKeyEvent *event)
+{
+    if(event->key()==Qt::Key_Alt)
+    {
+        qDebug()<<"run button"<<this->objectName();
+        if(linkBtn_&&btnFuncIsVaild_)
+        {
+            linkBtn_->click();
+            //linkBtn_->isChecked();
+        }
+    }
 }
 
 void SubGphItem::setTextPos(const QPointF &pos)

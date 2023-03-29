@@ -11,6 +11,7 @@
 #include <QDropEvent>
 #include "panelobj.h"
 #include "dragbutton.h"
+#include "mygraphicsscene.h"
 #include <QMimeData>
 #include <QSet>
 

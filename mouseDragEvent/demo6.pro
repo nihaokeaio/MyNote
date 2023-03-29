@@ -26,12 +26,14 @@ CONFIG += c++11
 
 SOURCES += \
         main.cpp \
+        mygraphicsscene.cpp \
         panelchild.cpp \
         panelobj.cpp \
         subgphitem.cpp \
         widget.cpp
 
 HEADERS += \
+        mygraphicsscene.h \
         panelchild.h \
         panelobj.h \
         subgphitem.h \

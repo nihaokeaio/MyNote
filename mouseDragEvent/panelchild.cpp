@@ -4,22 +4,24 @@
 #include <math.h>
 
 
+
 Panelchild::Panelchild(QWidget *parent) : QWidget(parent)
 { 
     QVBoxLayout *vlay=new QVBoxLayout(this);
     distributId=2;
     aliveObj=distributId;
 
-    scene=new QGraphicsScene(this);
+    scene=new MyGraphicsScene;
+    scene->setParent(this);
     //scene->setBackgroundBrush(Qt::green);
     //Paintcircle();
     View=new QGraphicsView(scene,this);
     //->setBackgroundBrush(QBrush(QColor(Qt::gray)));
-    scene->setBackgroundBrush(Qt::transparent);
-    //View->setScene(scene);;
-    //View->scale(this->width(),this->height());
-    View->setAutoFillBackground(false);
-    View->setBackgroundBrush(Qt::transparent);
+//    scene->setBackgroundBrush(Qt::transparent);
+//    View->setScene(scene);;
+//    View->scale(this->width(),this->height());
+//    View->setAutoFillBackground(false);
+//    View->setBackgroundBrush(Qt::transparent);
     View->setAlignment(Qt::AlignCenter);
     View->show();
     vlay->addWidget(View);

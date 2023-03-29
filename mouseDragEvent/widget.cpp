@@ -14,20 +14,21 @@ Widget::Widget(QWidget *parent) :
     ui->setupUi(this);
     this->setWindowFlags(Qt::FramelessWindowHint);
     this->setAttribute(Qt::WA_TranslucentBackground);
+    this->resize(600, 800);
     QVBoxLayout* vlayout=new QVBoxLayout(this);
     QPushButton* addButton=new QPushButton;
     addButton->setText("addButton");
     addButton->setObjectName("addButton");
     addButton->setCheckable(true);
     addButton->setChecked(false);
-    addButton->setAttribute(Qt::WA_TranslucentBackground);
+    
 
     QPushButton* subButton=new QPushButton;
     subButton->setText("subButton");
     subButton->setObjectName("subButton");
     subButton->setCheckable(true);
     subButton->setChecked(false);
-    subButton->setAttribute(Qt::WA_TranslucentBackground);
+    
 
     vlayout->addWidget(addButton);
     vlayout->addWidget(subButton); 
@@ -38,7 +39,7 @@ Widget::Widget(QWidget *parent) :
     button->setChecked(false);
     this->setTabletTracking(true);
     childPanel=new Panelchild;
-    childPanel->setAttribute(Qt::WA_TranslucentBackground);
+    
 
     button->installEventFilter(this);
     addButton->installEventFilter(this);

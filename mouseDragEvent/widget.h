@@ -6,6 +6,7 @@
 #include <QSet>
 
 #include <QPushButton>
+#include <QKeyEvent>
 #include "panelchild.h"
 
 namespace Ui {
@@ -19,9 +20,17 @@ class Widget : public QWidget
 public:
     explicit Widget(QWidget *parent = nullptr);
     virtual ~Widget();
+
+
+
 protected:
     bool eventFilter(QObject* o,QEvent* e);
     void performDrag(QWidget* widget);
+
+    //键盘事件
+    void keyPressEvent(QKeyEvent* event) override; //键盘按下事件
+    void keyReleaseEvent(QKeyEvent* event) override; //键盘松开事件
+
 private:
     Ui::Widget *ui;
 

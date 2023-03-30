@@ -4,27 +4,36 @@
 #include <math.h>
 
 
-
 Panelchild::Panelchild(QWidget *parent) : QWidget(parent)
 { 
     QVBoxLayout *vlay=new QVBoxLayout(this);
     distributId=2;
     aliveObj=distributId;
 
-    scene=new MyGraphicsScene;
+    backgroundSubPanel = new SubPanelObj; 
+    backgroundSubPanel->setDeleteObj(true);
+    backgroundSubPanel->setbuild(true);
+    QString strobjname = QString("Obj: %1").arg(maxNumberBlock);
+    backgroundSubPanel->setObjectName(strobjname);
+    m_list[maxNumberBlock] = backgroundSubPanel;
+
+    scene = new MyGraphicsScene;
     scene->setParent(this);
-    //scene->setBackgroundBrush(Qt::green);
-    //Paintcircle();
-    View=new QGraphicsView(scene,this);
-    //->setBackgroundBrush(QBrush(QColor(Qt::gray)));
-//    scene->setBackgroundBrush(Qt::transparent);
-//    View->setScene(scene);;
-//    View->scale(this->width(),this->height());
-//    View->setAutoFillBackground(false);
-//    View->setBackgroundBrush(Qt::transparent);
+
+    View = new MyView;
+    View->setScene(scene);
+    
+    //View->setStyleSheet("background:transparent");
+    View->setMouseTracking(true);
+
     View->setAlignment(Qt::AlignCenter);
+
+    View->setCacheMode(QGraphicsView::CacheBackground);
+
+
     View->show();
     vlay->addWidget(View);
+    this->update();
 
 }
 
@@ -40,11 +49,11 @@ SubGphItem *Panelchild::gradientArc(qreal radius, qreal startAngle, qreal spanAn
 
 
     QRectF rect(-radius,-radius,radius*2,radius*2);
-    QPainterPath* path=new QPainterPath;
-    path->arcTo(rect,startAngle,spanAngle);
+    QPainterPath path=QPainterPath();
+    path.arcTo(rect,startAngle,spanAngle);
 
-    QPainterPath* subpath=new QPainterPath;
-    subpath->addEllipse(rect.adjusted(arcHeight,arcHeight,-arcHeight,-arcHeight));
+    QPainterPath subpath=QPainterPath();
+    subpath.addEllipse(rect.adjusted(arcHeight,arcHeight,-arcHeight,-arcHeight));
 
     qreal midradius=(radius-arcHeight/2);
     const double Pi=3.1415926535;
@@ -56,9 +65,9 @@ SubGphItem *Panelchild::gradientArc(qreal radius, qreal startAngle, qreal spanAn
 
 //    //path->addText(QPointF(posx,posy),font,QString("Ohayou"));
     subgphitem->setTextPos(QPointF(posx,posy));
-    *path-=*subpath;
+    path-=subpath;
     //path->closeSubpath();
-    subgphitem->setPath(*path);
+    subgphitem->setPath(path);
     subgphitem->setPen(Qt::NoPen);
     subgphitem->setAcceptHoverEvents(true);
     //subgphitem->setFlag(QGraphicsItem::ItemIsMovable);
@@ -70,22 +79,24 @@ SubGphItem *Panelchild::gradientArc(qreal radius, qreal startAngle, qreal spanAn
 
 void Panelchild::buildArcPanel()
 {
-    scene->setFocus();
     scene->clear();
+    
     //绘制背景矩形框
-    sceneRect=new QGraphicsRectItem;
-    QPen pen;
-    pen.setWidth(1);
-    pen.setColor(Qt::white);
-    sceneRect->setPen(pen);
-    sceneRect->setRect(QRectF(-CIRCLE_RADIUS_-RECT_GAP_SPACING_,-CIRCLE_RADIUS_-RECT_GAP_SPACING_,(CIRCLE_RADIUS_+RECT_GAP_SPACING_)*2.,(CIRCLE_RADIUS_+RECT_GAP_SPACING_)*2.));
-    scene->addItem(sceneRect);
+    //sceneRect=new QGraphicsRectItem;
+    //QPen pen;
+    //pen.setWidth(1);
+    //pen.setColor(Qt::white);
+    ///*sceneRect->setOpacity(0.1);*/
+    //sceneRect->setPen(pen);
+    //sceneRect->setRect(QRectF(-CIRCLE_RADIUS_-RECT_GAP_SPACING_,-CIRCLE_RADIUS_-RECT_GAP_SPACING_,(CIRCLE_RADIUS_+RECT_GAP_SPACING_)*2.,(CIRCLE_RADIUS_+RECT_GAP_SPACING_)*2.));
+    //scene->addItem(sceneRect);
+
     int numbblock=0;
     //使用QPainterPath来绘制
     for (int i=0;i<distributId;i++) {
         //如果对应的id号已经在被删除对象的集合中，则不做任何操作。
         if(deletedObjId.find(i)!=deletedObjId.end())continue;
-        gphitem=new SubGphItem;
+        //gphitem=new SubGphItem;
         gphitem=gradientArc(CIRCLE_RADIUS_,360./aliveObj*numbblock,360./aliveObj-CIRCLE_GAP_SPACING_,CIRCLE_WIDTH_);
         ++numbblock;
         connect(gphitem,SIGNAL(addGphItem(const QMimeData*,QPushButton*)),this,SLOT(slotAddItem(const QMimeData *,QPushButton*)));
@@ -112,27 +123,19 @@ void Panelchild::buildArcPanel()
         m_list[i]=subPanelObj;
         subPanelObj->setSubGphItemText(strobjname);
         scene->addItem(gphitem);
-    }
-    if(m_list[maxNumberBlock]&&m_list[maxNumberBlock]->isbuild())
-    {
-        scene->addItem(m_list[maxNumberBlock]->getGphItem());
-        return;
-    }
+    } 
     //中间圆形面板的初始化
-    gphitem=new SubGphItem;
+    //gphitem=new SubGphItem;
     gphitem=gradientArc(CIRCLE_RADIUS_-CIRCLE_RADIUS_/2,0,360,CIRCLE_RADIUS_-CIRCLE_RADIUS_/2);
     //不应该设有交换功能以及增添功能
     //connect(gphitem,SIGNAL(addGphItem(const QMimeData*)),this,SLOT(slotAddItem(const QMimeData *)));
     connect(gphitem,SIGNAL(removeGphItem(const QMimeData*)),this,SLOT(slotRemoveItem(const QMimeData *)));
     //connect(gphitem,SIGNAL(exchangeGphItem(const QString,const QMimeData*)),this,SLOT(slotExchangeItem(const QString, const QMimeData* )));
-    SubPanelObj* subPanelObj=new SubPanelObj;
-    subPanelObj->setGphItem(gphitem);
-    subPanelObj->setDeleteObj(true);
-    QString strobjname=QString("Obj: %1").arg(maxNumberBlock);
-    QString strpalname=QString("Pal: %1").arg(maxNumberBlock);
-    subPanelObj->setObjectName(strobjname);
-    subPanelObj->setPanelObjName(strpalname);
-    m_list[maxNumberBlock]=subPanelObj;
+    backgroundSubPanel->setGphItem(gphitem);
+    QString strpalname = QString("Pal: %1").arg(maxNumberBlock);
+    backgroundSubPanel->setPanelObjName(strpalname);
+    
+
     scene->addItem(gphitem);
 }
 
@@ -189,6 +192,8 @@ void Panelchild::dragEnterEvent(QDragEnterEvent *event)
 }
 
 
+
+
 void Panelchild::slotAddItem(const QMimeData *mimeData,QPushButton* linkBtn)
 {
     if(addArcPanel(mimeData,linkBtn)&&aliveObj<maxNumberBlock)
@@ -242,3 +247,13 @@ void Panelchild::slotExchangeItem(const QString objName, const QMimeData *mimeDa
 
     this->update();
 }
+
+//void Panelchild::slotIsSelected(SubGphItem* item)
+//{
+//    for (auto m_list_iter = m_list.begin(); m_list_iter != m_list.end(); ++m_list_iter)
+//    {
+//        if (m_list_iter.value()->getGphItem() == item)
+//        {
+//            //m_list_iter.value()->set
+//        }
+//}

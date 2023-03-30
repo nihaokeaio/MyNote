@@ -22,7 +22,8 @@ SubGphItem::SubGphItem(QGraphicsPathItem *parent) : QGraphicsPathItem(parent)
     this->setFlag(QGraphicsItem::ItemIsFocusable,true);
     //\图形处于ACTIVE状态才能获得焦点
     this->setActive(true);
-
+    this->setSelected(true);
+    //this->setFlag(QGraphicsItem::ItemIsMovable);
     QRadialGradient gradient(0,0,100);
     gradient.setColorAt(0,Qt::white);
     gradient.setColorAt(1.0,qRgb(200,200,0));
@@ -40,6 +41,7 @@ void SubGphItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
         //    pen.setColor(Qt::red);
         //    this->setPen(pen);
         //    qDebug()<<QString("subgphitem LeftButton Press");
+
        }
 //        if(event->button()==Qt::RightButton)
 //        {
@@ -49,8 +51,8 @@ void SubGphItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 //            qDebug()<<QString("subgphitem RightButton Press");
 //        }
     }
-
-
+   event->accept();
+   QGraphicsPathItem::mousePressEvent(event);
 }
 
 void SubGphItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
@@ -78,7 +80,8 @@ void SubGphItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
             if (distance >= QApplication::startDragDistance())
                 performDrag();
         }
-        QGraphicsPathItem::mouseMoveEvent(event);
+    event->accept();
+    QGraphicsPathItem::mouseMoveEvent(event);
 }
 
 void SubGphItem::performDrag()
@@ -118,16 +121,18 @@ void SubGphItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
             }
         }
     }
+    event->accept();
 }
 
 void SubGphItem::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
 {
-    qDebug()<<"isPanel:"<<this->isPanel();
+    /*qDebug()<<"isPanel:"<<this->isPanel();
     qDebug()<<"isSelected:"<<this->isSelected();
     qDebug()<<"isWidget:"<<this->isWidget();
     qDebug()<<"isActive:"<<this->isActive();
     qDebug()<<"hasFocus:"<<this->hasFocus();
-    qDebug()<<"isUnderMouse:"<<this->isUnderMouse();
+    qDebug()<<"isUnderMouse:"<<this->isUnderMouse();*/
+    event->accept();
 }
 
 void SubGphItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
@@ -138,18 +143,21 @@ void SubGphItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
     this->setBrush(gradient);
     btnFuncIsVaild_=false;
     this->clearFocus();
+    //qDebug() << "SubGphItem::hoverLeaveEvent run";
+    event->accept();
     QGraphicsItem::hoverLeaveEvent(event);
 }
 
 void SubGphItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 {
+    //qDebug() << "SubGphItem::hoverEnterEvent run";
     btnFuncIsVaild_=true;
     QRadialGradient gradient(0,0,100);
     gradient.setColorAt(0,Qt::white);
     gradient.setColorAt(1.0,qRgb(100,100,0));
     this->setBrush(gradient);
     //\获得焦点
-    this->setFocus();
+    event->accept();
     QGraphicsItem::hoverEnterEvent(event);
 }
 
@@ -191,7 +199,8 @@ void SubGphItem::dropEvent(QGraphicsSceneDragDropEvent *event)
         QPushButton* linkBtn=qobject_cast<QPushButton*>(event->source());
         emit addGphItem(mimeData,linkBtn);
     }
-
+    qDebug() << "SubGphItem focus:" << this->focusItem();
+    this->setFocus();
     isDraging_=false;
 
 }
@@ -199,25 +208,31 @@ void SubGphItem::dropEvent(QGraphicsSceneDragDropEvent *event)
 void SubGphItem::dragEnterEvent(QGraphicsSceneDragDropEvent *event)
 {
     event->acceptProposedAction();
+    event->accept();
 }
 
 void SubGphItem::keyPressEvent(QKeyEvent *event)
 {
-
-}
-
-void SubGphItem::keyReleaseEvent(QKeyEvent *event)
-{
-    if(event->key()==Qt::Key_Alt)
+    if (event->key() == Qt::Key_C)
     {
-        qDebug()<<"run button"<<this->objectName();
-        if(linkBtn_&&btnFuncIsVaild_)
-        {
-            linkBtn_->click();
-            //linkBtn_->isChecked();
-        }
+        qDebug() << "Key_C SubGphItem " << this->focusItem();
     }
+    QGraphicsPathItem::keyPressEvent(event);
 }
+
+//void SubGphItem::keyReleaseEvent(QKeyEvent *event)
+//{
+//    if(event->key()==Qt::Key_Alt)
+//    {
+//        qDebug()<<"run button"<<this->objectName();
+//        if(linkBtn_&&btnFuncIsVaild_)
+//        {
+//            linkBtn_->click();
+//            //linkBtn_->isChecked();
+//        }
+//    }
+//    QGraphicsPathItem::keyReleaseEvent(event);
+//}
 
 void SubGphItem::setTextPos(const QPointF &pos)
 {
@@ -302,7 +317,8 @@ QPushButton *SubGphItem::getLinkBtn()
 //    return subgphitem;
 //}
 
-//void SubGphItem::paintEvent(QPaintEvent *p)
-//{
-//    setGradientArc(radius_,startAngle_,spanAngle_,arcHeight_,color_);
-//}
+void SubGphItem::paintEvent(QPaintEvent *p)
+{
+    //setGradientArc(radius_,startAngle_,spanAngle_,arcHeight_,color_);
+    qDebug() << "SubGphItem::paintEvent run";
+}

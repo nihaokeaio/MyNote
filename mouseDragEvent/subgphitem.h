@@ -3,6 +3,7 @@
 
 #include <QGraphicsPathItem>
 #include <QObject>
+#include <qwidget.h>
 #include <QPaintEvent>
 #include <QDropEvent>
 #include <QDragEnterEvent>
@@ -44,6 +45,8 @@ signals:
     void removeGphItem(const QMimeData* mimeData);
 
     void exchangeGphItem(const QString objName,const QMimeData* mimeData);
+
+    void signIsSelected(SubGphItem* item);
 protected:
     //鼠标事件
     void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
@@ -67,7 +70,10 @@ protected:
 
     //键盘事件
     void keyPressEvent(QKeyEvent *event) override; //键盘按下事件
-    void keyReleaseEvent(QKeyEvent *event) override; //键盘松开事件
+    //void keyReleaseEvent(QKeyEvent *event) override; //键盘松开事件
+
+    //绘画事件
+    void paintEvent(QPaintEvent* p) ;
 
 public:
     //\文本图样，最终显示在圆盘上的文本对象

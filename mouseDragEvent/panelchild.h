@@ -9,9 +9,11 @@
 #include <QGraphicsView>
 #include <QMap>
 #include <QDropEvent>
+
 #include "panelobj.h"
 #include "dragbutton.h"
 #include "mygraphicsscene.h"
+#include "myview.h"
 #include <QMimeData>
 #include <QSet>
 
@@ -50,6 +52,8 @@ protected:
     void dropEvent(QDropEvent *event);
     virtual void dragEnterEvent(QDragEnterEvent *event);
 
+    
+
 signals:
 
 public slots:
@@ -57,6 +61,7 @@ public slots:
     void slotAddItem(const QMimeData* mimeData,QPushButton*);
     void slotRemoveItem(const QMimeData* mimeData);
     void slotExchangeItem(QString const objName,const QMimeData* mimeData);
+    //void slotIsSelected(SubGphItem* item);
 private:
     //\活着的对象，设置了初始值为2
     int aliveObj;
@@ -84,6 +89,8 @@ private:
 
     //\标识符，每次新分配一个对象机会得到一个新的标识符，不递减
     int distributId;
+
+    SubPanelObj* backgroundSubPanel;
 
 };
 

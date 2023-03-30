@@ -15,23 +15,9 @@ Widget::Widget(QWidget *parent) :
     this->setWindowFlags(Qt::FramelessWindowHint);
     this->setAttribute(Qt::WA_TranslucentBackground);
     this->resize(600, 800);
+    
     QVBoxLayout* vlayout=new QVBoxLayout(this);
-    QPushButton* addButton=new QPushButton;
-    addButton->setText("addButton");
-    addButton->setObjectName("addButton");
-    addButton->setCheckable(true);
-    addButton->setChecked(false);
-    
-
-    QPushButton* subButton=new QPushButton;
-    subButton->setText("subButton");
-    subButton->setObjectName("subButton");
-    subButton->setCheckable(true);
-    subButton->setChecked(false);
-    
-
-    vlayout->addWidget(addButton);
-    vlayout->addWidget(subButton); 
+   
     QPushButton* button=new QPushButton;
     button->setObjectName("NHKAO");
     button->setText("NHKAO");
@@ -39,11 +25,8 @@ Widget::Widget(QWidget *parent) :
     button->setChecked(false);
     this->setTabletTracking(true);
     childPanel=new Panelchild;
-    
 
     button->installEventFilter(this);
-    addButton->installEventFilter(this);
-    subButton->installEventFilter(this);;
 
     label= new QLabel;
     label->setText("yaho");
@@ -54,8 +37,9 @@ Widget::Widget(QWidget *parent) :
     vlayout->addWidget(label);
 
     link_Btn_.insert(button);
-    link_Btn_.insert(addButton);
-    link_Btn_.insert(subButton);
+
+    childPanel->setVisible(true);
+    
     connect(button,SIGNAL(clicked()),this,SLOT(slotButtonClicked()));
 }
 
@@ -115,6 +99,30 @@ void Widget::slotButtonClicked()
     qDebug()<<label->text();
 }
 
+
+void Widget::keyPressEvent(QKeyEvent* event)
+{
+    if (event->key() == Qt::Key_Alt)
+    {
+        qDebug() << "Key_Alt keyPressEvent before " << this->focusWidget();
+        childPanel->setVisible(true);
+        childPanel->setFocus();
+        qDebug() << "Key_Alt keyPressEvent after " << this->focusWidget();
+    }
+
+    if (event->key() == Qt::Key_C)
+    {
+        qDebug() << "Key_C keyPressEvent before " << this->focusWidget();
+    }
+}
+
+void Widget::keyReleaseEvent(QKeyEvent* event)
+{
+    if (event->key() == Qt::Key_Alt)
+    {
+        childPanel->setVisible(true);
+    }
+}
 
 
 

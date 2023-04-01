@@ -45,21 +45,18 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
-    <Filter Include="t">
-      <UniqueIdentifier>{c09ddf9c-5c28-4b4f-9130-e8648edbc0de}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="panelchild.cpp">
+    <ClCompile Include="ScenePanel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="panelobj.cpp">
+    <ClCompile Include="SubGphObj.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="subgphitem.cpp">
+    <ClCompile Include="SubGphItem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="widget.cpp">
@@ -71,12 +68,15 @@
     <ClCompile Include="myview.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="RoulettePanel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <QtMoc Include="panelchild.h">
+    <QtMoc Include="ScenePanel.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="panelobj.h">
+    <QtMoc Include="SubGphObj.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="widget.h">
@@ -85,10 +85,13 @@
     <QtMoc Include="mygraphicsscene.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="subgphitem.h">
+    <QtMoc Include="SubGphItem.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="myview.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="RoulettePanel.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

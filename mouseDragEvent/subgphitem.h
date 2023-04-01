@@ -70,7 +70,7 @@ protected:
 
     //键盘事件
     void keyPressEvent(QKeyEvent *event) override; //键盘按下事件
-    //void keyReleaseEvent(QKeyEvent *event) override; //键盘松开事件
+    void keyReleaseEvent(QKeyEvent *event) override; //键盘松开事件
 
     //绘画事件
     void paintEvent(QPaintEvent* p) ;

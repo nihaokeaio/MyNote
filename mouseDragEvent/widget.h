@@ -3,11 +3,8 @@
 
 #include <QWidget>
 #include <QLabel>
-#include <QSet>
-
 #include <QPushButton>
-#include <QKeyEvent>
-#include "panelchild.h"
+#include "RoulettePanel.h"
 
 namespace Ui {
 class Widget;
@@ -21,29 +18,15 @@ public:
     explicit Widget(QWidget *parent = nullptr);
     virtual ~Widget();
 
-
-
 protected:
-    bool eventFilter(QObject* o,QEvent* e);
-    void performDrag(QWidget* widget);
-
-    //键盘事件
-    void keyPressEvent(QKeyEvent* event) override; //键盘按下事件
-    void keyReleaseEvent(QKeyEvent* event) override; //键盘松开事件
+   
 
 private:
     Ui::Widget *ui;
 
-    //\圆盘对象指针
-    Panelchild* childPanel;
-
     QLabel* label;
 
-    //\用于计算拖拽事件是否发生
-    QPoint dragStartPostion_;
-
-    //\用于添加需要生成鼠标拖事件的按钮，即可拖拽添加的按钮
-    QSet<QPushButton*>link_Btn_;
+    RoulettePanel* roulettePanel;
 
 public slots:
     void slotButtonClicked();

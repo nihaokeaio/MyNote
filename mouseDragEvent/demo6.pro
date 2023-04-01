@@ -25,16 +25,22 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++11
 
 SOURCES += \
+        MyGraphicsScene.cpp \
+        MyGraphicsView.cpp \
         main.cpp \
-        panelchild.cpp \
-        panelobj.cpp \
-        subgphitem.cpp \
+        RoulettePanel.cpp \
+        ScenePanel.cpp \
+        SubGphItem.cpp \
+        SubGphObj.cpp \
         widget.cpp
 
 HEADERS += \
-        panelchild.h \
-        panelobj.h \
-        subgphitem.h \
+        MyGraphicsScene.h \
+        MyGraphicsView.h \
+        RoulettePanel.h \
+        ScenePanel.h \
+        SubGphItem.h \
+        SubGphObj.h \
         widget.h
 
 FORMS += \

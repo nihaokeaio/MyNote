@@ -23,14 +23,33 @@ Widget::Widget(QWidget *parent) :
     ui(new Ui::Widget)
 {
     ui->setupUi(this);
-    ui->selectFileBtn->setText("拖入订单文件夹或PathLocator.json");
+    this->setObjectName("UP3DLinkOrder");
+    ui->selectFileBtn->setText("拖入订单文件夹或PathLocator.json文件");
     ui->startBtn->setText("启动订单");
 
-    //this->setAcceptDrops(true);
-    ui->showFileText->setAcceptDrops(true);
+    this->setAcceptDrops(true);
+    ui->showFileText->setAcceptDrops(false);
+    ui->showFileText->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    //ui->showStatusLabel->setVisible(true);
+    ui->showStatusLabel->setText("");
+    this->setWindowTitle("UP3DLinkOrderStarter.exe");
+    this->setWindowFlags(this->windowFlags()&~Qt::WindowMinMaxButtonsHint|Qt::WindowMinimizeButtonHint);
+    this->setFixedSize(700,120);
 
-    ui->showFileText->installEventFilter(this);
+    //这是在Qt的资源下的文件,可以不用在资源下
+    QFile file(":/qss/style.qss");
+    //只读方式打开文件
+    file.open(QFile::ReadOnly);
+    //读取文件的所有内容，并转换成QString类型
+    QString styleSheet = tr(file.readAll());
+    //当前窗口设置样式表
+    this->setStyleSheet(styleSheet);
+    qDebug()<<"this objectname:"<<this->objectName();
+
+
+
 }
+
 
 Widget::~Widget()
 {
@@ -56,10 +75,14 @@ void Widget::on_selectFileBtn_clicked()
 
     disconnect(button,SIGNAL(accepted()),dialag,SLOT(accept()));
     connect(button,SIGNAL(accepted()),dialag,SLOT(slotMyAccept()));
-    //connect(button,SIGNAL(accepted()),dialag,SLOT(slotMyAccept()));
     if(dialag->exec()==QDialog::Accepted)
     {
         QStringList list=dialag->selectedFiles();
+        if(list.size()!=1)
+        {
+            ui->showStatusLabel->setText("请选择一个订单");
+            return;
+        }
         ui->showFileText->setText(list[0]);
     }
 
@@ -77,7 +100,7 @@ void Widget::on_startBtn_clicked()
             filePath+="/PathLocator.json";
         }
         fileInfo=QFileInfo(filePath);
-        if(fileInfo.exists())
+        if(fileInfo.exists()&&fileInfo.suffix()=="json")
         {
             qDebug()<<filePath;
             qDebug()<<"Open success";
@@ -105,7 +128,19 @@ void Widget::on_startBtn_clicked()
             paramList << "uplinkLanguage=chinese";
 
             //process->startDetached("E:/Bin/QQ.exe",paramList);
-            process->startDetached(path, paramList);
+            ui->showStatusLabel->setText("订单启动中，请稍后...");
+            if(process->startDetached(path, paramList))
+            {
+                ui->showStatusLabel->setText("订单启动成功");
+            }
+            else
+            {
+                ui->showStatusLabel->setText("订单启动失败");
+            }
+        }
+        else
+        {
+            ui->showStatusLabel->setText("未找到订单相应的PathLocator.json文件");
         }
     }
 }
@@ -131,7 +166,7 @@ void Widget::getOrderPath(const QString& jsonPath)
 
     QJsonDocument jsonDoc(newJsonObj);
     QByteArray data = jsonDoc.toJson();
-    QFile file = QDir::toNativeSeparators(absoluteDir) + "\\PathLocator.json";
+    QFile file(QDir::toNativeSeparators(absoluteDir) + "\\PathLocator.json");
     bool ok = file.open(QIODevice::WriteOnly);
     if (ok)
     {
@@ -141,6 +176,7 @@ void Widget::getOrderPath(const QString& jsonPath)
     else
     {
         qDebug() << "write error";
+        ui->showStatusLabel->setText("写入订单文件PathLocator.json失败");
     }
 
 }
@@ -163,7 +199,7 @@ void Widget::createUpLinkJson(const QString& jsonPath)
     QJsonDocument jsonDoc(newJsonObj);
     QByteArray data = jsonDoc.toJson();
     const QString fileName=absoluteDir +"\\UPLink.json";
-    QFile file = fileName;
+    QFile file(fileName);
     bool ok = file.open(QIODevice::WriteOnly);
     if (ok)
     {
@@ -173,38 +209,45 @@ void Widget::createUpLinkJson(const QString& jsonPath)
     else
     {
         qDebug() << "write error";
+        ui->showStatusLabel->setText("创建订单文件UPLink.json失败");
     }
 
 }
 
-bool Widget::eventFilter(QObject* obj, QEvent* e)
+void Widget::dropEvent(QDropEvent *event)
 {
-    if (obj == ui->showFileText)
-    {
-        if (e->type() == QEvent::Drop)
-        {
-            QDropEvent* event = static_cast<QDropEvent*>(e);
-            QList<QUrl>urlList = event->mimeData()->urls();
-            if (urlList.empty()) {
-                return false;
-            }
-            QString textPath = urlList.first().toLocalFile();
-            qDebug() << "原始路径:" << urlList.first(); 
-            qDebug() << "处理后路径:" << textPath;
-        }
+    QList<QUrl>urlList = event->mimeData()->urls();
+    if (urlList.size()!=1) {
+        return;
     }
+    ui->showFileText->clear();
+    QString textPath = urlList.first().toLocalFile();
+    qDebug() << "原始路径:" << urlList.first();
+    qDebug() << "处理后路径:" << textPath;
+    ui->showFileText->setText(textPath);
+}
 
-
-    return false;
+void Widget::dragEnterEvent(QDragEnterEvent *event)
+{
+    if(event->mimeData()->hasUrls())
+    {
+        event->acceptProposedAction();
+    }
+    else
+    {
+        event->ignore();
+    }
 }
 
 
+void Widget::on_showFileText_textChanged()
+{
+    ui->showStatusLabel->clear();
+}
 
-
-
-
-
-
-
-
+void Widget::dragExeEvent(const QString fileName)
+{
+    ui->showFileText->setText(fileName);
+    on_startBtn_clicked();
+}
 

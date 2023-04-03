@@ -25,8 +25,8 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++11
 
 SOURCES += \
+        MyFileDialog.cpp \
         main.cpp \
-        myfiledialog.cpp \
         widget.cpp
 
 HEADERS += \
@@ -40,3 +40,8 @@ FORMS += \
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+RESOURCES += \
+    images.qrc \
+    style.qrc
+

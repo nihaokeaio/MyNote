@@ -1,0 +1,52 @@
+/*按钮普通态*/
+QPushButton#startBtn,
+QPushButton#selectFileBtn
+{
+    /*字体为微软雅黑*/
+    font-family:Microsoft Yahei;
+    /*字体大小为14点*/
+    font-size:14pt;
+    /*字体颜色为白色*/    
+    color:white;
+    /*背景颜色*/  
+    background-color:rgb(14 , 150 , 254);
+    /*边框圆角半径为8像素*/ 
+    border-radius:8px;
+}
+
+QPushButton#selectFileBtn
+{
+    font-size:8pt;
+}
+
+/*按钮停留态*/
+QPushButton#startBtn:hover
+{
+    /*背景颜色*/  
+    background-color:rgb(114, 192, 11);
+}
+
+/*按钮按下态*/
+QPushButton#startBtn:pressed
+{
+    /*背景颜色*/  
+    background-color:rgb(196, 209, 13);
+    /*左内边距为3像素，让按下时字向右移动3像素*/  
+    padding-left:3px;
+    /*上内边距为3像素，让按下时字向下移动3像素*/  
+    padding-top:3px;
+}
+
+QLabel#showStatusLabel
+{
+    /**/
+}
+
+
+QWidget#UP3DLinkOrder
+{
+    
+    /* background:transparent; */
+	background-image:url(qrc:/images/background.png);
+	
+}

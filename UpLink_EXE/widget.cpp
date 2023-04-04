@@ -24,17 +24,19 @@ Widget::Widget(QWidget *parent) :
 {
     ui->setupUi(this);
     this->setObjectName("UP3DLinkOrder");
-    ui->selectFileBtn->setText("拖入订单文件夹或PathLocator.json文件");
+    ui->selectFileBtn->setText("请选择订单文件");
     ui->startBtn->setText("启动订单");
 
     this->setAcceptDrops(true);
     ui->showFileText->setAcceptDrops(false);
     ui->showFileText->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    //ui->showStatusLabel->setVisible(true);
     ui->showStatusLabel->setText("");
-    this->setWindowTitle("UP3DLinkOrderStarter.exe");
-    this->setWindowFlags(this->windowFlags()&~Qt::WindowMinMaxButtonsHint|Qt::WindowMinimizeButtonHint);
-    this->setFixedSize(700,120);
+
+    this->setWindowTitle("UP3DLinkOrderStarter");
+    QIcon icon(":/images/icon.ico");
+    this->setWindowIcon(icon);
+    this->setWindowFlags(Qt::CustomizeWindowHint|Qt::WindowCloseButtonHint|Qt::WindowMinimizeButtonHint);
+    this->setFixedSize(550,115);
 
     //这是在Qt的资源下的文件,可以不用在资源下
     QFile file(":/qss/style.qss");
@@ -102,6 +104,7 @@ void Widget::on_startBtn_clicked()
         fileInfo=QFileInfo(filePath);
         if(fileInfo.exists()&&fileInfo.suffix()=="json")
         {
+            ui->showStatusLabel->setText("订单启动中，请稍后...");
             qDebug()<<filePath;
             qDebug()<<"Open success";
             getOrderPath(filePath);
@@ -127,8 +130,8 @@ void Widget::on_startBtn_clicked()
             paramList << "orderSource = UPLink";
             paramList << "uplinkLanguage=chinese";
 
-            //process->startDetached("E:/Bin/QQ.exe",paramList);
-            ui->showStatusLabel->setText("订单启动中，请稍后...");
+
+
             if(process->startDetached(path, paramList))
             {
                 ui->showStatusLabel->setText("订单启动成功");

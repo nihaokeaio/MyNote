@@ -1,6 +1,5 @@
 /*按钮普通态*/
-QPushButton#startBtn,
-QPushButton#selectFileBtn
+QPushButton#startBtn
 {
     /*字体为微软雅黑*/
     font-family:Microsoft Yahei;
@@ -11,42 +10,81 @@ QPushButton#selectFileBtn
     /*背景颜色*/  
     background-color:rgb(14 , 150 , 254);
     /*边框圆角半径为8像素*/ 
-    border-radius:8px;
+    border-radius:6px;
+
+    max-width: 120 px;
+    min-width: 120 px;
+    max-height: 25 px;
+    min-height: 25 px;
 }
 
 QPushButton#selectFileBtn
 {
-    font-size:8pt;
+    /*字体为微软雅黑*/
+    font-family:Microsoft Yahei;
+    /*字体大小为14点*/
+    font-size:12pt;
+    /*字体颜色为白色*/    
+    color:white;
+    /*背景颜色*/  
+    background-color:rgb(14 , 150 , 254);
+    /*边框圆角半径为8像素*/ 
+    border-radius: 6px;
+
+    max-width: 140 px;
+    min-width: 140 px;
+    max-height: 25 px;
+    min-height: 25 px;
 }
 
 /*按钮停留态*/
-QPushButton#startBtn:hover
+QPushButton#startBtn:hover,
+QPushButton#selectFileBtn:hover
 {
     /*背景颜色*/  
-    background-color:rgb(114, 192, 11);
+    background-color:rgb(8, 87, 235);
 }
 
 /*按钮按下态*/
-QPushButton#startBtn:pressed
+QPushButton#startBtn:pressed,
+QPushButton#selectFileBtn
 {
     /*背景颜色*/  
-    background-color:rgb(196, 209, 13);
-    /*左内边距为3像素，让按下时字向右移动3像素*/  
-    padding-left:3px;
-    /*上内边距为3像素，让按下时字向下移动3像素*/  
-    padding-top:3px;
+    background-color:rgb(8, 87, 235);
+    /*左内边距为1像素，让按下时字向右移动3像素*/  
+    padding-left:1px;
+    /*上内边距为1像素，让按下时字向下移动3像素*/  
+    padding-top:1px;
 }
 
-QLabel#showStatusLabel
+QLabel#showStatusLabel,
+QTextEdit#showFileText
 {
-    /**/
+    font-family:Microsoft Yahei;  
 }
 
+QWidget#title
+{
+    background-color: rgb(85, 170, 255);
+}
 
 QWidget#UP3DLinkOrder
 {
-    
-    /* background:transparent; */
-	background-image:url(qrc:/images/background.png);
-	
+    border:2px solid rgb(85, 170, 255);
+    background-color: rgb(115, 182, 209);
+}
+
+QLabel#label
+{
+    border:0px
+}
+QPushButton#pushButton
+{
+    border:0px
+}
+
+QWidget#verticalLayoutWidget
+{
+    /* border-image:url(":/images/background.png") ; */
+    /* background: rgba(255, 0, 0, 0.3); */
 }

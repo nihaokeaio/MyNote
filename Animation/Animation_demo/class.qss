@@ -1,0 +1,30 @@
+QLabel
+{
+    /*字体为微软雅黑*/
+    font-family:Microsoft Yahei;
+    /*字体大小为20点*/
+    font-size:60pt;
+    /* 设置字体对齐方式 */
+    text-align: center center;
+    /*字体颜色为白色*/    
+    color:rgb(0, 0, 0);
+    /*背景颜色*/  
+    background-color:rgb(84, 178, 250);
+    /* background: transparent; */
+    /*边框圆角半径为8像素*/ 
+    border-radius:8px;
+}
+
+QLabel#labelUnderline
+{
+    /*字体为微软雅黑*/
+    font-family:Microsoft Yahei;
+    /*字体大小为20点*/
+    font-size:40pt;
+    /*字体颜色为白色*/
+    color:white;
+    /*背景颜色*/
+    background-color:rgb(0, 0, 0);
+    /*边框圆角半径为8像素*/
+    border-radius:4px;
+}

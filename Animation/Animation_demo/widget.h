@@ -2,6 +2,11 @@
 #define WIDGET_H
 
 #include <QWidget>
+#include <QPropertyAnimation>
+#include <QGraphicsOpacityEffect>
+#include <QSequentialAnimationGroup>
+#include <QParallelAnimationGroup>
+#include <QAnimationGroup>
 
 namespace Ui {
 class Widget;
@@ -14,8 +19,8 @@ class Widget : public QWidget
 public:
     explicit Widget(QWidget *parent = nullptr);
     ~Widget();
-    void moveUp(QWidget* widget);
-    void fadeAway(QWidget* widget);
+    QPropertyAnimation* moveUp(QWidget* widget);
+    QPropertyAnimation* fadeAway(QWidget* widget,bool Direction,int costTime,qreal startValue,qreal endValue);
 private:
     Ui::Widget *ui;
 };

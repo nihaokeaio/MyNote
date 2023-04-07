@@ -2,8 +2,7 @@
 #include "ui_widget.h"
 #include <QFile>
 #include <QDebug>
-#include <QPropertyAnimation>
-#include <QGraphicsOpacityEffect>
+
 
 Widget::Widget(QWidget *parent) :
     QWidget(parent),
@@ -32,7 +31,7 @@ Widget::Widget(QWidget *parent) :
     ui->label_LeftButtom->setText("");
     ui->label_RightUp->setText("0");
     ui->label_RightMid->setText("1");
-    ui->label_RightButtom->setText("");
+    ui->label_RightButtom->setText("2");
 
     ui->labelUnderline->setText("");
 
@@ -40,6 +39,8 @@ Widget::Widget(QWidget *parent) :
     ui->label_LeftMid->setAlignment(Qt::AlignHCenter);
     ui->label_RightUp->setAlignment(Qt::AlignHCenter);
     ui->label_RightMid->setAlignment(Qt::AlignHCenter);
+    ui->label_LeftButtom->setAlignment(Qt::AlignHCenter);
+    ui->label_RightButtom->setAlignment(Qt::AlignHCenter);
 
     qDebug()<<ui->label_LeftUp->pos();
     qDebug()<<ui->label_LeftMid->mapToGlobal(ui->label_LeftMid->pos());
@@ -54,11 +55,17 @@ Widget::Widget(QWidget *parent) :
     this->setStyleSheet(styleSheet);
     qDebug()<<"this objectname:"<<this->objectName();
 
-    moveUp(ui->label_RightUp);
-    moveUp(ui->label_RightMid);
+    QPropertyAnimation* AnimalRightUpMove=moveUp(ui->label_RightUp);
+    QPropertyAnimation* AnimalRightMidMove=moveUp(ui->label_RightMid);
+    QPropertyAnimation* AnimalRightButtomMove=moveUp(ui->label_RightButtom);;
 
-    fadeAway(ui->label_RightUp);
+    int costTime=200;
+    QPropertyAnimation* AnimalRightUpFade=fadeAway(ui->label_RightUp,true,costTime,1,0.1);
+    QPropertyAnimation* AnimalRightButtomFade=fadeAway(ui->label_RightButtom,true,costTime,0,0.1);
     //fadeAway(ui->label_RightMid);
+
+    QSequentialAnimationGroup* animalGroupFirst=new QSequentialAnimationGroup;
+
 
 
 
@@ -71,12 +78,12 @@ Widget::~Widget()
     delete ui;
 }
 
-void Widget::moveUp(QWidget *widget)
+QPropertyAnimation* Widget::moveUp(QWidget *widget)
 {
     QPropertyAnimation* pAnimationAlpha=new QPropertyAnimation();
     pAnimationAlpha->setTargetObject(widget);
     pAnimationAlpha->setPropertyName("geometry");
-    pAnimationAlpha->setDuration(1000);
+    pAnimationAlpha->setDuration(300);
 
     pAnimationAlpha->setStartValue(QRect(widget->pos().x(), widget->pos().y(), widget->width(), widget->height()));
 
@@ -85,7 +92,7 @@ void Widget::moveUp(QWidget *widget)
     pAnimationAlpha->start(QAbstractAnimation::DeleteWhenStopped);
 }
 
-void Widget::fadeAway(QWidget *widget)
+QPropertyAnimation* Widget::fadeAway(QWidget *widget,bool Direction,int costTime,qreal startValue,qreal endValue)
 {
     QGraphicsOpacityEffect* my_widgetProcessOpacity;
     my_widgetProcessOpacity=new QGraphicsOpacityEffect(widget);
@@ -96,10 +103,17 @@ void Widget::fadeAway(QWidget *widget)
     pAnimationAlphashow->setParent(widget);
     pAnimationAlphashow->setTargetObject(my_widgetProcessOpacity);
     pAnimationAlphashow->setPropertyName("opacity");
-    pAnimationAlphashow->setDuration(1200);
-    pAnimationAlphashow->setStartValue(1);
-    pAnimationAlphashow->setEndValue(0.1);
-    pAnimationAlphashow->setDirection(QAbstractAnimation::Forward);
+    pAnimationAlphashow->setDuration(costTime);
+    pAnimationAlphashow->setStartValue(startValue);
+    pAnimationAlphashow->setEndValue(endValue);
+    if(Direction)
+    {
+        pAnimationAlphashow->setDirection(QAbstractAnimation::Forward);
+    }
+    else
+    {
+        pAnimationAlphashow->setDirection(QAbstractAnimation::Backward);
+    }
 
     pAnimationAlphashow->setEasingCurve(QEasingCurve::Linear);
     pAnimationAlphashow->start(QAbstractAnimation::DeleteWhenStopped);

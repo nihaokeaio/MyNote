@@ -25,9 +25,16 @@ public:
     QPropertyAnimation* moveDown(QWidget *widget,qreal span,int costTime);
     template< typename T>
     void swapWidget(T lWidget,T rWidget);
+
+    void reloadAnimation(QParallelAnimationGroup* animalGroupFirst);
 private:
     Ui::Widget *ui;
     int movex=350,movey=300,spaceGap=5;
+
+    int costMoveTime=300;
+    int costFadeTime=200;
+    int costBlockTime=costMoveTime/3+10;
+    QPropertyAnimation* AnimalRightBlock;
 
 };
 

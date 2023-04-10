@@ -76,42 +76,23 @@ Widget::Widget(QWidget *parent) :
     this->setStyleSheet(styleSheet);
     qDebug()<<"this objectname:"<<this->objectName();
 
-    int costMoveTime=300;
-    int costFadeTime=200;
-    int costBlockTime=costMoveTime/3+10;
+
 
     QParallelAnimationGroup* animalGroupFirst=new QParallelAnimationGroup;
 
 //    [&]()mutable{
-        QPropertyAnimation* AnimalRightUpMove=moveUp(ui->label_RightUp,ui->label_RightUp->width()+spaceGap,costMoveTime/3);
-        QPropertyAnimation* AnimalRightMidMove=moveUp(ui->label_RightMid,ui->label_RightMid->width()+spaceGap,costMoveTime);
-        QPropertyAnimation* AnimalRightButtomMove=moveUp(ui->label_RightButtom,ui->label_RightButtom->width()+spaceGap,costMoveTime);
 
-        QPropertyAnimation* AnimalRightUpFade=fadeAway(ui->label_RightUp,true,costFadeTime/2,0.1,0.0);
-        QPropertyAnimation* AnimalRightMidFade=fadeAway(ui->label_RightMid,true,costFadeTime,1,0.1);
-        QPropertyAnimation* AnimalRightButtomFade=fadeAway(ui->label_RightButtom,true,costFadeTime,0.1,1);
-
-        animalGroupFirst->addAnimation(AnimalRightUpMove);
-        animalGroupFirst->addAnimation(AnimalRightMidMove);
-        animalGroupFirst->addAnimation(AnimalRightButtomMove);
-
-        animalGroupFirst->addAnimation(AnimalRightUpFade);
-        animalGroupFirst->addAnimation(AnimalRightMidFade);
-        animalGroupFirst->addAnimation(AnimalRightButtomFade);
 
 //        animalGroupFirst->start(QAbstractAnimation::DeleteWhenStopped);
 //    };
     //QPropertyAnimation* AnimalRightUpMove=moveUp(ui->label_RightUp,ui->label_RightUp->width()+spaceGap,costMoveTime/3);
 
 
+    this->reloadAnimation(animalGroupFirst);
 
 
 
 
-    QPropertyAnimation* AnimalRightBlock=new QPropertyAnimation;
-    AnimalRightBlock->setDuration(costBlockTime);
-
-    animalGroupFirst->addAnimation(AnimalRightBlock);
 
 
 
@@ -150,18 +131,33 @@ Widget::Widget(QWidget *parent) :
     animalGroupRight->addAnimation(AnimalRightGroupBlock);
 //    animalGroupRight->addAnimation(AnimalRightUpMoveSecond);
     //animalGroupRight->addAnimation(AnimalRightUpFadeSecond);
-    animalGroupRight->setLoopCount(2);
-    animalGroupRight->start(QAbstractAnimation::DeleteWhenStopped);
+    //animalGroupRight->setLoopCount(1);
+    animalGroupRight->start();
 
     static int count=0;
 
-    connect(animalGroupRight,&QSequentialAnimationGroup::currentAnimationChanged,this,[=]{
+    connect(animalGroupRight,&QSequentialAnimationGroup::finished,this,[&]{
         qDebug()<<animalGroupRight->duration()<<animalGroupRight->currentAnimation();
         qDebug()<<"animalGroupRight RightUp : "<<ui->label_RightUp->pos() << ui->label_RightUp->text() << ui->label_RightUp;
         qDebug()<<"animalGroupRight RightMid : "<<ui->label_RightMid->pos() << ui->label_RightMid->text()<< ui->label_RightMid;
         qDebug()<<"animalGroupRight RightButtom : "<<ui->label_RightButtom->pos() << ui->label_RightButtom->text()<< ui->label_RightButtom;
+        animalGroupRight->clear();
+
+        QParallelAnimationGroup* animalGroupFirst=new QParallelAnimationGroup;
+        this->reloadAnimation(animalGroupFirst);
+
+        AnimalRightGroupBlock=new QPropertyAnimation;
+        AnimalRightGroupBlock->setDuration(700);
+        animalGroupRight->addAnimation(animalGroupFirst);
+        animalGroupRight->addAnimation(AnimalRightGroupBlock);
 
         qDebug()<<"hello:"<<count;
+    //    animalGroupRight->addAnimation(AnimalRightUpMoveSecond);
+        //animalGroupRight->addAnimation(AnimalRightUpFadeSecond);
+        //animalGroupRight->setLoopCount(1);
+        animalGroupRight->start();
+
+
     });
 //    connect(animalGroupFirst,&QParallelAnimationGroup::finished,this,[=]{
 //        this->ui->label_RightUp->move(posPoint[5]);
@@ -179,7 +175,7 @@ Widget::Widget(QWidget *parent) :
 //    });
 
     //和动画结束的时间有关，不然对象就会被锁导致无法共享使用
-    connect(AnimalRightBlock,&QParallelAnimationGroup::finished,this,[=]()mutable{
+    connect(AnimalRightBlock,&QPropertyAnimation::finished,this,[=]{
         qDebug()<<"address RightUp : "<<ui->label_RightUp->pos() << ui->label_RightUp->text() << ui->label_RightUp;
         qDebug()<<"old RightUp : "<<ui->label_RightUp->pos();
         this->ui->label_RightUp->move(posPoint[5].x(),posPoint[5].y()+(ui->label_RightUp->height()/2));
@@ -193,7 +189,7 @@ Widget::Widget(QWidget *parent) :
 
     });
 
-    connect(animalGroupFirst,&QParallelAnimationGroup::finished,this,[this]()mutable{
+    connect(animalGroupFirst,&QParallelAnimationGroup::finished,this,[=]{
 //        QLabel* label=this->ui->label_RightUp;
 //        this->ui->label_RightUp=this->ui->label_RightMid;
 //        this->ui->label_RightMid=this->ui->label_RightButtom;
@@ -215,9 +211,9 @@ Widget::Widget(QWidget *parent) :
 
 
         count++;
-        qDebug()<<"RightUp : "<<ui->label_RightUp->pos() << ui->label_RightUp->text();
-        qDebug()<<"RightMid : "<<ui->label_RightMid->pos() << ui->label_RightMid->text();
-        qDebug()<<"RightButtom : "<<ui->label_RightButtom->pos() << ui->label_RightButtom->text();
+        qDebug()<<"RightUp : "<<ui->label_RightUp->pos() << ui->label_RightUp->text()<<ui->label_RightUp;
+        qDebug()<<"RightMid : "<<ui->label_RightMid->pos() << ui->label_RightMid->text()<<ui->label_RightMid;
+        qDebug()<<"RightButtom : "<<ui->label_RightButtom->pos() << ui->label_RightButtom->text()<<ui->label_RightButtom;
 
         qDebug()<<"hello:"<<count;
     });
@@ -295,6 +291,30 @@ QPropertyAnimation* Widget::moveDown(QWidget *widget,qreal span,int costTime)
     return pAnimationAlphashow;
 }
 
+void Widget::reloadAnimation(QParallelAnimationGroup *animalGroupFirst)
+{
+    QPropertyAnimation* AnimalRightUpMove=moveUp(ui->label_RightUp,ui->label_RightUp->width()+spaceGap,costMoveTime/3);
+    QPropertyAnimation* AnimalRightMidMove=moveUp(ui->label_RightMid,ui->label_RightMid->width()+spaceGap,costMoveTime);
+    QPropertyAnimation* AnimalRightButtomMove=moveUp(ui->label_RightButtom,ui->label_RightButtom->width()+spaceGap,costMoveTime);
+
+    QPropertyAnimation* AnimalRightUpFade=fadeAway(ui->label_RightUp,true,costFadeTime/2,0.1,0.0);
+    QPropertyAnimation* AnimalRightMidFade=fadeAway(ui->label_RightMid,true,costFadeTime,1,0.1);
+    QPropertyAnimation* AnimalRightButtomFade=fadeAway(ui->label_RightButtom,true,costFadeTime,0.1,1);
+
+    animalGroupFirst->addAnimation(AnimalRightUpMove);
+    animalGroupFirst->addAnimation(AnimalRightMidMove);
+    animalGroupFirst->addAnimation(AnimalRightButtomMove);
+
+    animalGroupFirst->addAnimation(AnimalRightUpFade);
+    animalGroupFirst->addAnimation(AnimalRightMidFade);
+    animalGroupFirst->addAnimation(AnimalRightButtomFade);
+
+    AnimalRightBlock=new QPropertyAnimation;
+    AnimalRightBlock->setDuration(costBlockTime);
+
+    animalGroupFirst->addAnimation(AnimalRightBlock);
+}
+
 template< typename T>
 void Widget::swapWidget(T lWidget,T rWidget)
 {
@@ -302,18 +322,19 @@ void Widget::swapWidget(T lWidget,T rWidget)
 //    lWidget->setGeometry(rWidget->geometry());
 //    rWidget->setGeometry(lrect);
 //    swap(lWidget,rWidget);
-//    QString temp=lWidget->objectName();
-//    lWidget->setObjectName(rWidget->objectName());
-//    rWidget->setObjectName(temp);
-      qDebug()<<"before address lWidget : "<<lWidget<<"address rWidget : "<<rWidget;
-      qDebug()<<decltype(lWidget);
-      T  temp=lWidget;
+      QString tempObjName=(*lWidget)->objectName();
+      qDebug()<<"before address lWidget : "<<*lWidget<<"address rWidget : "<<*rWidget;
+
+      auto  temp=*lWidget;
       *lWidget=*rWidget;
-      *rWidget=*temp;
+      *rWidget=temp;
       temp=nullptr;
 //      QString temp=static_cast<QLabel*>(lWidget)->text();
 //      static_cast<QLabel*>(rWidget)->setText(static_cast<QLabel*>(rWidget)->text());
 //      static_cast<QLabel*>(rWidget)->setText(temp);
 
-      qDebug()<<"after address lWidget : "<<lWidget<<"address rWidget : "<<rWidget;
+      (*rWidget)->setObjectName((*lWidget)->objectName());
+      (*lWidget)->setObjectName(tempObjName);
+
+      qDebug()<<"after address lWidget : "<<*lWidget<<"address rWidget : "<<*rWidget;
 }

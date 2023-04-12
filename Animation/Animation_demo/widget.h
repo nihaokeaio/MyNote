@@ -8,6 +8,8 @@
 #include <QSequentialAnimationGroup>
 #include <QParallelAnimationGroup>
 #include <QAnimationGroup>
+#include <vector>
+using namespace std;
 
 namespace Ui {
 class Widget;
@@ -26,7 +28,7 @@ public:
     template< typename T>
     void swapWidget(T lWidget,T rWidget);
 
-    void reloadAnimation(QParallelAnimationGroup* animalGroupFirst);
+    void reloadAnimation(QParallelAnimationGroup* animalGroupFirst,const vector<QPoint>&posPoint );
 private:
     Ui::Widget *ui;
     int movex=350,movey=300,spaceGap=5;
@@ -35,6 +37,9 @@ private:
     int costFadeTime=200;
     int costBlockTime=costMoveTime/3+10;
     QPropertyAnimation* AnimalRightBlock;
+
+    QSequentialAnimationGroup* animalGroupRight;
+    int count=0;
 
 };
 

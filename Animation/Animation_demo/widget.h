@@ -9,7 +9,8 @@
 #include <QParallelAnimationGroup>
 #include <QAnimationGroup>
 #include <vector>
-using namespace std;
+
+#include "singleLabel.h"
 
 namespace Ui {
 class Widget;
@@ -22,24 +23,25 @@ class Widget : public QWidget
 public:
     explicit Widget(QWidget *parent = nullptr);
     ~Widget();
-    QPropertyAnimation* moveUp(QWidget* widget,qreal span,int costTime);
-    QPropertyAnimation* fadeAway(QWidget* widget,bool Direction,int costTime,qreal startValue,qreal endValue);
-    QPropertyAnimation* moveDown(QWidget *widget,qreal span,int costTime);
-    template< typename T>
-    void swapWidget(T lWidget,T rWidget);
+//    QPropertyAnimation* moveUp(QWidget* widget,qreal span,int costTime);
+//    QPropertyAnimation* fadeAway(QWidget* widget,bool Direction,int costTime,qreal startValue,qreal endValue);
+//    QPropertyAnimation* moveDown(QWidget *widget,qreal span,int costTime);
+//    template< typename T>
+//    void swapWidget(T lWidget,T rWidget);
 
-    void reloadAnimation(QParallelAnimationGroup* animalGroupFirst,const vector<QPoint>&posPoint );
+//    void reloadAnimation(QParallelAnimationGroup* animalGroupFirst,const vector<QPoint>&posPoint );
 private:
     Ui::Widget *ui;
-    int movex=350,movey=300,spaceGap=5;
+//    int movex=350,movey=300,spaceGap=5;
 
-    int costMoveTime=300;
-    int costFadeTime=200;
-    int costBlockTime=costMoveTime/3+10;
-    QPropertyAnimation* AnimalRightBlock;
+//    int costMoveTime=300;
+//    int costFadeTime=200;
+//    int costBlockTime=costMoveTime/3+10;
 
-    QSequentialAnimationGroup* animalGroupRight;
-    int count=0;
+//    QPropertyAnimation* AnimalRightBlock;
+//    QSequentialAnimationGroup* animalGroupRight;
+//    int count=0;
+    SingleLabel* secondLabel_;
 
 };
 

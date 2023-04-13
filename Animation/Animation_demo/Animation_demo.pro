@@ -26,9 +26,11 @@ CONFIG += c++11
 
 SOURCES += \
         main.cpp \
+        singleLabel.cpp \
         widget.cpp
 
 HEADERS += \
+        singleLabel.h \
         widget.h
 
 FORMS += \

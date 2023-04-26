@@ -41,7 +41,7 @@ private:
 //    QPropertyAnimation* AnimalRightBlock;
 //    QSequentialAnimationGroup* animalGroupRight;
 //    int count=0;
-    SingleLabel* secondLabel_;
+
 
 };
 

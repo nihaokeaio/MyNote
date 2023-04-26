@@ -1,12 +1,15 @@
 #include "singleLabel.h"
 #include <QFile>
 #include <QDebug>
-
+#include <QMutex>
+static QElapsedTimer timedebuge;//声明一个时钟对象
 SingleLabel::SingleLabel(QWidget *parent):QWidget(parent)
 {
     this->topLabel=new QLabel(this);
     this->midLabel=new QLabel(this);
     this->bottomLabel=new QLabel(this);
+
+
 
 
     MoveTime_=300;
@@ -19,7 +22,8 @@ SingleLabel::SingleLabel(QWidget *parent):QWidget(parent)
 
     labelSize_=QRect(topLeftPos_.x(),topLeftPos_.y(),100,100);
 
-    init();
+
+
 }
 
 void SingleLabel::init()
@@ -38,9 +42,9 @@ void SingleLabel::init()
     this->midLabel->move(topLeftPostions[1]);
     this->bottomLabel->move(topLeftPostions[2]);
 
-    this->topLabel->setText("9");
-    this->midLabel->setText("0");
-    this->bottomLabel->setText("1");
+    this->topLabel->setText(QString::number((initNum_.toUInt()-2+maxNum_)%maxNum_));
+    this->midLabel->setText(QString::number((initNum_.toUInt()-1+maxNum_)%maxNum_));
+    this->bottomLabel->setText(QString::number((initNum_.toUInt()+maxNum_)%maxNum_));
 
     QFile file(":/myqss/class.qss");
     //只读方式打开文件
@@ -56,36 +60,51 @@ void SingleLabel::init()
     QSequentialAnimationGroup* animationGroup=new QSequentialAnimationGroup(this);
 
 
-    QPropertyAnimation* AnimalRightGroupBlock=new QPropertyAnimation;
-    AnimalRightGroupBlock->setDuration(700);
+    //QPauseAnimation* AnimalPause=animationGroup->addPause(displayTime_);
+//    AnimalRightGroupBlock->setDuration(displayTime_);
 
 
     animationGroup->addAnimation(animalGroupFirst);
-    animationGroup->addAnimation(AnimalRightGroupBlock);
+    animationGroup->addPause(displayTime_);
 
     animationGroup->start();
 
 
     connect(animationGroup,&QSequentialAnimationGroup::finished,this,[=]{
-        qDebug()<<animationGroup->duration()<<animationGroup->currentAnimation();
-        qDebug()<<"animalGroupRight RightUp : "<<this->topLabel->pos() << this->topLabel->text() << this->topLabel;
-        qDebug()<<"animalGroupRight RightMid : "<<this->midLabel->pos() << this->midLabel->text()<< this->midLabel;
-        qDebug()<<"animalGroupRight RightBottom : "<<this->bottomLabel->pos() << this->bottomLabel->text()<< this->bottomLabel;
+        runCount_--;
+//        qDebug()<<animationGroup->duration()<<animationGroup->currentAnimation();
+//        qDebug()<<"animalGroupRight RightUp : "<<this->topLabel->pos() << this->topLabel->text() << this->topLabel;
+//        qDebug()<<"animalGroupRight RightMid : "<<this->midLabel->pos() << this->midLabel->text()<< this->midLabel;
+//        qDebug()<<"animalGroupRight RightBottom : "<<this->bottomLabel->pos() << this->bottomLabel->text()<< this->bottomLabel;
+        qDebug()<<animationGroup->currentTime();
         animationGroup->clear();
 
         QParallelAnimationGroup* animalGroupFirst=new QParallelAnimationGroup;
         this->reloadAnimation(animalGroupFirst,topLeftPostions);
 
-        QPropertyAnimation* AnimalRightGroupBlock=new QPropertyAnimation;
-        AnimalRightGroupBlock->setDuration(700);
+//        QPropertyAnimation* AnimalRightGroupBlock=new QPropertyAnimation;
+//        AnimalRightGroupBlock->setDuration(displayTime_);
+//        animationGroup->addPause(displayTime_);
         animationGroup->addAnimation(animalGroupFirst);
-        animationGroup->addAnimation(AnimalRightGroupBlock);
+        animationGroup->addPause(displayTime_);
+
+
+        qDebug()<<"第一段程序耗时："<<timedebuge.elapsed()<<"ms "<<this->topLeftPos_;//输出计时
+
 
 //        qDebug()<<"hello:"<<count;
 
-        animationGroup->start();
-
-
+        if(runCount_>0)
+        {
+            animationGroup->start();
+            timedebuge.start();//开始计时
+        }
+        else
+        {
+            this->setopacity(this->topLabel,0.1);
+            this->setopacity(this->midLabel,1);
+            this->setopacity(this->bottomLabel,0.1);
+        }
     });
 
 }
@@ -97,12 +116,12 @@ void SingleLabel::init()
 void SingleLabel::reloadAnimation(QParallelAnimationGroup *AnimaGroup,const std::vector<QPoint>&posPoint)
 {
     QPropertyAnimation* animalTopMove=moveUp(this->topLabel,labelSize_.height()/2+spaceGap_,MoveTime_/3);
-    QPropertyAnimation* animalMidMove=moveUp(this->midLabel,labelSize_.height()+spaceGap_);
-    QPropertyAnimation* animalBottomLabelMove=moveUp(this->bottomLabel,labelSize_.height()+spaceGap_);
+    QPropertyAnimation* animalMidMove=moveUp(this->midLabel,labelSize_.height()+spaceGap_,MoveTime_);
+    QPropertyAnimation* animalBottomLabelMove=moveUp(this->bottomLabel,labelSize_.height()+spaceGap_,MoveTime_);
 
     QPropertyAnimation* AnimalTopFade=fadeAway(this->topLabel,0.1,0.0,FadeTime_/2);
-    QPropertyAnimation* AnimalMidFade=fadeAway(this->midLabel,1,0.1);
-    QPropertyAnimation* AnimalBottomFade=fadeAway(this->bottomLabel,0.1,1);
+    QPropertyAnimation* AnimalMidFade=fadeAway(this->midLabel,1,0.1,FadeTime_);
+    QPropertyAnimation* AnimalBottomFade=fadeAway(this->bottomLabel,0.1,1,FadeTime_);
 
     AnimaGroup->addAnimation(animalTopMove);
     AnimaGroup->addAnimation(animalMidMove);
@@ -112,15 +131,20 @@ void SingleLabel::reloadAnimation(QParallelAnimationGroup *AnimaGroup,const std:
     AnimaGroup->addAnimation(AnimalMidFade);
     AnimaGroup->addAnimation(AnimalBottomFade);
 
-    AnimalRightBlock_=new QPropertyAnimation;
+    AnimalRightBlock_=new QPropertyAnimation(this);
     AnimalRightBlock_->setDuration(BlockTime_);
+    AnimalRightBlock_->setTargetObject(topLabel);
+    AnimalRightBlock_->setStartValue(1);
+    AnimalRightBlock_->setEndValue(1);
+
+    AnimaGroup->addAnimation(AnimalRightBlock_);
 
     connect(AnimalRightBlock_,&QPropertyAnimation::finished,this,[=]{
-        qDebug()<<"address RightUp : "<<this->topLabel->pos() << this->topLabel->text() << this->topLabel;
-        qDebug()<<"old RightUp : "<<this->topLabel->pos();
-        this->topLabel->move(posPoint[2].x(),posPoint[2].y()+(labelSize_.height()/2+spaceGap_));
-        this->topLabel->setText(QString::number((this->bottomLabel->text().toInt()+1)%10));
-        qDebug()<<"New RightUp : "<<this->topLabel->pos();
+//        qDebug()<<"address RightUp : "<<this->topLabel->pos() << this->topLabel->text() << this->topLabel;
+//        qDebug()<<"old RightUp : "<<this->topLabel->pos();
+        this->topLabel->move(posPoint[2].x(),posPoint[2].y()+(labelSize_.height()/2));
+        this->topLabel->setText(QString::number((this->bottomLabel->text().toInt()+1)%maxNum_));
+//        qDebug()<<"New RightUp : "<<this->topLabel->pos();
         QPropertyAnimation* AnimalTopFadeSecond=fadeAway(this->topLabel,0.0,0.1,FadeTime_-BlockTime_);
         QPropertyAnimation* AnimalTopMoveSecond=moveUp(this->topLabel,labelSize_.height()/2,MoveTime_/2);
         AnimalTopFadeSecond->start(QAbstractAnimation::DeleteWhenStopped);
@@ -132,24 +156,89 @@ void SingleLabel::reloadAnimation(QParallelAnimationGroup *AnimaGroup,const std:
 //        QLabel* label=this->this->topLabel;
 //        this->this->topLabel=this->this->midLabel;
 //        this->this->midLabel=this->this->bottomLabel;
-        qDebug()<<"address RightUp : "<<this->topLabel->pos() << this->topLabel->text() << this->topLabel;
+//        qDebug()<<"address RightUp : "<<this->topLabel->pos() << this->topLabel->text() << this->topLabel;
 
         swapWidget(&this->topLabel,&this->midLabel);
         swapWidget(&this->midLabel,&this->bottomLabel);
 
-        qDebug()<<"address RightUp : "<<this->topLabel->pos() << this->topLabel->text() << this->topLabel;
+//        qDebug()<<"address RightUp : "<<this->topLabel->pos() << this->topLabel->text() << this->topLabel;
 
-        qDebug()<<"RightUp : "<<this->topLabel->pos() << this->topLabel->text()<<this->topLabel;
-        qDebug()<<"RightMid : "<<this->midLabel->pos() << this->midLabel->text()<<this->midLabel;
-        qDebug()<<"RightBottom : "<<this->bottomLabel->pos() << this->bottomLabel->text()<<this->bottomLabel;
+//        qDebug()<<"RightUp : "<<this->topLabel->pos() << this->topLabel->text()<<this->topLabel;
+//        qDebug()<<"RightMid : "<<this->midLabel->pos() << this->midLabel->text()<<this->midLabel;
+//        qDebug()<<"RightBottom : "<<this->bottomLabel->pos() << this->bottomLabel->text()<<this->bottomLabel;
 
 //        count++;
 //        qDebug()<<"hello:"<<count;
     });
 
-    AnimaGroup->addAnimation(AnimalRightBlock_);
+
 }
 
+void SingleLabel::setRunSpeed(int scale)
+{
+//    this->scale_=scale;
+//    this->MoveTime_*=scale;
+//    this->FadeTime_*=scale;
+//    this->BlockTime_*=scale;
+    this->displayTime_=scale*1000-MoveTime_;
+}
+
+void SingleLabel::scroolStart()
+{
+    init();
+}
+
+void SingleLabel::scroolStop()
+{
+    setRunningCount(0);
+}
+
+void SingleLabel::setPostion(const QPoint &pos)
+{
+    this->topLeftPos_=pos;
+}
+
+void SingleLabel::setSize(const QRect &rect)
+{
+    this->labelSize_=rect;
+}
+
+void SingleLabel::setSize(int width, int height)
+{
+    this->labelSize_=QRect(this->topLeftPos_,QSize(width,height));
+}
+
+void SingleLabel::setopacity(QWidget *widget, qreal val)
+{
+    QGraphicsOpacityEffect* my_widgetProcessOpacity=new QGraphicsOpacityEffect;
+    my_widgetProcessOpacity->setParent(widget);
+    my_widgetProcessOpacity->setOpacity(val);
+    widget->setGraphicsEffect(my_widgetProcessOpacity);
+
+}
+
+void SingleLabel::setRunningCount(int count)
+{
+    if(count==-1)
+    {
+        this->runCount_=INT_MAX;
+    }
+    else
+    {
+        this->runCount_=count;
+    }
+
+}
+
+void SingleLabel::setInitNum(QString str)
+{
+    initNum_=str;
+}
+
+void SingleLabel::setMaxNum(int number)
+{
+    maxNum_=number;
+}
 
 
 template< typename T>
@@ -180,7 +269,7 @@ QPropertyAnimation* SingleLabel::moveUp(QWidget *widget,qreal span,qreal moveTim
     pAnimationAlpha->setStartValue(QRect(widget->pos().x(), widget->pos().y(), widget->width(), widget->height()));
     pAnimationAlpha->setEndValue(QRect(widget->pos().x() , widget->pos().y()-span, widget->width(), widget->height()));
 
-    if(moveDirection)
+    if(moveDirection_)
     {
         pAnimationAlpha->setDirection(QAbstractAnimation::Forward);
     }

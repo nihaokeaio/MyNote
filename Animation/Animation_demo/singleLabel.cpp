@@ -89,8 +89,7 @@ void SingleLabel::init()
         animationGroup->addPause(displayTime_);
 
 
-        qDebug()<<"第一段程序耗时："<<timedebuge.elapsed()<<"ms "<<this->topLeftPos_;//输出计时
-
+        qDebug()<<"useTime ： "<<timedebuge.elapsed()<<"ms"<<this->topLeftPos_;//输出计时
 
 //        qDebug()<<"hello:"<<count;
 

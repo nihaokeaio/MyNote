@@ -17,8 +17,9 @@ struct TreeNode
 	int val;
 	TreeNode* left;
 	TreeNode* right;
-	TreeNode():val(0),left(nullptr),right(nullptr){}
+	TreeNode() :val(0), left(nullptr), right(nullptr) {}
 	TreeNode(int x) :val(x), left(nullptr), right(nullptr) {}
+	TreeNode(int x, TreeNode* l, TreeNode* r) :val(x), left(l), right(r) {}
 };
 
 class MyAlgorithms
@@ -51,5 +52,21 @@ public:
 	///递归遍历
 	///三种常见的递归遍历，前中后序遍历
 	void traverse(TreeNode* root);
+
+	///https://leetcode.cn/problems/populating-next-right-pointers-in-each-node/description/
+	///填充节点的右侧指针
+	void connect(TreeNode* node);
+
+	///通过先序遍历和中序遍历构建唯一的二叉树
+	TreeNode* BuildTreePreInTree(const vector<int>& preOrder, const vector<int>& inorder);
+
+	TreeNode* createTreePreInTree(const vector<int>& preOrder, const vector<int>& inorder, int pl, int pr, int il, int ir);
+
+	int findElement(int target, const vector<int>& nums);
+
+	///通过后序遍历和中序遍历构建唯一的二叉树
+	TreeNode* buildTreePostInTree(const vector<int>& postOrder, const vector<int>& inorder);
+
+	TreeNode* createTreePostInTree(const vector<int>& postOrder, const vector<int>& inorder, int pl, int pr, int il, int ir);
 private:
 };

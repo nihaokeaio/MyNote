@@ -113,3 +113,70 @@ void MyAlgorithms::traverse(TreeNode* root)
     traverse(root->right);
     ///ºóÐø±éÀú
 }
+
+TreeNode* MyAlgorithms::BuildTreePreInTree(const vector<int>& preOrder, const vector<int>& inorder)
+{
+    return createTreePreInTree(preOrder, inorder, 0, preOrder.size() - 1, 0, inorder.size() - 1;
+}
+
+TreeNode* MyAlgorithms::createTreePreInTree(const vector<int>& preOrder, const vector<int>& inorder, int pl, int pr, int il,
+	int ir)
+{
+    if (il > ir)
+        return nullptr;
+    if(il==ir)
+    {
+        TreeNode* tmp = new TreeNode(preOrder[pl]);
+        return tmp;
+    }
+    int index = findElement(preOrder[pl], inorder);
+
+    int lenLeft = index - il;
+    int lenRight = ir - index;
+
+    TreeNode* left = createTreePreInTree(preOrder, inorder, pl + 1, pl + lenLeft, il, index - 1);
+    TreeNode* right = createTreePreInTree(preOrder, inorder, pl + lenLeft + 1, pr, index + 1, ir);
+
+    TreeNode* root = new TreeNode(preOrder[index], left, right);
+    return  root;
+}
+
+int MyAlgorithms::findElement(int target, const vector<int>& nums)
+{
+    for (int i = 0; i < nums.size(); i++)
+    {
+        if (nums[i] == target)
+            return i;
+    }
+    return -1;
+}
+
+
+TreeNode* MyAlgorithms::buildTreePostInTree(const vector<int>& postOrder, const vector<int>& inorder)
+{
+    return createTreePostInTree(postOrder, inorder, 0, postOrder.size() - 1, 0, inorder.size() - 1);
+}
+
+TreeNode* MyAlgorithms::createTreePostInTree(const vector<int>& postOrder, const vector<int>& inorder, int pl, int pr,
+	int il, int ir)
+{
+    if (il > ir)
+        return nullptr;
+    if (il == ir)
+    {
+        TreeNode* tmp = new TreeNode(inorder[il]);
+        return tmp;
+    }
+
+    int index = findElement(postOrder[pr], inorder);
+
+    int lenLeft = index - il;
+    int lenRight = ir - index;
+
+    TreeNode* left = createTreePostInTree(postOrder, inorder, pl, pl + lenLeft - 1, il, index - 1);
+    TreeNode* right = createTreePostInTree(postOrder, inorder, pl + lenLeft, pr - 1, index + 1, ir);
+
+    TreeNode* root = new TreeNode(inorder[index], left, right);
+    return  root;
+
+}

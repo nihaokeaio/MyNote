@@ -31,6 +31,21 @@ static std::tuple<float, float, float> computeBarycentric2D(float x, float y, co
     return { c1,c2,c3 };
 }
 
+static bool insideTriangle(float x,float y,const Vec3f* v)
+{
+    Vec3f line1(v[0].x - x, v[0].y - y, 0);
+    Vec3f line2(v[1].x - x, v[1].y - y, 0);
+    Vec3f line3(v[2].x - x, v[2].y - y, 0);
+
+    float z1 = line1.cross(line2).z;
+    float z2 = line2.cross(line3).z;
+    float z3 = line3.cross(line1).z;
+    if ((z1 <= 0 && z2 <= 0 && z3 <= 0) || (z1 >= 0 && z2 >= 0 && z3 >= 0))
+    {
+        return true;
+    }
+    return false;
+}
 
 inline void UpdateProgress(float progress)
 {

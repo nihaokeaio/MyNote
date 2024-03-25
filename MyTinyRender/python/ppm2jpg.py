@@ -7,9 +7,14 @@ def ppm_to_jpg(ppm_path, jpg_path):
     print(jpg_path)
     with Image.open(ppm_path) as ppm_image:
         # 将图片保存为JPG格式  
+        print(f"open path {ppm_path} ok")
         ppm_image.save(jpg_path, "JPEG")
     img=Image.open(jpg_path)
-    img.show();
+    if(img):
+        print(f"open path {jpg_path} ok")
+        img.show();
+    else:
+         print(f"open path {jpg_path} fail")
   
 if __name__ == "__main__": 
     nums=len(sys.argv)

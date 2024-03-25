@@ -63,10 +63,10 @@ void Line::draw(Scene* scene) const
 void Triangle::setColor(Vec3f c)
 {
 	const Vec3f c3[3] = {c,c,c};
-    setColor(c3);
+    setColors(c3);
 }
 
-void Triangle::setColor(const Vec3f* c)
+void Triangle::setColors(const Vec3f* c)
 {
     color_[0] = c[0];
     color_[1] = c[1];
@@ -84,7 +84,18 @@ void Triangle::draw(Scene* scene) const
     Line::line(p2, p0, scene, color_[2]);
 }
 
-void Triangle::fill(Scene* scene)
+std::vector<Eigen::Vector4f> Triangle::setModelMatrix(Eigen::Matrix4f mat)
 {
-
+    std::vector<Eigen::Vector4f>res;
+    for(auto& p:point_)
+    {
+        Eigen::Vector4f vec4f = mat * p.to_vec4(1.0);
+        p.x = vec4f.x();
+        p.y = vec4f.y();
+        p.z = vec4f.z();
+        res.push_back(vec4f);
+    }
+    boxConstruct();
+    return res;
 }
+

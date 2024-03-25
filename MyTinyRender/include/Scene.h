@@ -3,6 +3,14 @@
 
 #include "global.hpp"
 #include "Vector.hpp"
+#include <Eigen/Eigen>
+
+enum class RasterizerWay
+{
+	DEFAULT = 0,
+	BARYCENTRIC = 1,
+	MASS = 2
+};
 
 
 class Geometry;
@@ -13,6 +21,12 @@ class Scene
 public:
 	int width_ = 1280;
 	int height_ = 960;
+
+	float near = 0.1f;
+	float far = 50.f;
+	float aspect_ratio = width_ / height_;
+	float eye_fov = 45;
+
 	std::vector<Vec3f>data_buffer_;
 	std::vector<float>z_buffer_;
 	std::vector<std::vector<float>>z_buffer_msaa_;
@@ -22,6 +36,17 @@ public:
 	Scene();
 
 	void addModel(std::vector<Geometry*> geometries);
+
+	void rasterizeTriangle(Geometry* geometry);
+
+
+	Eigen::Matrix4f projectMatrix() const;
+
+	void viewportMatrix(std::vector<Eigen::Vector4f>& vec);
+
+	static Eigen::Matrix4f setViewMatrix(Vec3f eyePos);
+	
+
 
 	int get_index(int x,int y) const;
 	//»º´æÊý¾Ý

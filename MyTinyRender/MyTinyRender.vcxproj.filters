@@ -32,12 +32,14 @@
     <ClCompile Include="src\main.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\TAGImage.cpp">
+    <ClCompile Include="src\Scene.cpp">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\Rasterizercpp.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\Geometry.cpp" />
+    <ClCompile Include="src\Geometry.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

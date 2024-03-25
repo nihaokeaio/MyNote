@@ -1,3 +1,4 @@
+# pragma warning (disable:4819)
 #include "Vector.hpp"
 #include "Scene.h"
 #include "global.hpp"
@@ -36,18 +37,26 @@ void triangle0(Vec3f* V, Scene& scene, Vec3f* colors)
 
 void drawTriangle(Scene* scene)
 {
-    Triangle t0 = { Vec2i(10, 70),   Vec2i(50, 160),  Vec2i(70, 80) };
-    Triangle t1 = { Vec2i(180, 50),  Vec2i(150, 1),   Vec2i(70, 180) };
-    Triangle t2 = { Vec2i(180, 150), Vec2i(120, 160), Vec2i(130, 180) };
+   /* Triangle t0 = { Vec3f(-0.5, 0.5,0),   Vec3f(0.5, 0.5,0),  Vec3f(0, 0,-0) };
+    Triangle t1 = { Vec3f(-0.2, 0.7,0),   Vec3f(0.6, 0.5,0),  Vec3f(-0.2, 0,-0) };
+    Triangle t2 = { Vec3f(-0.1, 0.5,0),   Vec3f(0.2, 0.5,0),  Vec3f(0, 0,-0) };*/
 
-    t0.setColor(Color::Red);
-    //t1.setColor(Color::White);
-    //t2.setColor(Color::Green);
+    Triangle t0 = { {2, 0, -2},    {0, 2, -2},  {-2, 0, -2} };
+    Triangle t1 = { {3.5, -1, -5},   {2.5, 1.5, -5 }, {-1, 0.5, -5} };
+
+    t0.setColor(0, Color::Red);
+    t0.setColor(1, Color::Green);
+    t0.setColor(2, Color::Blue);
+
+    t1.setColor(0, Color::Green);
+    t1.setColor(1, Color::Green);
+    t1.setColor(2, Color::Blue);
+    
 
     std::vector<Geometry*>geometries;
     geometries.push_back(&t0);
     geometries.push_back(&t1);
-    geometries.push_back(&t2);
+    //geometries.push_back(&t2);
 
     scene->addModel(geometries);
 }

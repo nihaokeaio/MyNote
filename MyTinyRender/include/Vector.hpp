@@ -3,10 +3,12 @@
 #include <iostream>
 #include <algorithm>
 #include <vector>
+#include <Eigen/Eigen>
 
 /*
 向量的一些常用计算，包括向量长度，归一化，点成，叉乘，以及一些常见的运算符重载
 */
+
 
 template<typename T>
 class Vec2
@@ -23,6 +25,16 @@ public:
 	T norm() { return std::sqrt(x * x + y * y); }
 	T norm2() { return (x * x + y * y); }
 	Vec2& normalize() { *this = (*this) / norm(); return *this; }
+
+	bool strictSmall(const Vec2& in) const
+	{
+		return x <= in.x && y <= in.y;
+	}
+
+	bool strictBig(const Vec2& in) const
+	{
+		return x >= in.x && y >= in.y;
+	}
 };
 
 template<typename T>
@@ -50,7 +62,7 @@ public:
 		return os << v.x << ", " << v.y << ", " << v.z;
 	}
 
-	double operator[](int index) const {
+	T operator[](int index) const {
 		return (&x)[index];
 	}
 
@@ -62,12 +74,22 @@ public:
 		return a * (1 - t) + b * t;
 	}
 
-	T dotProduct(const Vec3& a, const Vec3& b)
+	T dot(const Vec3& b) const
+	{
+		return dotProduct(*this, b);
+	}
+
+	T dotProduct(const Vec3& a, const Vec3& b) const
 	{
 		return a.x * b.x + a.y * b.y + a.z * b.z;
 	}
 
-	Vec3 crossProduct(const Vec3& a, const Vec3& b)
+	Vec3 cross(const Vec3& b) const
+	{
+		return crossProduct(*this, b);
+	}
+
+	Vec3 crossProduct(const Vec3& a, const Vec3& b) const
 	{
 		return Vec3(
 			a.y * b.z - a.z * b.y,
@@ -80,6 +102,26 @@ public:
 	{
 		return v.operator*(val);
 	}
+
+	bool strictSmall(const Vec3& in) const
+	{
+		return x <= in.x && y <= in.y && z <= in.z;
+	}
+
+	bool strictBig(const Vec3& in) const
+	{
+		return x >= in.x && y >= in.y && z >= in.z;
+	}
+
+	Eigen::Vector4f to_vec4(const T val)
+	{
+		return Eigen::Vector4f(x, y, z, val);
+	}
+
+	T X() { return this->x; }
+	T Y() { return this->y; }
+	T Z() { return this->z; }
+
 public:
 	T x, y, z;
 };

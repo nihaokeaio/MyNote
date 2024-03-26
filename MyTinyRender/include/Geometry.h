@@ -35,6 +35,12 @@ public:
 		return input.strictSmall({ pMax_.x,pMax_.y }) && input.strictBig({ pMin_.x,pMin_.y });
 	}
 
+	bool inNearBox(const Vec2f& input, const float& diffVal) const
+	{
+		return input.strictSmall({ pMax_.x + diffVal,pMax_.y + diffVal }) && input.strictBig({ pMin_.x - diffVal,pMin_.y - diffVal });
+	}
+
+
 	Vec3f min() const { return pMin_; }
 
 	Vec3f max() const { return pMax_; }
@@ -155,6 +161,7 @@ public:
 
 	bool inBoundBox(const Vec3f& pos) const { return box_.inBox(pos); }
 	bool inBoundBox(const Vec2f& pos) const { return box_.inBox(pos); }
+	bool inNearBoundBox(const Vec2f& pos, float diffValOut) const { return box_.inNearBox(pos, diffValOut); }
 
 	Vec3f* vertexs() { return point_; }
 	Vec3f vertexs(int index) const { return point_[index]; }

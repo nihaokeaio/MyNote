@@ -6,9 +6,9 @@
 
 Scene::Scene()
 {
-	data_buffer_.resize(width_ * height_);
-	z_buffer_.resize(width_ * height_);
-	std::fill(z_buffer_.begin(), z_buffer_.end(), std::numeric_limits<float>::infinity());
+	dataBuffer_.resize(width_ * height_);
+	zBuffer_.resize(width_ * height_);
+	std::fill(zBuffer_.begin(), zBuffer_.end(), std::numeric_limits<float>::infinity());
 }
 
 void Scene::addModel(const std::vector<Geometry*> geometries)
@@ -50,52 +50,98 @@ void Scene::rasterizeTriangle(Geometry* geometry)
 	if(!triangle)
 		return;
 
+	RasterizerWay way = RasterizerWay::MASS;
 	for(int i=0;i< width_;i++)
 	{
 		for(int j=0;j<height_;j++)
 		{
-			if(i==50 && j==80)
-			{
-				int x = 1;
-			}
+			
 			const Vec2f pixel{ i + 0.5f,j + 0.5f };
-			if(!triangle->inBoundBox(pixel))
-				continue;
-			if(insideTriangle(pixel.x,pixel.y,triangle->vertexs()))
+			if(way==RasterizerWay::BARYCENTRIC)
 			{
-				RasterizerWay way = RasterizerWay::BARYCENTRIC;
+				if (!triangle->inBoundBox(pixel))
+					
+				rasterizeTriangle(pixel.x, pixel.y, way, triangle);
+			}
+			else if (way == RasterizerWay::MASS)
+			{
+				if (!triangle->inNearBoundBox(pixel, 1.0f))
+					continue;
 
-				switch (way)
+				rasterizeTriangle(pixel.x, pixel.y, way, triangle);
+			}
+			
+		}
+	}
+}
+
+void Scene::rasterizeTriangle(int i, int j, RasterizerWay way, Triangle* triangle)
+{
+	const Vec2f pixel{ i + 0.5f,j + 0.5f };
+	if (way == RasterizerWay::BARYCENTRIC || way == RasterizerWay::DEFAULT)
+	{
+		if (insideTriangle(pixel.x, pixel.y, triangle->vertexs()))
+		{
+			switch (way)
+			{
+			case RasterizerWay::DEFAULT:
+			{
+				///使用深度图
+				///
+				if (triangle->vertexs()->Z() < getZBuffer(i, j))
 				{
-				case RasterizerWay::DEFAULT:
+					setDataBuffer(i, j, triangle->getColor());
+					setZBuffer(i, j, triangle->vertexs()->Z());
+				}
+				break;
+			}
+			case RasterizerWay::BARYCENTRIC:
+			{
+				///使用重心坐标
+				auto [alpha, beta, gamma] = computeBarycentric2D(pixel.x, pixel.y, triangle->vertexs());
+				const Vec3f& color = alpha * triangle->getColor(0) + beta * triangle->getColor(1) + gamma * triangle->getColor(2);
+				const float& pixelZ = alpha * triangle->vertexs(0).z + beta * triangle->vertexs(1).z + gamma * triangle->vertexs(2).z;
+				if (pixelZ <= getZBuffer(i, j))
+				{
+					setDataBuffer(i, j, color);
+					setZBuffer(i, j, pixelZ);
+				}
+				break;
+			}
+			}
+
+		}
+	}
+	else if (way == RasterizerWay::MASS)
+	{
+		Vec3f colorVal;
+		int insideCount = 0;
+		for (int m = 0; m < msaaH_; ++m)
+		{
+			for (int n = 0; n < msaaV_; ++n)
+			{
+				float p = (0.5f + m) / msaaH_;
+				float q = (0.5f + n) / msaaV_;
+				Vec2f msaaPixel = { i + p,j + q };
+				if (!triangle->inBoundBox(msaaPixel))
+					continue;
+				if (insideTriangle(msaaPixel, triangle->vertexs()))
+				{
+					auto [alpha, beta, gamma] = computeBarycentric2D(msaaPixel.x, msaaPixel.y, triangle->vertexs());
+					const Vec3f& color = alpha * triangle->getColor(0) + beta * triangle->getColor(1) + gamma * triangle->getColor(2);
+					const float& pixelZ = alpha * triangle->vertexs(0).z + beta * triangle->vertexs(1).z + gamma * triangle->vertexs(2).z;
+					if (pixelZ <= getMassZBuffer(i, j, m, n))
 					{
-						///使用深度图
-						///
-						if (triangle->vertexs()->Z() < get_z_buffer(i, j))
-						{
-							set_data_buffer(i, j, triangle->getColor());
-							set_z_buffer(i, j, triangle->vertexs()->Z());
-						}
-						break;
+						setMassZBuffer(i, j, m, n, pixelZ);
+						colorVal += color;
+						++insideCount;
 					}
-				case RasterizerWay::BARYCENTRIC:
-					{
-						///使用重心坐标
-						auto [alpha, beta, gamma] = computeBarycentric2D(pixel.x, pixel.y, triangle->vertexs());
-						const Vec3f& color = alpha * triangle->getColor(0) + beta * triangle->getColor(1) + gamma * triangle->getColor(2);
-						const float& pixelZ = alpha * triangle->vertexs(0).z + beta * triangle->vertexs(1).z + gamma * triangle->vertexs(2).z;
-						if (pixelZ <= get_z_buffer(i, j))
-						{
-							set_data_buffer(i, j, color);
-							set_z_buffer(i, j, pixelZ);
-						}
-						break;
-					}
-				case RasterizerWay::MASS:
-					break;
 				}
 			}
 		}
+		colorVal = colorVal / msaaSpp_;
+		colorVal = mixture(colorVal, getDataBuffer(i, j), 1.0f * insideCount / msaaSpp_);
+		setDataBuffer(i, j, colorVal);
 	}
 }
 
@@ -109,8 +155,8 @@ Eigen::Matrix4f Scene::projectMatrix() const
 		0, 0, zNear + zFar, -zNear * zFar,
 		0, 0, 1, 0;
 	Eigen::Matrix4f scale = Eigen::Matrix4f::Identity();
-	float H = 2 * -zNear * tan(eye_fov / 180 * M_PI / 2);
-	float W =aspect_ratio * H;
+	float H = 2 * -zNear * tan(eyeFov_ / 180 * M_PI / 2);
+	float W =aspectRatio_ * H;
 
 	Eigen::Matrix4f ortho = Eigen::Matrix4f::Identity();
 
@@ -157,49 +203,74 @@ Eigen::Matrix4f Scene::setViewMatrix(Vec3f eyePos)
 	return view;
 }
 
-int Scene::get_index(int x, int y) const
+int Scene::getIndex(int x, int y) const
 {
 	return (height_ - y - 1) * width_ + x;
 }
 
-Vec3f Scene::get_data_buffer(int index) const
+int Scene::getMsaaIndex(int h, int v) const
 {
-	return data_buffer_[index];
+	return v + h * msaaV_;
 }
 
-Vec3f Scene::get_data_buffer(int x, int y) const
+Vec3f Scene::getDataBuffer(int index) const
 {
-	return data_buffer_[get_index(x, y)];
+	return dataBuffer_[index];
 }
 
-void Scene::set_data_buffer(int x, int y, const Vec3f& data)
+Vec3f Scene::getDataBuffer(int x, int y) const
 {
-	data_buffer_[get_index(x, y)] = data;
+	return dataBuffer_[getIndex(x, y)];
 }
 
-void Scene::set_data_buffer(int index, const Vec3f& data)
+void Scene::setDataBuffer(int x, int y, const Vec3f& data)
 {
-	data_buffer_[index] = data;
+	dataBuffer_[getIndex(x, y)] = data;
 }
 
-void Scene::set_z_buffer(int index, const float val)
+void Scene::setDataBuffer(int index, const Vec3f& data)
 {
-	z_buffer_[index] = val;
+	dataBuffer_[index] = data;
 }
 
-void Scene::set_z_buffer(int x, int y, const float val)
+void Scene::setZBuffer(int index, const float val)
 {
-	z_buffer_[get_index(x, y)] = val;
+	zBuffer_[index] = val;
 }
 
-float Scene::get_z_buffer(int index) const 
+void Scene::setZBuffer(int x, int y, const float val)
 {
-	return z_buffer_[index];
+	zBuffer_[getIndex(x, y)] = val;
 }
 
-float Scene::get_z_buffer(int x, int y) const 
+float Scene::getZBuffer(int index) const 
 {
-	return z_buffer_[get_index(x, y)];
+	return zBuffer_[index];
+}
+
+float Scene::getZBuffer(int x, int y) const 
+{
+	return zBuffer_[getIndex(x, y)];
+}
+
+void Scene::setMassZBuffer(int x, int y, int h, int v, const float val)
+{
+	zBufferMsaa_[getIndex(x, y)][getMsaaIndex(h, v)] = val;
+}
+
+void Scene::setMassZBuffer(int index, int h, int v, const float val)
+{
+	zBufferMsaa_[index][getMsaaIndex(h, v)] = val;
+}
+
+float Scene::getMassZBuffer(int x, int y, int h, int v) const
+{
+	return zBufferMsaa_[getIndex(x, y)][getMsaaIndex(h, v)];
+}
+
+float Scene::getMassZBuffer(int index, int h, int v) const
+{
+	return zBufferMsaa_[index][getMsaaIndex(h, v)];
 }
 
 void Scene::write() const
@@ -208,9 +279,9 @@ void Scene::write() const
 	(void)fprintf(fp, "P6\n%d %d\n255\n", width_, height_);
 	for (auto i = 0; i < height_ * width_; ++i) {
 		static unsigned char color[3];
-		color[0] = (unsigned char)(255 * std::pow(clamp(0, 1, data_buffer_[i].x), 0.6f));
-		color[1] = (unsigned char)(255 * std::pow(clamp(0, 1, data_buffer_[i].y), 0.6f));
-		color[2] = (unsigned char)(255 * std::pow(clamp(0, 1, data_buffer_[i].z), 0.6f));
+		color[0] = (unsigned char)(255 * std::pow(clamp(0, 1, dataBuffer_[i].x), 0.6f));
+		color[1] = (unsigned char)(255 * std::pow(clamp(0, 1, dataBuffer_[i].y), 0.6f));
+		color[2] = (unsigned char)(255 * std::pow(clamp(0, 1, dataBuffer_[i].z), 0.6f));
 		fwrite(color, 1, 3, fp);
 	}
 	fclose(fp);
@@ -236,15 +307,20 @@ void Scene::write() const
 	}
 }
 
-void Scene::useMsaa()
+void Scene::useMsaa(int sizeH, int sizeV)
 {
-	use_msaa_ = true;
-	z_buffer_.clear();
-	z_buffer_msaa_.resize(width_ * height_);
-	for (auto& item : z_buffer_msaa_)
+	useMsaa_ = true;
+	msaaH_ = sizeH;
+	msaaV_ = sizeV;
+	msaaSpp_ = sizeH * sizeV;
+	//zBuffer_.clear();
+	zBufferMsaa_.resize(width_ * height_);
+	for (auto& item : zBufferMsaa_)
 	{
-		item.resize(msaa_spp);
+		item.resize(msaaSpp_);
+		std::fill(item.begin(), item.end(), std::numeric_limits<float>::infinity());
 	}
+	
 }
 
 

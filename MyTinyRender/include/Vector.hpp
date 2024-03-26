@@ -57,6 +57,15 @@ public:
 		z += v.z;
 		return *this;
 	}
+
+	Vec3 operator/= (const T& r) {
+		return operator/(r);
+	}
+
+	Vec3 operator*= (const T& r) {
+		return operator*(r);
+	}
+
 	friend std::ostream& operator << (std::ostream& os, const Vec3& v)
 	{
 		return os << v.x << ", " << v.y << ", " << v.z;
@@ -116,6 +125,13 @@ public:
 	Eigen::Vector4f to_vec4(const T val)
 	{
 		return Eigen::Vector4f(x, y, z, val);
+	}
+
+	void reset()
+	{
+		x = 0.0f;
+		y = 0.0f;
+		z = 0.0f;
 	}
 
 	T X() { return this->x; }

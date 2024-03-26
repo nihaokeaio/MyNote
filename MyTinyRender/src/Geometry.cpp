@@ -37,11 +37,11 @@ void Line::line(int x0, int y0, int x1, int y1, Scene* scene, Vec3f color)
     {
         if (steep)
         {
-            scene->set_data_buffer(y, x, color);
+            scene->setDataBuffer(y, x, color);
         }
         else
         {
-            scene->set_data_buffer(x, y, color);
+            scene->setDataBuffer(x, y, color);
         }
         error += derror2;
         //前面已经保证了斜率小于1

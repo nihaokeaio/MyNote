@@ -1,3 +1,4 @@
+ï»¿# pragma warning (disable:4819)
 #include "Geometry.h"
 #include "Scene.h"
 
@@ -13,7 +14,7 @@ void Line::line(Vec2i p0, Vec2i p1, Scene* scene, Vec3f color)
 
 void Line::line(int x0, int y0, int x1, int y1, Scene* scene, Vec3f color)
 {
-    // =ÊÇ·ñÊÇ¶¸ÇÍµÄ£¬¼´Ğ±ÂÊÊÇ·ñ´óÓÚ1,ÖÃ»»ºóĞ±ÂÊ±ØÈ»Ğ¡ÓÚ1
+    // =æ˜¯å¦æ˜¯é™¡å³­çš„ï¼Œå³æ–œç‡æ˜¯å¦å¤§äº1,ç½®æ¢åæ–œç‡å¿…ç„¶å°äº1
     bool steep = false;
     if (abs(x0 - x1) < abs(y0 - y1))
     {
@@ -22,7 +23,7 @@ void Line::line(int x0, int y0, int x1, int y1, Scene* scene, Vec3f color)
         steep = true;
     }
 
-    //¿¼ÂÇ²»Í¬·½ÏòµÄÏß¶Î£¬¶¼´Óx½ÏĞ¡µÄµã¿ªÊ¼»æÖÆ
+    //è€ƒè™‘ä¸åŒæ–¹å‘çš„çº¿æ®µï¼Œéƒ½ä»xè¾ƒå°çš„ç‚¹å¼€å§‹ç»˜åˆ¶
     if (x0 > x1)
     {
         std::swap(x0, x1);
@@ -44,7 +45,7 @@ void Line::line(int x0, int y0, int x1, int y1, Scene* scene, Vec3f color)
             scene->setDataBuffer(x, y, color);
         }
         error += derror2;
-        //Ç°ÃæÒÑ¾­±£Ö¤ÁËĞ±ÂÊĞ¡ÓÚ1
+        //å‰é¢å·²ç»ä¿è¯äº†æ–œç‡å°äº1
         if (error > dx)
         {
             y += (y1 > y0 ? 1 : -1);
@@ -84,18 +85,14 @@ void Triangle::draw(Scene* scene) const
     Line::line(p2, p0, scene, color_[2]);
 }
 
-std::vector<Eigen::Vector4f> Triangle::setModelMatrix(Eigen::Matrix4f mat)
+std::vector<Vec3f> Triangle::getVertexs()
 {
-    std::vector<Eigen::Vector4f>res;
-    for(auto& p:point_)
+    std::vector<Vec3f>res;
+    for(const auto& p:point_)
     {
-        Eigen::Vector4f vec4f = mat * p.to_vec4(1.0);
-        p.x = vec4f.x();
-        p.y = vec4f.y();
-        p.z = vec4f.z();
-        res.push_back(vec4f);
+        res.push_back(p);
     }
-    boxConstruct();
     return res;
 }
+
 

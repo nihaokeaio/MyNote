@@ -1,179 +1,151 @@
 #include "Scene.h"
 #include "global.hpp"
 #include "Geometry.h"
+#include "Rasterizer.h"
+#include "Texture.h"
+#include "Mesh.h"
 
 #include <Eigen/Eigen>
+
+#include "Camera.h"
+
+struct fragment_shader_payload
+{
+	fragment_shader_payload()
+	{
+		texture = nullptr;
+	}
+
+	fragment_shader_payload(const Eigen::Vector3f& col, const Eigen::Vector3f& nor, const Eigen::Vector2f& tc, Texture* tex) :
+		color(col), normal(nor), tex_coords(tc), texture(tex) {}
+
+
+	Eigen::Vector3f view_pos;
+	Eigen::Vector3f color;
+	Eigen::Vector3f normal;
+	Eigen::Vector2f tex_coords;
+	Texture* texture;
+};
+
+
 
 Scene::Scene()
 {
 	dataBuffer_.resize(width_ * height_);
 	zBuffer_.resize(width_ * height_);
 	std::fill(zBuffer_.begin(), zBuffer_.end(), std::numeric_limits<float>::infinity());
+
+	rasterizer_ = std::make_shared<Rasterizer>(this);
+	camera_ = std::make_shared<Camera>(this);
 }
 
-void Scene::addModel(const std::vector<Geometry*> geometries)
+
+void Scene::addMesh(const Mesh& mesh)
 {
-	for(const auto& model:geometries)
+	std::vector<Geometry*>geometries;
+	for (int i = 0; i < mesh.vertices_.size(); i += 3)
 	{
-		Triangle* triangle = dynamic_cast<Triangle*>(model);
-		if (!triangle)
-			return;
-		//投影变换
-
-		//视口变化
-		Eigen::Matrix4f modelMatrix = Eigen::Matrix4f::Identity();
-		Eigen::Matrix4f viewMatrix = setViewMatrix(Vec3f(0, 0, 5.f));
-		Eigen::Matrix4f pojMatrix = projectMatrix();
-
-
-		Eigen::Matrix4f mvp = pojMatrix * viewMatrix * modelMatrix;
-
-		std::vector<Eigen::Vector4f> vec = triangle->setModelMatrix(mvp);
-		viewportMatrix(vec);
-
-		//光栅化
-		Triangle t;
-		for(int i=0;i<3;++i)
+		Triangle* t = new Triangle();
+		for (int j = 0; j < 3; j++)
 		{
-			Vec3f v = { vec[i].x(),vec[i].y(),vec[i].z() };
-			t.setVertex(i, v);
+			t->setVertex(j, Vec3f(mesh.vertices_[i + j].position_.x, mesh.vertices_[i + j].position_.y, mesh.vertices_[i + j].position_.z));
+			t->setNormal(j, Vec3f(mesh.vertices_[i + j].normal_.x, mesh.vertices_[i + j].normal_.y, mesh.vertices_[i + j].normal_.z));
+			t->setTexCoord(j, Vec2f(mesh.vertices_[i + j].textureCoordinate_.x, mesh.vertices_[i + j].textureCoordinate_.y));
 		}
-		t.boxConstruct();
-		t.setColors(triangle->getColors());
-		rasterizeTriangle(&t);
+		t->boxConstruct();
+		geometries.push_back(t);
+	}
+	auto pair = std::make_pair(&mesh, geometries);
+	meshCords_.insert(pair);
+}
+
+void Scene::doUpDate()
+{
+	for(const auto& it:meshCords_)
+	{
+		for (const auto& model : it.second)
+		{
+			const Mesh* mesh = it.first;
+			auto* triangle = dynamic_cast<Triangle*>(model);
+			if (!triangle)
+				return;
+			////投影变换
+
+			////视口变化
+			/////绕(0,1,1)旋转45°
+			//Eigen::Vector3f t0(0,1.0,1);// 初始向量
+			//Eigen::Affine3f transform_2 = Eigen::Affine3f::Identity();
+
+			//// 在 X 轴上定义一个 0.5 米的平移.
+			//transform_2.translation() << 0.5, -1.0, 0.0;
+
+			//// 和前面一样的旋转; Z 轴上旋转 theta 弧度
+			//transform_2.rotate(Eigen::AngleAxisf(M_PI / 6, t0));
+
+
+
+			//Eigen::Matrix4f modelMatrix = transform_2.matrix();
+			//
+			//Eigen::Matrix4f viewMatrix = setViewMatrix(Vec3f(1, 0.5f,12.f));
+			//Eigen::Matrix4f pojMatrix = projectMatrix();
+
+
+			//Eigen::Matrix4f mvp = pojMatrix * viewMatrix * modelMatrix;
+
+			//std::vector<Eigen::Vector4f> vec = triangle->setModelMatrix(mvp);
+			//viewportMatrix(vec);
+
+			std::vector<Eigen::Vector4f> vec = getViewPortPos(triangle->getVertexs(), mesh);
+			//光栅化
+			Triangle t;
+			for (int i = 0; i < 3; ++i)
+			{
+				Vec3f v = { vec[i].x(),vec[i].y(),vec[i].z() };
+
+				t.setVertex(i, v);
+				t.setColor(i, triangle->getColor(i));
+				t.setTexCoord(i, triangle->getTexCoord(i));
+			}
+			t.boxConstruct();
+			rasterizeTriangle(&t, mesh);
+		}
 	}
 }
 
-void Scene::rasterizeTriangle(Geometry* geometry)
+void Scene::rasterizeTriangle(Geometry* geometry,const Mesh* mesh)
 {
 	Triangle* triangle = dynamic_cast<Triangle*>(geometry);
 	if(!triangle)
 		return;
 
-	RasterizerWay way = RasterizerWay::MASS;
 	for(int i=0;i< width_;i++)
 	{
 		for(int j=0;j<height_;j++)
 		{
-			
-			const Vec2f pixel{ i + 0.5f,j + 0.5f };
-			if(way==RasterizerWay::BARYCENTRIC)
-			{
-				if (!triangle->inBoundBox(pixel))
-					
-				rasterizeTriangle(pixel.x, pixel.y, way, triangle);
-			}
-			else if (way == RasterizerWay::MASS)
-			{
-				if (!triangle->inNearBoundBox(pixel, 1.0f))
-					continue;
-
-				rasterizeTriangle(pixel.x, pixel.y, way, triangle);
-			}
-			
+			rasterizer_->rasterizeTriangle(i, j, triangle, mesh);
 		}
 	}
 }
 
-void Scene::rasterizeTriangle(int i, int j, RasterizerWay way, Triangle* triangle)
+
+std::vector<Eigen::Vector4f> Scene::getViewPortPos(const std::vector<Vec3f>& trianglePos, const Mesh* mesh) const
 {
-	const Vec2f pixel{ i + 0.5f,j + 0.5f };
-	if (way == RasterizerWay::BARYCENTRIC || way == RasterizerWay::DEFAULT)
+	Eigen::Matrix4f mvp = camera_->getProjectionMat() * camera_->getViewMat() * mesh->modelMatrix_;
+
+	std::vector<Eigen::Vector4f>res;
+	for (auto& p : trianglePos)
 	{
-		if (insideTriangle(pixel.x, pixel.y, triangle->vertexs()))
-		{
-			switch (way)
-			{
-			case RasterizerWay::DEFAULT:
-			{
-				///使用深度图
-				///
-				if (triangle->vertexs()->Z() < getZBuffer(i, j))
-				{
-					setDataBuffer(i, j, triangle->getColor());
-					setZBuffer(i, j, triangle->vertexs()->Z());
-				}
-				break;
-			}
-			case RasterizerWay::BARYCENTRIC:
-			{
-				///使用重心坐标
-				auto [alpha, beta, gamma] = computeBarycentric2D(pixel.x, pixel.y, triangle->vertexs());
-				const Vec3f& color = alpha * triangle->getColor(0) + beta * triangle->getColor(1) + gamma * triangle->getColor(2);
-				const float& pixelZ = alpha * triangle->vertexs(0).z + beta * triangle->vertexs(1).z + gamma * triangle->vertexs(2).z;
-				if (pixelZ <= getZBuffer(i, j))
-				{
-					setDataBuffer(i, j, color);
-					setZBuffer(i, j, pixelZ);
-				}
-				break;
-			}
-			}
-
-		}
+		Eigen::Vector4f vec4f = mvp * p.to_vec4(1.0);
+		res.push_back(vec4f);
 	}
-	else if (way == RasterizerWay::MASS)
-	{
-		Vec3f colorVal;
-		int insideCount = 0;
-		for (int m = 0; m < msaaH_; ++m)
-		{
-			for (int n = 0; n < msaaV_; ++n)
-			{
-				float p = (0.5f + m) / msaaH_;
-				float q = (0.5f + n) / msaaV_;
-				Vec2f msaaPixel = { i + p,j + q };
-				if (!triangle->inBoundBox(msaaPixel))
-					continue;
-				if (insideTriangle(msaaPixel, triangle->vertexs()))
-				{
-					auto [alpha, beta, gamma] = computeBarycentric2D(msaaPixel.x, msaaPixel.y, triangle->vertexs());
-					const Vec3f& color = alpha * triangle->getColor(0) + beta * triangle->getColor(1) + gamma * triangle->getColor(2);
-					const float& pixelZ = alpha * triangle->vertexs(0).z + beta * triangle->vertexs(1).z + gamma * triangle->vertexs(2).z;
-					if (pixelZ <= getMassZBuffer(i, j, m, n))
-					{
-						setMassZBuffer(i, j, m, n, pixelZ);
-						colorVal += color;
-						++insideCount;
-					}
-				}
-			}
-		}
-		colorVal = colorVal / msaaSpp_;
-		colorVal = mixture(colorVal, getDataBuffer(i, j), 1.0f * insideCount / msaaSpp_);
-		setDataBuffer(i, j, colorVal);
-	}
+	viewportMatrix(res);
+	return std::move(res);
 }
 
-Eigen::Matrix4f Scene::projectMatrix() const
+void  Scene::viewportMatrix(std::vector<Eigen::Vector4f>& vec) const
 {
-	Eigen::Matrix4f projection = Eigen::Matrix4f::Identity();
-	float zNear = near;
-	float zFar = far;
-	projection << zNear, 0, 0, 0,
-		0, zNear, 0, 0,
-		0, 0, zNear + zFar, -zNear * zFar,
-		0, 0, 1, 0;
-	Eigen::Matrix4f scale = Eigen::Matrix4f::Identity();
-	float H = 2 * -zNear * tan(eyeFov_ / 180 * M_PI / 2);
-	float W =aspectRatio_ * H;
-
-	Eigen::Matrix4f ortho = Eigen::Matrix4f::Identity();
-
-	ortho << 2 / W, 0, 0, 0,
-		0, 2 / H, 0, 0,
-		0, 0, 2 / (zNear - zFar), 0,
-		0, 0, 0, 1;
-
-	projection = scale * ortho * projection;
-
-	return projection;
-}
-
-void  Scene::viewportMatrix(std::vector<Eigen::Vector4f>& vec)
-{
-	float f1 = (far + near) / 2.0f;
-	float f2 = (far - near) / 2.0f;
+	float f1 = (far_ + near_) / 2.0f;
+	float f2 = (far_ - near_) / 2.0f;
 
 	for(auto& v: vec)
 	{
@@ -201,6 +173,21 @@ Eigen::Matrix4f Scene::setViewMatrix(Vec3f eyePos)
 	view = translate * view;
 
 	return view;
+}
+
+void Scene::clear()
+{
+	std::fill(dataBuffer_.begin(), dataBuffer_.end(), Vec3f{ 0, 0, 0 });
+	std::fill(zBuffer_.begin(), zBuffer_.end(), std::numeric_limits<float>::infinity());
+	if(useMsaa_)
+	{
+		for (auto& item : zBufferMsaa_)
+		{
+			item.resize(msaaSpp_);
+			std::fill(item.begin(), item.end(), std::numeric_limits<float>::infinity());
+		}
+	}
+	
 }
 
 int Scene::getIndex(int x, int y) const

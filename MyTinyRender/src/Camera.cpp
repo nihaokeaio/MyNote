@@ -136,8 +136,8 @@ Eigen::Matrix4f Camera::getProjectionMat()
     float aspect = scene_->width_ / scene_->height_;
 
     Eigen::Matrix4f projection = Eigen::Matrix4f::Identity();
-    float zNear = scene_->near_;
-    float zFar = scene_->far_;
+    float zNear = -scene_->near_;
+    float zFar = -scene_->far_;
     projection << zNear, 0, 0, 0,
         0, zNear, 0, 0,
         0, 0, zNear + zFar, -zNear * zFar,
@@ -158,10 +158,10 @@ Eigen::Matrix4f Camera::getProjectionMat()
     return projection;
 }
 
-void Camera::setMoveSpeed(float currentFrame)
+void Camera::setMoveSpeed(double currentFrame)
 {
-    deltaTime_ = currentFrame - lastFrame_;
-    lastFrame_ = currentFrame;
+    deltaTime_ = 1;// currentFrame - lastFrame_;
+    lastFrame_ = 0; //currentFrame;
 }
 
 Vec3f Camera::getCameraPos() const
@@ -178,9 +178,9 @@ Eigen::Matrix4f Camera::myLookAt(const Vec3f& P, const Vec3f& T, const Vec3f& U)
 
     Eigen::Matrix4f matRotate = Eigen::Matrix4f::Identity();
 
-    matRotate << xAxis.x, yAxis.x, zAxis.x, P.x,
-        xAxis.y, yAxis.y, zAxis.y, P.y,
-        xAxis.z, yAxis.z, zAxis.z, P.z,
+    matRotate << xAxis.x, yAxis.x, zAxis.x, -P.x,
+        xAxis.y, yAxis.y, zAxis.y, -P.y,
+        xAxis.z, yAxis.z, zAxis.z, -P.z,
         0, 0, 0, 1;
 
     return matRotate;

@@ -32,7 +32,7 @@ private:
 
 	std::shared_ptr<Camera>camera_;
 
-	std::map<const Mesh*, std::vector<Geometry*>>meshCords_;
+	std::map<std::shared_ptr<Mesh>, std::vector<Geometry*>>meshCords_;
 public:
 	float near_ = 0.1f;
 	float far_ = 50.f;
@@ -50,7 +50,7 @@ public:
 public:
 	Scene();
 
-	void addMesh(const Mesh& mesh);
+	void addMesh(const std::shared_ptr<Mesh>& mesh);
 
 	void doUpDate();
 

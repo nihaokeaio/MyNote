@@ -70,7 +70,16 @@ struct Mesh
         modelMatrix_.setIdentity();
     }
 
-    void loadTexture(const std::shared_ptr<Texture>& texture) { textures_.emplace_back(texture); }
+    ~Mesh()
+    {
+	    
+    }
+
+    void loadTexture(const std::shared_ptr<Texture>& texture)
+    {
+	    textures_.emplace_back(texture);
+        way_ = USE_TEXTURE;
+    }
 
     void setRenderWay(RenderWay way) { way_ = way; }
 

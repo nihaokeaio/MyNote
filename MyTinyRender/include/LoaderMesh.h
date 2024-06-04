@@ -40,7 +40,7 @@ public:
         std::vector<std::string> MeshMatNames;
 
         std::string meshname;
-        Mesh tempMesh;
+        std::shared_ptr<Mesh> tempMesh;
 
 #ifdef OBJL_CONSOLE_OUTPUT
         const unsigned int outputEveryNth = 1000;
@@ -142,14 +142,14 @@ public:
                 if (!Indices.empty() && !Vertices.empty())
                 {
                     // Create Mesh
-                    tempMesh = Mesh(Vertices, Indices);
-                    tempMesh.name_ = meshname;
+                    tempMesh.reset(new Mesh(Vertices, Indices));
+                    tempMesh->name_ = meshname;
                     int i = 2;
                     while (1) {
-                        tempMesh.name_ = meshname + "_" + std::to_string(i);
+                        tempMesh->name_ = meshname + "_" + std::to_string(i);
 
                         for (auto& m : LoadedMeshes_)
-                            if (m.name_ == tempMesh.name_)
+                            if (m->name_ == tempMesh->name_)
                                 continue;
                         break;
                     }
@@ -200,8 +200,8 @@ public:
         if (!Indices.empty() && !Vertices.empty())
         {
             // Create Mesh
-            tempMesh = Mesh(Vertices, Indices);
-            tempMesh.name_ = meshname;
+            tempMesh.reset(new Mesh(Vertices, Indices));
+            tempMesh->name_ = meshname;
 
             // Insert Mesh
             LoadedMeshes_.push_back(tempMesh);
@@ -220,7 +220,7 @@ public:
             {
                 if (LoadedMaterials_[j].name_ == matname)
                 {
-                    LoadedMeshes_[i].material = LoadedMaterials_[j];
+                    LoadedMeshes_[i]->material = LoadedMaterials_[j];
                     break;
                 }
             }
@@ -681,7 +681,7 @@ private:
     }
 public:
     // Loaded Mesh Objects
-    std::vector<Mesh> LoadedMeshes_;
+    std::vector<std::shared_ptr<Mesh>> LoadedMeshes_;
     // Loaded Vertex Objects
     std::vector<Vertex> LoadedVertices_;
     // Loaded Index Positions

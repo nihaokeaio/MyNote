@@ -19,7 +19,7 @@ public:
 	Eigen::Matrix4f getViewMat();
 	Eigen::Matrix4f getProjectionMat();
 
-	void setMoveSpeed(float currentFrame);
+	void setMoveSpeed(double currentFrame);
 
 	Vec3f getCameraPos()const;
 
@@ -29,8 +29,8 @@ private:
 private:
 	Scene* scene_;//场景
 
-	Vec3f cameraPos_ = { 1, 0.5f,-12.f };//摄像机位置
-	Vec3f cameraFront_ = { 0.0f, 0.0f, 1.0f };//摄像机朝向
+	Vec3f cameraPos_ = { 1, 0.5f,12.f };//摄像机位置
+	Vec3f cameraFront_ = { 0.0f, 0.0f, -1.0f };//摄像机朝向
 	Vec3f cameraUp_ = { 0.0f, 1.0f, 0.0f };//摄像机头顶方向
 
 	float deltaTime_ = 0.0f; // 当前帧与上一帧的时间差

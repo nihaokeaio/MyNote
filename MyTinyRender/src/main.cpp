@@ -5,6 +5,7 @@
 #include "LoaderMesh.h"
 #include "Texture.h"
 #include  "Camera.h"
+#include  <ctime>
 
 inline void mouseCallBack(int event, int x, int y, int flags, void* param)
 {
@@ -27,7 +28,7 @@ void drawMesh(Scene* scene)
 
     for (auto mesh : loader.LoadedMeshes_)
     {
-        mesh.loadTexture(texture);
+        mesh->loadTexture(texture);
 		scene->addMesh(mesh);
     }
 }
@@ -82,17 +83,25 @@ void run(Scene* scene)
     bool isFirst = true;
     int frame_count = 0;
     while (key != 27) {
-        //scene->clear();
+        scene->clear();
         scene->doUpDate();
+
+        auto s = std::chrono::duration_cast<std::chrono::seconds>(
+            std::chrono::system_clock::now().time_since_epoch()
+        );
+
+        scene->getCamera()->setMoveSpeed(static_cast<double>(s.count()));
         //scene->write();
         const auto pData = scene->getDataBuffer().data();
+        std::cout << pData;
         cv::Mat image= cv::Mat(scene->width_, scene->height_, CV_32FC3, pData);
+        //std::cout << image;
         //cv::Mat image(scene->width_, scene->height_, CV_32FC3, cv::Scalar(0.2, 0.6, 0.8));
-        image.convertTo(image, CV_8UC3, 1.0f);
+        //image.convertTo(image, CV_8UC3, 1.0f);
         //cv::Mat image(scene->width_, scene->height_, CV_8UC3, cv::Scalar(0, 0, 255));
 		cv::imshow("image", image);
-		//cv::setMouseCallback("image", &mouseCallBack, scene);
-        key = cv::waitKey(10);
+		cv::setMouseCallback("image", &mouseCallBack, scene);
+        //key = cv::waitKey(10);
         /*for(int i=0;i<scene->width_;++i)
         {
             for (int j = 0; j < scene->height_; ++j)

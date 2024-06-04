@@ -40,22 +40,22 @@ Scene::Scene()
 }
 
 
-void Scene::addMesh(const Mesh& mesh)
+void Scene::addMesh(const std::shared_ptr<Mesh>& mesh)
 {
 	std::vector<Geometry*>geometries;
-	for (int i = 0; i < mesh.vertices_.size(); i += 3)
+	for (int i = 0; i < mesh->vertices_.size(); i += 3)
 	{
 		Triangle* t = new Triangle();
 		for (int j = 0; j < 3; j++)
 		{
-			t->setVertex(j, Vec3f(mesh.vertices_[i + j].position_.x, mesh.vertices_[i + j].position_.y, mesh.vertices_[i + j].position_.z));
-			t->setNormal(j, Vec3f(mesh.vertices_[i + j].normal_.x, mesh.vertices_[i + j].normal_.y, mesh.vertices_[i + j].normal_.z));
-			t->setTexCoord(j, Vec2f(mesh.vertices_[i + j].textureCoordinate_.x, mesh.vertices_[i + j].textureCoordinate_.y));
+			t->setVertex(j, Vec3f(mesh->vertices_[i + j].position_.x, mesh->vertices_[i + j].position_.y, mesh->vertices_[i + j].position_.z));
+			t->setNormal(j, Vec3f(mesh->vertices_[i + j].normal_.x, mesh->vertices_[i + j].normal_.y, mesh->vertices_[i + j].normal_.z));
+			t->setTexCoord(j, Vec2f(mesh->vertices_[i + j].textureCoordinate_.x, mesh->vertices_[i + j].textureCoordinate_.y));
 		}
 		t->boxConstruct();
 		geometries.push_back(t);
 	}
-	auto pair = std::make_pair(&mesh, geometries);
+	auto pair = std::make_pair(mesh, geometries);
 	meshCords_.insert(pair);
 }
 
@@ -65,7 +65,7 @@ void Scene::doUpDate()
 	{
 		for (const auto& model : it.second)
 		{
-			const Mesh* mesh = it.first;
+			const Mesh* mesh = it.first.get();
 			auto* triangle = dynamic_cast<Triangle*>(model);
 			if (!triangle)
 				return;

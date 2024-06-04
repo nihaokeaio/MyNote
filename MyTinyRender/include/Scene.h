@@ -6,53 +6,65 @@
 #include <Eigen/Eigen>
 
 
+class Camera;
+class Rasterizer;
+struct Mesh;
 class Geometry;
 class Triangle;
 
 
-enum class RasterizerWay
-{
-	DEFAULT = 0,
-	BARYCENTRIC = 1,
-	MASS = 2
-};
+
 
 
 
 
 class Scene
 {
+	friend void mouseCallBack(int event, int x, int y, int flags, void* param);
 private:
-	int width_ = 1280;
-	int height_ = 960;
 
-	float near = 0.1f;
-	float far = 50.f;
+	std::vector<Vec3f>dataBuffer_={};
+	std::vector<float>zBuffer_={};
+	std::vector<std::vector<float>>zBufferMsaa_={};
+	bool useMsaa_ = false;
+
+	std::shared_ptr<Rasterizer> rasterizer_;
+
+	std::shared_ptr<Camera>camera_;
+
+	std::map<const Mesh*, std::vector<Geometry*>>meshCords_;
+public:
+	float near_ = 0.1f;
+	float far_ = 50.f;
 	float aspectRatio_ = width_ / height_;
 	float eyeFov_ = 45;
 
-	std::vector<Vec3f>dataBuffer_;
-	std::vector<float>zBuffer_;
-	std::vector<std::vector<float>>zBufferMsaa_;
-	bool useMsaa_ = false;
+	int width_ = 960;
+	int height_ = 960;
+
+
 	int msaaH_ = 2, msaaV_ = 2;
 	int msaaSpp_ = msaaH_ * msaaV_;
+
+
 public:
 	Scene();
 
-	void addModel(std::vector<Geometry*> geometries);
+	void addMesh(const Mesh& mesh);
 
-	void rasterizeTriangle(Geometry* geometry);
-	void rasterizeTriangle(int i, int y, RasterizerWay way, Triangle* triangle);
+	void doUpDate();
 
+	void rasterizeTriangle(Geometry* geometry, const Mesh*  mesh);
 
-	Eigen::Matrix4f projectMatrix() const;
+	std::vector<Eigen::Vector4f> getViewPortPos(const std::vector<Vec3f>& trianglePos, const Mesh* mesh) const;
 
-	void viewportMatrix(std::vector<Eigen::Vector4f>& vec);
+	void viewportMatrix(std::vector<Eigen::Vector4f>& vec) const;
 
 	static Eigen::Matrix4f setViewMatrix(Vec3f eyePos);
 	
+	void clear();
 
+	Camera* getCamera() const { return  camera_.get(); }
 
 	int getIndex(int x,int y) const;
 	int getMsaaIndex(int h,int v) const;
@@ -61,6 +73,7 @@ public:
 	void setDataBuffer(int index, const Vec3f& data);
 	Vec3f getDataBuffer(int index) const;
 	Vec3f getDataBuffer(int x, int y) const;
+	std::vector<Vec3f>& getDataBuffer() { return dataBuffer_; };
 	//…Ó∂»÷µ
 	void setZBuffer(int index, const float val);
 	void setZBuffer(int x, int y, const float val);
@@ -77,3 +90,4 @@ public:
 	void write() const;
 	void useMsaa(int sizeH = 2, int sizeV = 2);
 };
+

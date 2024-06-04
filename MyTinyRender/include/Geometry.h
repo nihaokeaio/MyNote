@@ -145,6 +145,26 @@ public:
 		point_[inx] = pos;
 	}
 
+	void setNormal(int inx, const Vec3f& pos)
+	{
+		normal_[inx] = pos;
+	}
+
+	Vec3f getNormal(int inx) const
+	{
+		return normal_[inx];
+	}
+
+	void setTexCoord(int inx, const Vec2f& pos)
+	{
+		coordTexture_[inx] = pos;
+	}
+
+	Vec2f getTexCoord(int inx)
+	{
+		return coordTexture_[inx];
+	}
+
 
 	void boxConstruct()
 	{
@@ -166,10 +186,12 @@ public:
 	Vec3f* vertexs() { return point_; }
 	Vec3f vertexs(int index) const { return point_[index]; }
 
-	std::vector<Eigen::Vector4f> setModelMatrix(Eigen::Matrix4f mat);
+	std::vector<Vec3f> getVertexs();
 private:
 	Vec3f point_[3];
+	Vec3f normal_[3];
 	Vec3f color_[3];
+	Vec2f coordTexture_[3];
 
 	BoundBox box_;
 };

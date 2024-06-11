@@ -13,7 +13,7 @@ Camera::Camera(Scene* scene)
 void Camera::processInput()
 {
     float cameraSpeed = 2.5f * deltaTime_; // adjust accordingly
-
+    std::cout << " cameraSpeed = " << cameraSpeed << std::endl;
     int key = 0;
     if (key != 27)
     {
@@ -27,31 +27,36 @@ void Camera::processInput()
         case 'A':
         {
             cameraPos_ -= cameraFront_.cross(cameraUp_).normalize() * cameraSpeed;
+            std::cout << " A Pressed" << std::endl;
             break;
         }
 
         case 'S':
         {
             cameraPos_ -= cameraSpeed * cameraFront_;
+            std::cout << " S Pressed" << std::endl;
             break;
         }
 
         case 'D':
         {
             cameraPos_ += cameraFront_.cross(cameraUp_).normalize() * cameraSpeed;
+            std::cout << " D Pressed" << std::endl;
             break;
         }
 
         case 'W':
         {
             cameraPos_ += cameraSpeed * cameraFront_;
+            std::cout << " W Pressed" << std::endl;
             break;
         }
 
-        default:;
+        default:
+            break;
         }
     }
-    
+    std::cout << "cameraPos_ = " << cameraPos_ << std::endl;
     /*
      ///原神水下移动玩法
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
@@ -79,8 +84,8 @@ void Camera::mouseCallBack(int event, int x, int y, int flags, void* param)
 	            firstMouse_ = false;
 	            return;
 	        }
-	        float xOffset = x - lastX_;
-	        float yOffset = lastY_ - y;//由于这里左下角为（0，0），与传统的坐标系统不同，因此y轴需要取反
+	        float xOffset = (x - lastX_);
+            float yOffset = -(y - lastY_);//这里设置坐下角为（0，0）
 	        lastX_ = x;
 	        lastY_ = y;
 	        constexpr float sensitivity = 0.05f;
@@ -150,7 +155,7 @@ Eigen::Matrix4f Camera::getProjectionMat()
 
     ortho << 2 / W, 0, 0, 0,
         0, 2 / H, 0, 0,
-        0, 0, 2 / (zNear - zFar), 0,
+        0, 0, -2 / (zNear - zFar), 0,
         0, 0, 0, 1;
 
     projection = scale * ortho * projection;
@@ -169,6 +174,11 @@ Vec3f Camera::getCameraPos() const
     return cameraPos_;
 }
 
+Vec3f Camera::getCameraDir() const
+{
+    return cameraFront_;
+}
+
 
 Eigen::Matrix4f Camera::myLookAt(const Vec3f& P, const Vec3f& T, const Vec3f& U)
 {
@@ -177,11 +187,22 @@ Eigen::Matrix4f Camera::myLookAt(const Vec3f& P, const Vec3f& T, const Vec3f& U)
     Vec3f yAxis = zAxis.cross(xAxis);
 
     Eigen::Matrix4f matRotate = Eigen::Matrix4f::Identity();
+    Eigen::Matrix4f matTranslate = Eigen::Matrix4f::Identity();
 
-    matRotate << xAxis.x, yAxis.x, zAxis.x, -P.x,
-        xAxis.y, yAxis.y, zAxis.y, -P.y,
-        xAxis.z, yAxis.z, zAxis.z, -P.z,
+    /*matRotate << xAxis.x, yAxis.x, zAxis.x, 0,
+        xAxis.y, yAxis.y, zAxis.y, 0,
+        xAxis.z, yAxis.z, zAxis.z, 0,
+        0, 0, 0, 1;*/
+
+    matTranslate << 1, 0, 0, -P.x,
+        0, 1, 0, -P.y,
+        0, 0, 1, -P.z,
         0, 0, 0, 1;
 
-    return matRotate;
+    matRotate << xAxis.x, xAxis.y, xAxis.z, 0,
+        yAxis.x, yAxis.y, yAxis.z, 0,
+        zAxis.x, zAxis.y, zAxis.z, 0,
+        0, 0, 0, 1;
+
+    return matRotate * matTranslate;
 }

@@ -78,7 +78,7 @@ struct Mesh
     void loadTexture(const std::shared_ptr<Texture>& texture)
     {
 	    textures_.emplace_back(texture);
-        way_ = USE_TEXTURE;
+        way_ = USE_COLOR;
     }
 
     void setRenderWay(RenderWay way) { way_ = way; }

@@ -82,25 +82,27 @@ void run(Scene* scene)
     //cv::setMouseCallback("image", &mouseCallBack, scene);
     bool isFirst = true;
     int frame_count = 0;
+    scene->getCamera()->setMoveSpeed(-1);
     while (key != 27) {
         scene->clear();
         scene->doUpDate();
 
-        auto s = std::chrono::duration_cast<std::chrono::seconds>(
+        /*auto s = std::chrono::duration_cast<std::chrono::seconds>(
             std::chrono::system_clock::now().time_since_epoch()
         );
 
-        scene->getCamera()->setMoveSpeed(static_cast<double>(s.count()));
+        scene->getCamera()->setMoveSpeed(static_cast<double>(s.count()));*/
         //scene->write();
         const auto pData = scene->getDataBuffer().data();
-        std::cout << pData;
         cv::Mat image= cv::Mat(scene->width_, scene->height_, CV_32FC3, pData);
+        //cv::flip(image, image, 0);
         //std::cout << image;
         //cv::Mat image(scene->width_, scene->height_, CV_32FC3, cv::Scalar(0.2, 0.6, 0.8));
         //image.convertTo(image, CV_8UC3, 1.0f);
         //cv::Mat image(scene->width_, scene->height_, CV_8UC3, cv::Scalar(0, 0, 255));
 		cv::imshow("image", image);
 		cv::setMouseCallback("image", &mouseCallBack, scene);
+        std::cout << scene->getCamera()->getCameraDir() << std::endl;;
         //key = cv::waitKey(10);
         /*for(int i=0;i<scene->width_;++i)
         {

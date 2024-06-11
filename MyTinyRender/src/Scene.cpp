@@ -98,14 +98,18 @@ void Scene::doUpDate()
 			std::vector<Eigen::Vector4f> vec = getViewPortPos(triangle->getVertexs(), mesh);
 			//π‚’§ªØ
 			Triangle t;
+			//Vec3f color = { k / it.second.size()};
 			for (int i = 0; i < 3; ++i)
 			{
 				Vec3f v = { vec[i].x(),vec[i].y(),vec[i].z() };
 
 				t.setVertex(i, v);
-				t.setColor(i, triangle->getColor(i));
+				//t.setColor(i, color);
 				t.setTexCoord(i, triangle->getTexCoord(i));
 			}
+			t.setColor(0, Color::Red);
+			t.setColor(1, Color::Green);
+			t.setColor(2, Color::Blue);
 			t.boxConstruct();
 			rasterizeTriangle(&t, mesh);
 		}
@@ -139,7 +143,7 @@ std::vector<Eigen::Vector4f> Scene::getViewPortPos(const std::vector<Vec3f>& tri
 		res.push_back(vec4f);
 	}
 	viewportMatrix(res);
-	return std::move(res);
+	return res;
 }
 
 void  Scene::viewportMatrix(std::vector<Eigen::Vector4f>& vec) const

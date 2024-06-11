@@ -22,6 +22,7 @@ public:
 	void setMoveSpeed(double currentFrame);
 
 	Vec3f getCameraPos()const;
+	Vec3f getCameraDir()const;
 
 private:
 	static Eigen::Matrix4f myLookAt(const Vec3f& P, const Vec3f& T, const Vec3f& U);
@@ -29,7 +30,7 @@ private:
 private:
 	Scene* scene_;//场景
 
-	Vec3f cameraPos_ = { 1, 0.5f,12.f };//摄像机位置
+	Vec3f cameraPos_ = { 0, 0.0f,10.0f };//摄像机位置
 	Vec3f cameraFront_ = { 0.0f, 0.0f, -1.0f };//摄像机朝向
 	Vec3f cameraUp_ = { 0.0f, 1.0f, 0.0f };//摄像机头顶方向
 

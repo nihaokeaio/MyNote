@@ -24,6 +24,8 @@
     <ClInclude Include="include\global.hpp" />
     <ClInclude Include="include\LoaderMesh.h" />
     <ClInclude Include="include\Mesh.h" />
+    <ClInclude Include="include\Shader.h" />
+    <ClInclude Include="include\Timer.h" />
     <ClInclude Include="include\Scene.h" />
     <ClInclude Include="include\Texture.h" />
     <ClInclude Include="include\Vector.hpp" />
@@ -140,6 +142,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <DisableSpecificWarnings>
       </DisableSpecificWarnings>
+      <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -150,19 +153,26 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level1</WarningLevel>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>true</SDLCheck>
+      <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>./include;$(EigenDir)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./include;$(EigenDir);$(OpenCVDIR)\include</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <SupportJustMyCode>true</SupportJustMyCode>
+      <Optimization>Disabled</Optimization>
+      <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(OpenCVDir)\x64\vc16\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opencv_world490.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

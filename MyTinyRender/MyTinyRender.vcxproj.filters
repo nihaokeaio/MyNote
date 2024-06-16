@@ -39,6 +39,10 @@
     <ClInclude Include="include\Mesh.h">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="include\Timer.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Shader.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">

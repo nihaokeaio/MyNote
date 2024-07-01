@@ -4,7 +4,7 @@
 
 struct fragment_shader_payload
 {
-	fragment_shader_payload() = delete;
+	fragment_shader_payload();
 
 
 	explicit fragment_shader_payload(const Vec3f& col, const Vec3f& nor, const Vec2f& tc, const Mesh* m) :

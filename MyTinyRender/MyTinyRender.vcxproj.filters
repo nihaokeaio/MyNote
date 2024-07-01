@@ -42,7 +42,9 @@
     <ClInclude Include="include\Timer.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\Shader.h" />
+    <ClInclude Include="include\Shader.h">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">

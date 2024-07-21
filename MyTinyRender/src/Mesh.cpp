@@ -25,6 +25,7 @@ void Mesh::addTriangle(const Triangle* t)
         v.position_ = t->vertexs(i);
         v.normal_ = t->getNormal(i);
         v.textureCoordinate_ = t->getTexCoord(i);
+        v.color_ = t->getColor(i);
         vertices_.push_back(v);
     }
 }

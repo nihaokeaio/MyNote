@@ -1,0 +1,10 @@
+﻿  Application.cpp
+Application.obj : error LNK2019: 无法解析的外部符号 _glfwInit，函数 _main 中引用了该符号
+Application.obj : error LNK2019: 无法解析的外部符号 _glfwTerminate，函数 _main 中引用了该符号
+Application.obj : error LNK2019: 无法解析的外部符号 _glfwCreateWindow，函数 _main 中引用了该符号
+Application.obj : error LNK2019: 无法解析的外部符号 _glfwWindowShouldClose，函数 _main 中引用了该符号
+Application.obj : error LNK2019: 无法解析的外部符号 _glfwPollEvents，函数 _main 中引用了该符号
+Application.obj : error LNK2019: 无法解析的外部符号 _glfwMakeContextCurrent，函数 _main 中引用了该符号
+Application.obj : error LNK2019: 无法解析的外部符号 _glfwSwapBuffers，函数 _main 中引用了该符号
+C:\Users\ZQD-N\Desktop\program\nwe\openGL_hello_world\Dependencies\lib\glfw3.lib : warning LNK4272: 库计算机类型“x64”与目标计算机类型“x86”冲突
+C:\Users\ZQD-N\Desktop\program\nwe\openGL_hello_world\Debug\openGL_hello_world.exe : fatal error LNK1120: 7 个无法解析的外部命令

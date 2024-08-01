@@ -1,11 +1,8 @@
-/Animation/
-
 .vs/
-
 x64/
 
 Debug/
 
-output
+output/
 
 bin.x64/

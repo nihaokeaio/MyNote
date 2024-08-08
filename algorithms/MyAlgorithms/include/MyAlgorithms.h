@@ -49,7 +49,6 @@ public:
 
 	///二叉树
 	///递归遍历
-	///三种常见的递归遍历，前中后序遍历
-	void traverse(TreeNode* root);
+	
 private:
 };

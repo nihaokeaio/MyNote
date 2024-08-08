@@ -101,15 +101,3 @@ ListNode* MyAlgorithms::removeNthFromEnd(ListNode* head, int n)
     delete p;
     return first->next;
 }
-
-void MyAlgorithms::traverse(TreeNode* root)
-{
-    if(root==nullptr)
-        return;
-
-    ///前序遍历
-    traverse(root->left);
-    ///中序遍历
-    traverse(root->right);
-    ///后续遍历
-}

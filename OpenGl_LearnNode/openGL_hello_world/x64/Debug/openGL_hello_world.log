@@ -1,3 +1,0 @@
-﻿  Application.cpp
-C:\Users\ZQD-N\Desktop\program\nwe\openGL_hello_world\src\Application.cpp(188,25): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
-  openGL_hello_world.vcxproj -> C:\Users\ZQD-N\Desktop\program\nwe\openGL_hello_world\x64\Debug\openGL_hello_world.exe

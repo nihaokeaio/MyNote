@@ -20,21 +20,70 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Dependencies\glad\src\glad.c" />
+    <ClCompile Include="src\Model.cpp" />
+    <ClCompile Include="src\Camera.cpp" />
+    <ClCompile Include="src\Mesh.cpp" />
     <ClCompile Include="src\stb_image.cpp" />
     <ClCompile Include="src\Application.cpp" />
     <ClCompile Include="src\MyShader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Dependencies\glm\common.hpp" />
+    <ClInclude Include="Dependencies\glm\exponential.hpp" />
+    <ClInclude Include="Dependencies\glm\ext.hpp" />
+    <ClInclude Include="Dependencies\glm\fwd.hpp" />
+    <ClInclude Include="Dependencies\glm\geometric.hpp" />
+    <ClInclude Include="Dependencies\glm\glm.hpp" />
+    <ClInclude Include="Dependencies\glm\integer.hpp" />
+    <ClInclude Include="Dependencies\glm\mat2x2.hpp" />
+    <ClInclude Include="Dependencies\glm\mat2x3.hpp" />
+    <ClInclude Include="Dependencies\glm\mat2x4.hpp" />
+    <ClInclude Include="Dependencies\glm\mat3x2.hpp" />
+    <ClInclude Include="Dependencies\glm\mat3x3.hpp" />
+    <ClInclude Include="Dependencies\glm\mat3x4.hpp" />
+    <ClInclude Include="Dependencies\glm\mat4x2.hpp" />
+    <ClInclude Include="Dependencies\glm\mat4x3.hpp" />
+    <ClInclude Include="Dependencies\glm\mat4x4.hpp" />
+    <ClInclude Include="Dependencies\glm\matrix.hpp" />
+    <ClInclude Include="Dependencies\glm\packing.hpp" />
+    <ClInclude Include="Dependencies\glm\trigonometric.hpp" />
+    <ClInclude Include="Dependencies\glm\vec2.hpp" />
+    <ClInclude Include="Dependencies\glm\vec3.hpp" />
+    <ClInclude Include="Dependencies\glm\vec4.hpp" />
+    <ClInclude Include="Dependencies\glm\vector_relational.hpp" />
+    <ClInclude Include="include\Camera.h" />
+    <ClInclude Include="include\Mesh.h" />
+    <ClInclude Include="include\Model.h" />
     <ClInclude Include="include\MyShader.h" />
     <ClInclude Include="include\stb_image.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Dependencies\glm\.appveyor.yml" />
+    <None Include="Dependencies\glm\.gitignore" />
+    <None Include="Dependencies\glm\.travis.yml" />
+    <None Include="Dependencies\glm\manual.md" />
+    <None Include="Dependencies\glm\readme.md" />
+    <None Include="Resource\lightshader.fs" />
+    <None Include="Resource\lightshader.vs" />
+    <None Include="Resource\model_loading.fs" />
+    <None Include="Resource\model_loading.vs" />
     <None Include="Resource\shader.vs" />
-    <None Include="Resource\shader.fs" />
+    <None Include="Resource\shader.fs">
+      <FileType>Document</FileType>
+    </None>
   </ItemGroup>
   <ItemGroup>
+    <Image Include="Resource\awesomeface.jpg" />
     <Image Include="Resource\awesomeface.png" />
+    <Image Include="Resource\AyaKa.png" />
     <Image Include="Resource\container.jpg" />
+    <Image Include="Resource\container2.jpg" />
+    <Image Include="Resource\container2_specular.jpg" />
+    <Image Include="Resource\matrix.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Dependencies\glm\CMakeLists.txt" />
+    <Text Include="Dependencies\glm\copying.txt" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -90,19 +139,22 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Users\ZQD-N\Desktop\program\nwe\openGL_hello_world\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\ZQD-N\Desktop\program\nwe\openGL_hello_world\Dependencies;C:\Users\ZQD-N\Desktop\program\nwe\openGL_hello_world\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\Users\ZQD-N\Desktop\program\nwe\openGL_hello_world\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\ZQD-N\Desktop\program\nwe\openGL_hello_world\Dependencies;C:\Users\ZQD-N\Desktop\program\nwe\openGL_hello_world\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Users\ZQD-N\Desktop\program\nwe\openGL_hello_world\include;$(IncludePath)</IncludePath>
+    <IncludePath>
+    </IncludePath>
+    <OutDir>$(SolutionDir)bin.x64\</OutDir>
+    <IntDir>$(ProjectDir)\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\Users\ZQD-N\Desktop\program\nwe\openGL_hello_world\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\ZQD-N\Desktop\program\nwe\openGL_hello_world\Dependencies;C:\Users\ZQD-N\Desktop\program\nwe\openGL_hello_world\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -144,13 +196,14 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Dependencies\glad\include;$(SolutionDir)Dependencies\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\include;.\Dependencies;$(IncludePath);$(SolutionDir)Dependencies\glad\include;$(SolutionDir)Dependencies\GLFW\include;$(SolutionDir)Dependencies\Assimp\include;$(SolutionDir)Dependencies\Assimp\include\assimp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)Dependencies\lib;</AdditionalLibraryDirectories>
-      <AdditionalDependencies>OpenGL32.Lib;glfw3.lib;User32.lib;Gdi32.lib;Shell32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)Dependencies\GLFW\lib;$(SolutionDir)Dependencies\Assimp\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>OpenGL32.Lib;glfw3.lib;User32.lib;Gdi32.lib;Shell32.lib;assimp-vc143-mt.lib</AdditionalDependencies>
+      <OutputFile>$(SolutionDir)bin.x64\$(TargetName)$(TargetExt)</OutputFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

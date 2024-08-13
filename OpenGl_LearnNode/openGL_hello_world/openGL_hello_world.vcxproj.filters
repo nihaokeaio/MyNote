@@ -27,6 +27,15 @@
     <ClCompile Include="src\stb_image.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="src\Camera.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Mesh.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Model.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\MyShader.h">
@@ -35,10 +44,97 @@
     <ClInclude Include="include\stb_image.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Dependencies\glm\common.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\glm\exponential.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\glm\ext.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\glm\fwd.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\glm\geometric.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\glm\glm.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\glm\integer.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\glm\mat2x2.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\glm\mat2x3.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\glm\mat2x4.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\glm\mat3x2.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\glm\mat3x3.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\glm\mat3x4.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\glm\mat4x2.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\glm\mat4x3.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\glm\mat4x4.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\glm\matrix.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\glm\packing.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\glm\trigonometric.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\glm\vec2.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\glm\vec3.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\glm\vec4.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\glm\vector_relational.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Camera.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Mesh.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Model.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Resource\shader.vs" />
+    <None Include="Dependencies\glm\.appveyor.yml" />
+    <None Include="Dependencies\glm\.gitignore" />
+    <None Include="Dependencies\glm\.travis.yml" />
+    <None Include="Dependencies\glm\manual.md" />
+    <None Include="Dependencies\glm\readme.md" />
+    <None Include="Resource\lightshader.vs" />
+    <None Include="Resource\lightshader.fs" />
     <None Include="Resource\shader.fs" />
+    <None Include="Resource\model_loading.fs" />
+    <None Include="Resource\model_loading.vs" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Resource\container.jpg">
@@ -47,5 +143,24 @@
     <Image Include="Resource\awesomeface.png">
       <Filter>资源文件</Filter>
     </Image>
+    <Image Include="Resource\AyaKa.png">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="Resource\container2_specular.jpg">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="Resource\container2.jpg">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="Resource\awesomeface.jpg">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="Resource\matrix.jpg">
+      <Filter>资源文件</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Dependencies\glm\CMakeLists.txt" />
+    <Text Include="Dependencies\glm\copying.txt" />
   </ItemGroup>
 </Project>

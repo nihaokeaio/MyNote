@@ -99,7 +99,7 @@ void MyShader::loadTexture(const std::string& filename, unsigned int& texture)
 
     if (data)
     {
-        GLenum format;
+        GLenum format = GL_RGB;
         if (nChannal == 1)
             format = GL_RED;
         else if (nChannal == 3)
@@ -109,7 +109,7 @@ void MyShader::loadTexture(const std::string& filename, unsigned int& texture)
 
         //bind obj with data
         glBindTexture(GL_TEXTURE_2D, texture);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
     }
     else

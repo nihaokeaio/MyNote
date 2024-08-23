@@ -13,18 +13,18 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="shaderVertex">
+      <UniqueIdentifier>{11d3e5a3-545f-45c8-9e15-54eedb3a21cc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shaderFragment">
+      <UniqueIdentifier>{76fabf6b-411d-4a82-8c50-f82c433eb6da}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Application.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Dependencies\glad\src\glad.c">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="src\MyShader.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="src\stb_image.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="src\Camera.cpp">
@@ -36,81 +36,15 @@
     <ClCompile Include="src\Model.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="src\stb_image.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Dependencies\glad\src\glad.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\MyShader.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="include\stb_image.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Dependencies\glm\common.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Dependencies\glm\exponential.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Dependencies\glm\ext.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Dependencies\glm\fwd.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Dependencies\glm\geometric.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Dependencies\glm\glm.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Dependencies\glm\integer.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Dependencies\glm\mat2x2.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Dependencies\glm\mat2x3.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Dependencies\glm\mat2x4.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Dependencies\glm\mat3x2.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Dependencies\glm\mat3x3.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Dependencies\glm\mat3x4.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Dependencies\glm\mat4x2.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Dependencies\glm\mat4x3.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Dependencies\glm\mat4x4.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Dependencies\glm\matrix.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Dependencies\glm\packing.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Dependencies\glm\trigonometric.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Dependencies\glm\vec2.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Dependencies\glm\vec3.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Dependencies\glm\vec4.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Dependencies\glm\vector_relational.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="include\Camera.h">
@@ -124,43 +58,34 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resource\shader.vs" />
-    <None Include="Dependencies\glm\.appveyor.yml" />
-    <None Include="Dependencies\glm\.gitignore" />
-    <None Include="Dependencies\glm\.travis.yml" />
-    <None Include="Dependencies\glm\manual.md" />
-    <None Include="Dependencies\glm\readme.md" />
-    <None Include="Resource\lightshader.vs" />
-    <None Include="Resource\lightshader.fs" />
-    <None Include="Resource\shader.fs" />
-    <None Include="Resource\model_loading.fs" />
-    <None Include="Resource\model_loading.vs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="Resource\container.jpg">
-      <Filter>资源文件</Filter>
-    </Image>
-    <Image Include="Resource\awesomeface.png">
-      <Filter>资源文件</Filter>
-    </Image>
-    <Image Include="Resource\AyaKa.png">
-      <Filter>资源文件</Filter>
-    </Image>
-    <Image Include="Resource\container2_specular.jpg">
-      <Filter>资源文件</Filter>
-    </Image>
-    <Image Include="Resource\container2.jpg">
-      <Filter>资源文件</Filter>
-    </Image>
-    <Image Include="Resource\awesomeface.jpg">
-      <Filter>资源文件</Filter>
-    </Image>
-    <Image Include="Resource\matrix.jpg">
-      <Filter>资源文件</Filter>
-    </Image>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="Dependencies\glm\CMakeLists.txt" />
-    <Text Include="Dependencies\glm\copying.txt" />
+    <None Include="shader\lightshader.fs">
+      <Filter>shaderFragment</Filter>
+    </None>
+    <None Include="shader\model_loading.fs">
+      <Filter>shaderFragment</Filter>
+    </None>
+    <None Include="shader\shader.fs">
+      <Filter>shaderFragment</Filter>
+    </None>
+    <None Include="shader\model_loading.vs">
+      <Filter>shaderVertex</Filter>
+    </None>
+    <None Include="shader\lightshader.vs">
+      <Filter>shaderVertex</Filter>
+    </None>
+    <None Include="shader\shader.vs">
+      <Filter>shaderVertex</Filter>
+    </None>
+    <None Include="shader\shaderSingleColor.fs">
+      <Filter>shaderFragment</Filter>
+    </None>
+    <None Include="src\shaderSingleColor.vs">
+      <Filter>shaderVertex</Filter>
+    </None>
+    <None Include="shader\grassBlend.vs" />
+    <None Include="shader\grassBlend.fs" />
+    <None Include="shader\shaderSingleColor.vs" />
+    <None Include="shader\frameBuffer.vs" />
+    <None Include="shader\frameBuffer.fs" />
   </ItemGroup>
 </Project>

@@ -177,6 +177,50 @@ int main()
         -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f
     };
 
+    float skyboxVertices[] = {
+        // positions          
+        -1.0f,  1.0f, -1.0f,
+        -1.0f, -1.0f, -1.0f,
+         1.0f, -1.0f, -1.0f,
+         1.0f, -1.0f, -1.0f,
+         1.0f,  1.0f, -1.0f,
+        -1.0f,  1.0f, -1.0f,
+
+        -1.0f, -1.0f,  1.0f,
+        -1.0f, -1.0f, -1.0f,
+        -1.0f,  1.0f, -1.0f,
+        -1.0f,  1.0f, -1.0f,
+        -1.0f,  1.0f,  1.0f,
+        -1.0f, -1.0f,  1.0f,
+
+         1.0f, -1.0f, -1.0f,
+         1.0f, -1.0f,  1.0f,
+         1.0f,  1.0f,  1.0f,
+         1.0f,  1.0f,  1.0f,
+         1.0f,  1.0f, -1.0f,
+         1.0f, -1.0f, -1.0f,
+
+        -1.0f, -1.0f,  1.0f,
+        -1.0f,  1.0f,  1.0f,
+         1.0f,  1.0f,  1.0f,
+         1.0f,  1.0f,  1.0f,
+         1.0f, -1.0f,  1.0f,
+        -1.0f, -1.0f,  1.0f,
+
+        -1.0f,  1.0f, -1.0f,
+         1.0f,  1.0f, -1.0f,
+         1.0f,  1.0f,  1.0f,
+         1.0f,  1.0f,  1.0f,
+        -1.0f,  1.0f,  1.0f,
+        -1.0f,  1.0f, -1.0f,
+
+        -1.0f, -1.0f, -1.0f,
+        -1.0f, -1.0f,  1.0f,
+         1.0f, -1.0f, -1.0f,
+         1.0f, -1.0f, -1.0f,
+        -1.0f, -1.0f,  1.0f,
+         1.0f, -1.0f,  1.0f
+    };
 
     float planeVertices[] = {
         // positions          // texture Coords (note we set these higher than 1 (together with GL_REPEAT as texture wrapping mode). this will cause the floor texture to repeat)
@@ -310,6 +354,10 @@ int main()
     MyShader grassShader("./Shader/grassBlend.vs", "./Shader/grassBlend.fs");
 
     MyShader frameShader("./Shader/frameBuffer.vs", "./Shader/frameBuffer.fs");
+
+    MyShader skyBoxShader("./Shader/skybox.vs", "./Shader/skybox.fs");
+
+    MyShader reflectBoxShader("./Shader/reflectBox.vs", "./Shader/reflectBox.fs");
      
     unsigned int lightVAO;
     unsigned int VBO;
@@ -338,7 +386,9 @@ int main()
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
     glBindVertexArray(0);
 
     // plane VAO
@@ -381,11 +431,36 @@ int main()
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
     glBindVertexArray(0);
 
+
+    //skyBoxVAO
+    unsigned int skyBoxVAO, skyBoxVBO;
+    glGenVertexArrays(1, &skyBoxVAO);
+    glGenBuffers(1, &skyBoxVBO);
+    glBindVertexArray(skyBoxVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, skyBoxVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+    glBindVertexArray(0);
+
     unsigned int transparentTexture;
     MyShader::loadTexture("./Resource/transWindow.png", transparentTexture);
 
     unsigned int boxTexture;
     MyShader::loadTexture("./Resource/container.jpg", boxTexture);
+    
+    std::vector<std::string>cubeFileName =
+    {
+        "./Resource/skybox/right.jpg",
+        "./Resource/skybox/left.jpg",
+        "./Resource/skybox/top.jpg",
+        "./Resource/skybox/bottom.jpg",
+        "./Resource/skybox/front.jpg",
+        "./Resource/skybox/back.jpg",
+    };
+
+    unsigned int skyBoxTexture;
+    MyShader::loadCubeTexture(cubeFileName, skyBoxTexture);
 
     std::vector<glm::vec3> vegetation
     {
@@ -563,6 +638,8 @@ int main()
         glClearColor(0.5f, 0.5f, 0.5f, 0.5f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        
+
         //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         ///放置一个箱子,但沿用frameShader
         frameShader.use();
@@ -575,29 +652,62 @@ int main()
         frameShader.setMat4("projection", projection);
         frameShader.setMat4("model", frameModel);
         
-
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
 
         ///放置一个箱子,但沿用grassShader
-        grassShader.use();
+        reflectBoxShader.use();
         glBindVertexArray(cubeVAO);
         glBindTexture(GL_TEXTURE_2D, boxTexture);
+        //glBindTexture(GL_TEXTURE_CUBE_MAP, skyBoxTexture);
         //glm::mat4 boxModel;
+
         boxModel = glm::mat4(1.0f);
         boxModel = glm::translate(boxModel, glm::vec3(1.0f));
         boxModel = glm::scale(boxModel, glm::vec3(0.5f));
-        boxModel = glm::rotate(boxModel, timeValue, glm::vec3(0.0f, 0.0f, 1.0f));
+        //boxModel = glm::rotate(boxModel, timeValue, glm::vec3(0.0f, 0.0f, 1.0f));
 
-        grassShader.setMat4("model", boxModel);
-        grassShader.setMat4("view", view);
-        grassShader.setMat4("projection", projection);
+        reflectBoxShader.setMat4("model", boxModel);
+        reflectBoxShader.setMat4("view", view);
+        reflectBoxShader.setMat4("projection", projection);
+        reflectBoxShader.setVec3("cameraPos", camera->getCameraPos());
 
         //glBindVertexArray(lightVAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
         //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
+        reflectBoxShader.use();
+        reflectBoxShader.setMat4("projection", projection);
+        reflectBoxShader.setMat4("view", view);
+
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
+        model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
+        reflectBoxShader.setMat4("model", model);
+        modelLoader.Draw(reflectBoxShader);
+
+
+
+
+        ///放置一个skyBox,使用skyBoxShader
+        glDepthFunc(GL_LEQUAL);
+        skyBoxShader.use();
+        glBindVertexArray(skyBoxVAO);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, skyBoxTexture);
+        //glm::mat4 boxModel;
+        boxModel = glm::mat4(1.0f);
+        //移除摄像机的位移信息
+        view = glm::mat4(glm::mat3(camera->getViewMat()));
+
+        skyBoxShader.setMat4("model", boxModel);
+        skyBoxShader.setMat4("view", view);
+        skyBoxShader.setMat4("projection", projection);
+
+        //glBindVertexArray(lightVAO);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+        glDepthFunc(GL_LESS);
+        
 
         //glEnable(GL_STENCIL_TEST);
         //glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);

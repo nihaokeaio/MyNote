@@ -82,10 +82,24 @@
     <None Include="src\shaderSingleColor.vs">
       <Filter>shaderVertex</Filter>
     </None>
-    <None Include="shader\grassBlend.vs" />
-    <None Include="shader\grassBlend.fs" />
-    <None Include="shader\shaderSingleColor.vs" />
-    <None Include="shader\frameBuffer.vs" />
-    <None Include="shader\frameBuffer.fs" />
+    <None Include="shader\frameBuffer.fs">
+      <Filter>shaderFragment</Filter>
+    </None>
+    <None Include="shader\grassBlend.fs">
+      <Filter>shaderFragment</Filter>
+    </None>
+    <None Include="shader\frameBuffer.vs">
+      <Filter>shaderVertex</Filter>
+    </None>
+    <None Include="shader\grassBlend.vs">
+      <Filter>shaderVertex</Filter>
+    </None>
+    <None Include="shader\shaderSingleColor.vs">
+      <Filter>shaderVertex</Filter>
+    </None>
+    <None Include="shader\skybox.fs" />
+    <None Include="shader\skybox.vs" />
+    <None Include="shader\reflectBox.vs" />
+    <None Include="shader\reflectBox.fs" />
   </ItemGroup>
 </Project>

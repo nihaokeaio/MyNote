@@ -8,6 +8,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <vector>
 
 class MyShader
 {
@@ -19,6 +20,7 @@ public:
 	//使用（active）着色器
 	void use();
 	static void loadTexture(const std::string& filename, unsigned int& texture);
+	static void loadCubeTexture(const std::vector<std::string>& cubeFileName, unsigned int& texture);
 	void setBool(const std::string& name, bool value) const;
 	void setInt(const std::string& name, int value) const;
 	void setFloat(const std::string& name, float value) const;

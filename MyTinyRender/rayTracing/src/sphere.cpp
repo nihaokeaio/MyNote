@@ -1,4 +1,5 @@
 #include "sphere.h"
+#include "Material.h"
 #include "global.hpp"
 
 Intersection Sphere::intersect(const Ray& ray)
@@ -10,7 +11,7 @@ Intersection Sphere::intersect(const Ray& ray)
     float b = 2 * ray.dir.dot(L);
     float c = L.norm2() - ridus * ridus;
     float t0, t1;
-    if (!solveQuadratic(a, b, c, t0, t1)) return result;
+    if (!GamesMath::solveQuadratic(a, b, c, t0, t1)) return result;
     if (t0 < 0) t0 = t1;
     if (t0 < 0) return result;
     result.happened = true;
@@ -20,6 +21,7 @@ Intersection Sphere::intersect(const Ray& ray)
     result.m = this->m;
     result.object = this;
     result.distance = t0;
+    result.index = 0;
     return result;
 }
 
@@ -45,4 +47,9 @@ Bounds3 Sphere::getBounds()
 	Vec3f pMax = center + ridus;
 	Vec3f pMin = center - ridus;
 	return Bounds3(pMin, pMax);
+}
+
+float Sphere::getArea()
+{
+    return 4 * M_PI * ridus * ridus;
 }

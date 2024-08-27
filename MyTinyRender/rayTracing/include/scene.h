@@ -1,9 +1,8 @@
 #pragma once
 #include <memory>
-#include <Vector.hpp>
+#include <Intersection.h>
 #include <Ray.h>
 #include <Render.h>
-
 
 class Object;
 struct Light;
@@ -28,7 +27,9 @@ public:
 	void setRenderWay(Render::RenderWay way);
 
 	void rayTracing();
-	Vec3f castRay(Ray ray);
+	Vec3f castRay(Ray ray, int depth);
+
+	Intersection intersect(const Ray& ray);
 
 	void add(const std::shared_ptr<Object>& obj);
 	void add(const std::shared_ptr<Light>& light);
@@ -51,9 +52,12 @@ private:
 	float fov_ = 45;
 
 	int Mass_;
+	int maxDepth_ = 5;
+	Vec3f backgroundColor_{ 0.235294, 0.67451, 0.843137 };
+	//Vec3f backgroundColor_{ 0, 0, 0 };
 
-	std::vector<std::vector<Vec3f>>frameBuffer_;
-	std::vector<std::vector<float>>zBuffer_;
+	std::vector<Vec3f>frameBuffer_;
+	std::vector<float>zBuffer_;
 
 	std::vector<std::shared_ptr<Object>> objects_;
 	std::vector<std::shared_ptr<Light> > lights_;

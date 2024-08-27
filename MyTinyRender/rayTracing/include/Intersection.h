@@ -2,7 +2,7 @@
 #include <Vector.hpp>
 
 class Object;
-struct Material;
+class Material;
 
 
 class Intersection
@@ -13,6 +13,7 @@ public:
 		happened = false;
 		intsCoords = Vec3f();
 		normal = Vec3f();
+		index = 0;
 		distance = std::numeric_limits<double>::max();
 		object = nullptr;
 		m = nullptr;
@@ -24,5 +25,7 @@ public:
 
 	Vec3f intsCoords;
 	Vec3f normal;
+	uint index;
+	Vec2f st;
 	Material* m;
 };

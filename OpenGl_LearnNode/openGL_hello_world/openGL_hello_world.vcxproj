@@ -41,6 +41,7 @@
     <None Include="shader\lightshader.fs" />
     <None Include="shader\lightshader.vs" />
     <None Include="shader\model_loading.fs" />
+    <None Include="shader\model_loading.gs" />
     <None Include="shader\model_loading.vs" />
     <None Include="shader\normalShader.fs" />
     <None Include="shader\normalShader.gs" />

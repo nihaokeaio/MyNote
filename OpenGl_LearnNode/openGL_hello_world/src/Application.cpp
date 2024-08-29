@@ -351,8 +351,11 @@ int main()
     const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
 
 */
-	MyShader shader("./Shader/model_loading.vs", "./Shader/model_loading.fs");
 	camera.reset(new Camera(window, SCR_WIDTH, SCR_HEIGHT));
+
+
+	MyShader shader("./Shader/model_loading.vs", "./Shader/model_loading.fs");
+    shader.attachShader("./Shader/model_loading.gs", GL_GEOMETRY_SHADER);
 
     Model modelLoader("./Resource/nanosuit/nanosuit.obj");
     MyShader lightShader("./Shader/lightshader.vs", "./Shader/lightshader.fs");
@@ -602,7 +605,7 @@ int main()
         model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
         model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
         shader.setMat4("model", model);
-        //modelLoader.Draw(shader);
+        modelLoader.Draw(shader);
         //填充模式绘制
         //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
@@ -722,15 +725,27 @@ int main()
         model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
         model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
         reflectBoxShader.setMat4("model", model);
-        modelLoader.Draw(reflectBoxShader);
+        //modelLoader.Draw(reflectBoxShader);
         normalShader.use();
         normalShader.setMat4("model", model);
-        modelLoader.Draw(normalShader);
+        //modelLoader.Draw(normalShader);
 
 
         pointsShader.use();
         glBindVertexArray(pointVAO);
         glDrawArrays(GL_POINTS, 0, 4);
+
+
+        shader.use();
+        //使用线条模式绘制
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(2.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
+        model = glm::scale(model, glm::vec3(0.3f, 0.3f, 0.3f));	// it's a bit too big for our scene, so scale it down
+        shader.setMat4("model", model);
+        shader.setMat4("projection", projection);
+        shader.setMat4("view", view);
+        shader.setFloat("time", timeValue);
+        modelLoader.Draw(shader);
 
         ///放置一个skyBox,使用skyBoxShader
         //glDepthFunc(GL_LEQUAL);

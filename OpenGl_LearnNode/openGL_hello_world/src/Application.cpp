@@ -255,6 +255,14 @@ int main()
          1.0f,  1.0f,  1.0f, 1.0f
     };
 
+
+    //float points[] = {
+   float points[] = {
+    -0.5f,  0.5f, 1.0f, 0.0f, 0.0f, // 左上
+     0.5f,  0.5f, 0.0f, 1.0f, 0.0f, // 右上
+     0.5f, -0.5f, 0.0f, 0.0f, 1.0f, // 右下
+    -0.5f, -0.5f, 1.0f, 1.0f, 0.0f  // 左下
+    };
 /*    
     MyShader cubeShader("./Resource/shader.vs", "./Resource/shader.fs");
     MyShader lightShader("./Resource/lightshader.vs", "./Resource/lightshader.fs");
@@ -358,7 +366,13 @@ int main()
     MyShader skyBoxShader("./Shader/skybox.vs", "./Shader/skybox.fs");
 
     MyShader reflectBoxShader("./Shader/reflectBox.vs", "./Shader/reflectBox.fs");
-     
+
+    MyShader pointsShader("./Shader/pointsShader.vs", "./Shader/pointsShader.fs");
+    pointsShader.attachShader("./Shader/pointsShader.gs", GL_GEOMETRY_SHADER);
+
+    MyShader normalShader("./Shader/normalShader.vs", "./Shader/normalShader.fs");
+    normalShader.attachShader("./Shader/normalShader.gs", GL_GEOMETRY_SHADER);
+
     unsigned int lightVAO;
     unsigned int VBO;
 
@@ -446,6 +460,19 @@ int main()
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glBindVertexArray(0);
 
+    // points VAO
+    unsigned int pointVAO, pointVBO;
+    glGenVertexArrays(1, &pointVAO);
+    glGenBuffers(1, &pointVBO);
+    glBindVertexArray(pointVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, pointVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(points), &points, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(2 * sizeof(float)));
+    glBindVertexArray(0);
+
     unsigned int transparentTexture;
     MyShader::loadTexture("./Resource/transWindow.png", transparentTexture);
 
@@ -464,6 +491,7 @@ int main()
 
     unsigned int skyBoxTexture;
     MyShader::loadCubeTexture(cubeFileName, skyBoxTexture);
+
 
     std::vector<glm::vec3> vegetation
     {
@@ -674,8 +702,14 @@ int main()
         reflectBoxShader.setMat4("view", view);
         reflectBoxShader.setMat4("projection", projection);
         reflectBoxShader.setVec3("cameraPos", camera->getCameraPos());
+        glDrawArrays(GL_TRIANGLES, 0, 36);
 
         //glBindVertexArray(lightVAO);
+        normalShader.use();
+        glBindVertexArray(cubeVAO);
+        normalShader.setMat4("model", boxModel);
+        normalShader.setMat4("view", view);
+        normalShader.setMat4("projection", projection);
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
         //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -689,27 +723,32 @@ int main()
         model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
         reflectBoxShader.setMat4("model", model);
         modelLoader.Draw(reflectBoxShader);
+        normalShader.use();
+        normalShader.setMat4("model", model);
+        modelLoader.Draw(normalShader);
 
 
-
+        pointsShader.use();
+        glBindVertexArray(pointVAO);
+        glDrawArrays(GL_POINTS, 0, 4);
 
         ///放置一个skyBox,使用skyBoxShader
-        glDepthFunc(GL_LEQUAL);
-        skyBoxShader.use();
-        glBindVertexArray(skyBoxVAO);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, skyBoxTexture);
-        //glm::mat4 boxModel;
-        boxModel = glm::mat4(1.0f);
-        //移除摄像机的位移信息
-        view = glm::mat4(glm::mat3(camera->getViewMat()));
+        //glDepthFunc(GL_LEQUAL);
+        //skyBoxShader.use();
+        //glBindVertexArray(skyBoxVAO);
+        //glBindTexture(GL_TEXTURE_CUBE_MAP, skyBoxTexture);
+        ////glm::mat4 boxModel;
+        //boxModel = glm::mat4(1.0f);
+        ////移除摄像机的位移信息
+        //view = glm::mat4(glm::mat3(camera->getViewMat()));
 
-        skyBoxShader.setMat4("model", boxModel);
-        skyBoxShader.setMat4("view", view);
-        skyBoxShader.setMat4("projection", projection);
+        //skyBoxShader.setMat4("model", boxModel);
+        //skyBoxShader.setMat4("view", view);
+        //skyBoxShader.setMat4("projection", projection);
 
-        //glBindVertexArray(lightVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        glDepthFunc(GL_LESS);
+        ////glBindVertexArray(lightVAO);
+        //glDrawArrays(GL_TRIANGLES, 0, 36);
+        //glDepthFunc(GL_LESS);
         
 
         //glEnable(GL_STENCIL_TEST);

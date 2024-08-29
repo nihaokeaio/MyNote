@@ -80,6 +80,67 @@ MyShader::MyShader(const char* vertexPath, const char* fragmentPath)
     glDeleteShader(fragment);
 }
 
+bool MyShader::attachShader(const char* shaderPath, int GLuint)
+{
+    //读取文件
+    std::string shaderCode;
+    std::ifstream shaderFile;
+    shaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+    try
+    {
+        // open files
+        shaderFile.open(shaderPath);
+        std::stringstream vShaderStream, fShaderStream;
+        // read file's buffer contents into streams
+        vShaderStream << shaderFile.rdbuf();
+        // close file handlers
+        shaderFile.close();
+        // convert stream into string
+        shaderCode = vShaderStream.str();
+    }
+    catch (std::ifstream::failure e)
+    {
+        std::cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ" << std::endl;
+    }
+    const char* vShaderCode = shaderCode.c_str();
+
+    // 2 编译着色器
+    unsigned int shader;
+    int success;
+    char infoLog[512];
+
+    //geom shader
+    shader = glCreateShader(GLuint);
+    glShaderSource(shader, 1, &vShaderCode, nullptr);
+    glCompileShader(shader);
+    //Print it if error
+     glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+    if (!success)
+    {
+        glGetShaderInfoLog(shader, 512, nullptr, infoLog);
+        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+        return false;
+    }
+    
+    if (ID < 0)
+    {
+        ID = glCreateProgram();
+    }
+    
+    glAttachShader(ID, shader);
+    glLinkProgram(ID);
+    glGetProgramiv(ID, GL_LINK_STATUS, &success);
+    if (!success)
+    {
+        glGetProgramInfoLog(ID, 512, NULL, infoLog);
+        std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
+        return false;
+    }
+    glDeleteShader(shader);
+
+    return true;
+}
+
 void MyShader::use()
 {
     //指定程序对象的句柄，该程序对象的可执行文件将用作当前渲染状态的一部分，意味着一旦使用的新对象，则会

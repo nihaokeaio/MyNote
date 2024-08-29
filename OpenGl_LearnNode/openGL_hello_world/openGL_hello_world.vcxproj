@@ -42,6 +42,12 @@
     <None Include="shader\lightshader.vs" />
     <None Include="shader\model_loading.fs" />
     <None Include="shader\model_loading.vs" />
+    <None Include="shader\normalShader.fs" />
+    <None Include="shader\normalShader.gs" />
+    <None Include="shader\normalShader.vs" />
+    <None Include="shader\pointsShader.fs" />
+    <None Include="shader\pointsShader.gs" />
+    <None Include="shader\pointsShader.vs" />
     <None Include="shader\reflectBox.fs" />
     <None Include="shader\reflectBox.vs" />
     <None Include="shader\shader.vs" />

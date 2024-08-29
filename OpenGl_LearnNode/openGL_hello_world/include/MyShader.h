@@ -17,6 +17,7 @@ public:
 	unsigned int ID;
 	//构造数据
 	MyShader(const char* vertexPath, const char* fragmentPath);
+	bool attachShader(const char* shaderPath, int GLuint);
 	//使用（active）着色器
 	void use();
 	static void loadTexture(const std::string& filename, unsigned int& texture);

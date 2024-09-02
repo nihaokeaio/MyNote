@@ -154,3 +154,8 @@ glm::vec3 Camera::getCameraPos() const
 {
     return cameraPos;
 }
+
+void Camera::showFPS()
+{
+    
+}

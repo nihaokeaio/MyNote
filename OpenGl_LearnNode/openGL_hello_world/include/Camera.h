@@ -19,6 +19,8 @@ public:
 	glm::mat4 myLookAt(glm::vec3 P, glm::vec3 T, glm::vec3 U);
 
 	glm::vec3 getCameraPos()const;
+
+	void showFPS();
 private:
 	GLFWwindow* window;//³¡¾°
 	float windowH, windowW;

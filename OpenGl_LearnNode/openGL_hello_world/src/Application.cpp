@@ -263,6 +263,17 @@ int main()
      0.5f, -0.5f, 0.0f, 0.0f, 1.0f, // 右下
     -0.5f, -0.5f, 1.0f, 1.0f, 0.0f  // 左下
     };
+
+   float quadIntsVertices[] = {
+       // 位置          // 颜色
+       -0.05f,  0.05f,  1.0f, 0.0f, 0.0f,
+        0.05f, -0.05f,  0.0f, 1.0f, 0.0f,
+       -0.05f, -0.05f,  0.0f, 0.0f, 1.0f,
+
+       -0.05f,  0.05f,  1.0f, 0.0f, 0.0f,
+        0.05f, -0.05f,  0.0f, 1.0f, 0.0f,
+        0.05f,  0.05f,  0.0f, 1.0f, 1.0f
+   };
 /*    
     MyShader cubeShader("./Resource/shader.vs", "./Resource/shader.fs");
     MyShader lightShader("./Resource/lightshader.vs", "./Resource/lightshader.fs");
@@ -376,6 +387,8 @@ int main()
     MyShader normalShader("./Shader/normalShader.vs", "./Shader/normalShader.fs");
     normalShader.attachShader("./Shader/normalShader.gs", GL_GEOMETRY_SHADER);
 
+    MyShader qurdIntsShader("./Shader/qurdInts.vs", "./Shader/qurdInts.fs");
+
     unsigned int lightVAO;
     unsigned int VBO;
 
@@ -476,6 +489,19 @@ int main()
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(2 * sizeof(float)));
     glBindVertexArray(0);
 
+    // points VAO
+    unsigned int qurdIntsVAO, qurdIntsVBO;
+    glGenVertexArrays(1, &qurdIntsVAO);
+    glGenBuffers(1, &qurdIntsVBO);
+    glBindVertexArray(qurdIntsVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, qurdIntsVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(quadIntsVertices), &quadIntsVertices, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(2 * sizeof(float)));
+    glBindVertexArray(0);
+
     unsigned int transparentTexture;
     MyShader::loadTexture("./Resource/transWindow.png", transparentTexture);
 
@@ -504,6 +530,20 @@ int main()
         glm::vec3(-0.3f, 0.0f, -2.3f),
         glm::vec3(0.5f, 0.0f, -0.6f)
     };  
+
+    glm::vec2 translations[100];
+    int index = 0;
+    float offset = 0.1f;
+    for (int y = -10; y < 10; y += 2)
+    {
+        for (int x = -10; x < 10; x += 2)
+        {
+            glm::vec2 translation;
+            translation.x = (float)x / 10.0f + offset;
+            translation.y = (float)y / 10.0f + offset;
+            translations[index++] = translation;
+        }
+    }
     const auto& cameraPos = camera->getCameraPos();
     
     //帧缓冲
@@ -746,6 +786,18 @@ int main()
         shader.setMat4("view", view);
         shader.setFloat("time", timeValue);
         modelLoader.Draw(shader);
+
+        qurdIntsShader.use();
+        
+        for (unsigned int i = 0; i < 100; i++)
+        {
+            //DoSomePreparations(); // 绑定VAO，绑定纹理，设置uniform等
+
+            glBindVertexArray(qurdIntsVAO);
+            qurdIntsShader.setVec2(("offsets[" + std::to_string(i) + "]").c_str(), translations[i]);
+        }            
+        glDrawArraysInstanced(GL_TRIANGLES, 0, 6, 100);
+        
 
         ///放置一个skyBox,使用skyBoxShader
         //glDepthFunc(GL_LEQUAL);

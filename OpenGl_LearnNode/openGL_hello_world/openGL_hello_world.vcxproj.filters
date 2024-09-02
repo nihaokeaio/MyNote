@@ -107,5 +107,8 @@
     <None Include="shader\normalShader.vs" />
     <None Include="shader\normalShader.gs" />
     <None Include="shader\normalShader.fs" />
+    <None Include="shader\model_loading.gs" />
+    <None Include="shader\qurdInts.fs" />
+    <None Include="shader\qurdInts.vs" />
   </ItemGroup>
 </Project>

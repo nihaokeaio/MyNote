@@ -37,7 +37,7 @@ void Mesh::setupMesh()
 	glBindVertexArray(0);
 }
 
-void Mesh::draw(MyShader shader) const
+void Mesh::draw(const MyShader& shader) const
 {
 	unsigned int diffuseNr = 1;
 	unsigned int specularNr = 1;
@@ -64,6 +64,62 @@ void Mesh::draw(MyShader shader) const
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 	/*glBindVertexArray(0);
 	glActiveTexture(GL_TEXTURE0);*/
+}
+
+void Mesh::drawInts(const MyShader& shader, int intsCount) const
+{
+	unsigned int diffuseNr = 1;
+	unsigned int specularNr = 1;
+	for (unsigned int i = 0; i < textures.size(); i++)
+	{
+		glActiveTexture(GL_TEXTURE0 + i); // 在绑定之前激活相应的纹理单元
+		// 获取纹理序号（diffuse_textureN 中的 N）
+		std::string number;
+		std::string name = textures[i].type;
+		if (name == "texture_diffuse")
+			number = std::to_string(diffuseNr++);
+		else if (name == "texture_specular")
+			number = std::to_string(specularNr++);
+
+		auto s = (name + number);
+		shader.setInt((name + number), i);
+		glBindTexture(GL_TEXTURE_2D, textures[i].id);
+	}
+	glActiveTexture(GL_TEXTURE0);
+
+	///绘制
+	glBindVertexArray(VAO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	//glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+	/*glBindVertexArray(0);
+	glActiveTexture(GL_TEXTURE0);*/
+	glDrawElementsInstanced(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0, intsCount);
+}
+
+void Mesh::attachAttribPointer(const std::vector<glm::mat4>& nums)
+{
+	unsigned int instanceVBO;
+	glBindVertexArray(VAO);
+	glGenBuffers(1, &instanceVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
+	auto k = sizeof(nums[0]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::mat4) * nums.size(), nums.data(), GL_STATIC_DRAW);
+	// 顶点属性
+	GLsizei vec4Size = sizeof(glm::vec4);
+	glEnableVertexAttribArray(3);
+	glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(vec4Size), (void*)(0));
+	glEnableVertexAttribArray(4);
+	glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(vec4Size), (void*)(1 * vec4Size));
+	glEnableVertexAttribArray(5);
+	glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(vec4Size), (void*)(2 * vec4Size));
+	glEnableVertexAttribArray(6);
+	glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(vec4Size), (void*)(3 * vec4Size));
+
+	glVertexAttribDivisor(3, 1);
+	glVertexAttribDivisor(4, 1);
+	glVertexAttribDivisor(5, 1);
+	glVertexAttribDivisor(6, 1);
+	glBindVertexArray(0);
 }
 
 

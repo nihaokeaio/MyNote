@@ -2,12 +2,15 @@
 #include <glm/gtc/matrix_transform.hpp>
 //#include <functional>
 #include <iostream>
+#include <thread>
 
 Camera::Camera(GLFWwindow* w, float width=400.0f, float height=400.0f)
 {
     window = w;
     windowH = height;
     windowW = width;
+    std::thread thread(&Camera::showFPS, this);
+    thread.detach();
 }
 
 void Camera::processInput()
@@ -118,8 +121,6 @@ void Camera::setMoveSpeed(float currentFrame)
 {
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
-    std::cout << "FPS = " << static_cast<float>(1.0f / deltaTime) << " \r";
-    std::cout.flush();
 }
 
 glm::mat4 Camera::myLookAt(glm::vec3 P, glm::vec3 T, glm::vec3 U)
@@ -157,5 +158,10 @@ glm::vec3 Camera::getCameraPos() const
 
 void Camera::showFPS()
 {
-    
+    while (!glfwWindowShouldClose(window))
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        std::cout << "FPS = " << static_cast<float>(1.0f / deltaTime) << " \r";
+        std::cout.flush();
+    }
 }

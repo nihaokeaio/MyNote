@@ -425,6 +425,8 @@ int main()
 
     MyShader qurdIntsShader("./Shader/qurdInts.vs", "./Shader/qurdInts.fs");
 
+    MyShader qurdRockIntsShader("./Shader/qurdPlantInts.vs", "./Shader/qurdPlantInts.fs");
+
     unsigned int lightVAO;
     unsigned int VBO;
 
@@ -592,6 +594,24 @@ int main()
     glVertexAttribDivisor(2, 1);
     glBindVertexArray(0);
 
+
+    float windowScale = 1.0;
+    std::vector<glm::mat4> modelMatrices(2, glm::mat4());
+    getRandModel(glfwGetTime(), modelMatrices);
+    rockLoader.attachAttribPointer(modelMatrices);
+   
+
+    unsigned int instancePlantVBO;
+    glBindVertexArray(qurdIntsVAO);
+    glGenBuffers(1, &instancePlantVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, instancePlantVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * 100, &translations[0], GL_STATIC_DRAW);
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)(0));
+    //glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glVertexAttribDivisor(2, 1);
+    glBindVertexArray(0);
+
     const auto& cameraPos = camera->getCameraPos();
     
     //帧缓冲
@@ -662,9 +682,7 @@ int main()
         std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    float windowScale = 1.0;
-    std::vector<glm::mat4> modelMatrices(5000, glm::mat4());
-    getRandModel(glfwGetTime(), modelMatrices);
+    
     while (!glfwWindowShouldClose(window))
     {
         processInput(window);
@@ -673,7 +691,7 @@ int main()
         glm::mat4 view, projection;
         view = camera->getViewMat();
         projection = camera->getProjectionMat();
-
+        
 
         
         glViewport((int)SCR_WIDTH * (1.-windowScale)/2.0, (int)SCR_WIDTH * (1. - windowScale) / 2.0, 
@@ -837,15 +855,16 @@ int main()
         shader.setFloat("time", timeValue);
         modelLoader.Draw(shader);
 
-        qurdIntsShader.use();
         
-        for (unsigned int i = 0; i < 100; i++)
-        {
-            //DoSomePreparations(); // 绑定VAO，绑定纹理，设置uniform等
+        qurdIntsShader.use();
+        //for (unsigned int i = 0; i < 100; i++)
+        //{
+        //    //DoSomePreparations(); // 绑定VAO，绑定纹理，设置uniform等
 
-            glBindVertexArray(qurdIntsVAO);
-            //qurdIntsShader.setVec2(("offsets[" + std::to_string(i) + "]").c_str(), translations[i]);
-        }            
+        //     glBindVertexArray(qurdIntsVAO);
+        //    //qurdIntsShader.setVec2(("offsets[" + std::to_string(i) + "]").c_str(), translations[i]);
+        //}   
+        glBindVertexArray(qurdIntsVAO);
         glDrawArraysInstanced(GL_TRIANGLES, 0, 6, 100);
         
 
@@ -857,11 +876,18 @@ int main()
         plantLoader.Draw(shader);
 
         // 绘制小行星
+        /*shader.use();
         for (unsigned int i = 0; i < modelMatrices.size(); i++)
         {
             shader.setMat4("model", modelMatrices[i]);
             rockLoader.Draw(shader);
-        }
+        }*/
+        qurdRockIntsShader.use();
+        model = glm::mat4(1.0);
+        qurdRockIntsShader.setMat4("projection", projection);
+        qurdRockIntsShader.setMat4("view", view);
+        qurdRockIntsShader.setMat4("model", model);
+        rockLoader.DrawInts(qurdRockIntsShader, modelMatrices.size());
 
         ///放置一个skyBox,使用skyBoxShader
         //glDepthFunc(GL_LEQUAL);

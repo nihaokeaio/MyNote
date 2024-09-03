@@ -12,6 +12,22 @@ void Model::Draw(const MyShader& shader)
 	}
 }
 
+void Model::DrawInts(const MyShader& shader, int intsCount)
+{
+	for (auto& m : meshes_)
+	{
+		m.drawInts(shader, intsCount);
+	}
+}
+
+void Model::attachAttribPointer(const std::vector<glm::mat4>& nums)
+{
+	for (auto& m : meshes_)
+	{
+		m.attachAttribPointer(nums);
+	}
+}
+
 void Model::loadModel(const std::string& path)
 {
 	Assimp::Importer import;

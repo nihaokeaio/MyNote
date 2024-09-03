@@ -34,8 +34,10 @@ public:
 	///º¯Êý
 	Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices, const std::vector<Texture>& textures);
 
-	void draw(MyShader shader) const;
+	void draw(const MyShader& shader) const;
+	void drawInts(const MyShader& shader,int intsCount) const;
 
+	void attachAttribPointer(const std::vector<glm::mat4>& nums);
 private:
 
 	unsigned int VAO, VBO, EBO;

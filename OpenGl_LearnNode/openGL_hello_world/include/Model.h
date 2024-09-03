@@ -19,6 +19,9 @@ public:
         loadModel(path);
     }
     void Draw(const MyShader& shader);
+    void DrawInts(const MyShader& shader, int intsCount);
+
+    void attachAttribPointer(const std::vector<glm::mat4>& nums);
 private:
     /// 模型数据  
     std::vector<Mesh> meshes_;

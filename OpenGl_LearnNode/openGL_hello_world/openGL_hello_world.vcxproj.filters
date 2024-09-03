@@ -110,5 +110,7 @@
     <None Include="shader\model_loading.gs" />
     <None Include="shader\qurdInts.fs" />
     <None Include="shader\qurdInts.vs" />
+    <None Include="shader\qurdPlantInts.vs" />
+    <None Include="shader\qurdPlantInts.fs" />
   </ItemGroup>
 </Project>

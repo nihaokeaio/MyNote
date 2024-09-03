@@ -51,6 +51,8 @@
     <None Include="shader\pointsShader.vs" />
     <None Include="shader\qurdInts.fs" />
     <None Include="shader\qurdInts.vs" />
+    <None Include="shader\qurdPlantInts.fs" />
+    <None Include="shader\qurdPlantInts.vs" />
     <None Include="shader\reflectBox.fs" />
     <None Include="shader\reflectBox.vs" />
     <None Include="shader\shader.vs" />

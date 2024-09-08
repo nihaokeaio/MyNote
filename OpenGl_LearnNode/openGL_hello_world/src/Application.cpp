@@ -595,8 +595,8 @@ int main()
     glBindVertexArray(0);
 
 
-    float windowScale = 1.0;
-    std::vector<glm::mat4> modelMatrices(2, glm::mat4());
+    
+    std::vector<glm::mat4> modelMatrices(20000, glm::mat4());
     getRandModel(glfwGetTime(), modelMatrices);
     rockLoader.attachAttribPointer(modelMatrices);
    
@@ -682,7 +682,7 @@ int main()
         std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    
+    float windowScale = 1.0;
     while (!glfwWindowShouldClose(window))
     {
         processInput(window);
@@ -869,7 +869,6 @@ int main()
         
 
         shader.use();
-        //使用线条模式绘制
         model = glm::translate(model, glm::vec3(0.0f, -3.0f, 0.0f));
         model = glm::scale(model, glm::vec3(10.0f, 10.0f, 10.0f));
         shader.setMat4("model", model);
@@ -886,7 +885,6 @@ int main()
         model = glm::mat4(1.0);
         qurdRockIntsShader.setMat4("projection", projection);
         qurdRockIntsShader.setMat4("view", view);
-        qurdRockIntsShader.setMat4("model", model);
         rockLoader.DrawInts(qurdRockIntsShader, modelMatrices.size());
 
         ///放置一个skyBox,使用skyBoxShader

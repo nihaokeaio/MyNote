@@ -77,7 +77,9 @@ vec3 gradation()
 
 void main()
 { 
-    FragColor = texture(screenTexture, TexCoords);
+    ///深度贴图只有r（一个）数据
+    vec3 col = vec3(texture(screenTexture, TexCoords).r);
+    FragColor = vec4(col,1.0);
     //FragColor = vec4(vec3(1.0 - texture(screenTexture, TexCoords)), 1.0);
     //FragColor = vec4(vec3(getGray()), 1.0);
 

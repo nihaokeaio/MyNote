@@ -48,6 +48,8 @@
     <None Include="shader\normalShader.fs" />
     <None Include="shader\normalShader.gs" />
     <None Include="shader\normalShader.vs" />
+    <None Include="shader\plane.fs" />
+    <None Include="shader\plane.vs" />
     <None Include="shader\pointsShader.fs" />
     <None Include="shader\pointsShader.gs" />
     <None Include="shader\pointsShader.vs" />

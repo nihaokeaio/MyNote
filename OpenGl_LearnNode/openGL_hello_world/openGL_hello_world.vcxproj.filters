@@ -116,5 +116,7 @@
     <None Include="shader\simpleDepthShader.fs" />
     <None Include="shader\debugDepthQuad.vs" />
     <None Include="shader\debugDepthQuad.fs" />
+    <None Include="shader\plane.fs" />
+    <None Include="shader\plane.vs" />
   </ItemGroup>
 </Project>

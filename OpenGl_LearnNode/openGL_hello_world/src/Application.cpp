@@ -36,7 +36,7 @@ const unsigned int SCR_HEIGHT = 600;
 
 std::shared_ptr<Camera> camera;
 
-//glm::vec3 lightPos(1.2f, 0.5f, 2.0f);
+glm::vec3 lightPos(1.2f, 0.5f, 2.0f);
 glm::vec3 lightColor(1.0f, 1.0f, 1.0f);
 glm::vec3 planeColor(0.5f, 0.5f, 0.5f);
 
@@ -88,15 +88,25 @@ struct SpotLight
     float quadratic = 0.032;
 };
 
-
-glm::mat4 getLightSpaceMat()
+void writeGlmVec3(const std::string& name, const glm::vec3& vec)
 {
-    GLfloat near_plane = 1.0f, far_plane = 7.5f;
-    glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
-    glm::mat4 lightView = glm::lookAt(glm::vec3(-2.0f, 4.0f, -1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    std::cout << name << " = [" << vec.x << " " <<
+        vec.y << " " <<
+        vec.z << " ] \r";
+}
+
+
+glm::mat4 getLightSpaceMat(float timeValue = 0.0)
+{
+    GLfloat near_plane = 1.0f, far_plane = 4.5f;
+    glm::mat4 lightProjection = glm::ortho(-2.0f, 2.0f, -2.0f, 2.0f, near_plane, far_plane);
+    glm::vec3 front = glm::vec3(0.0f, -0.0f, 0.0f);
+    glm::mat4 lightView = glm::lookAt(lightPos, front, glm::vec3(0.0f, 1.0f, 0.0f));
     glm::mat4 lightSpaceMatrix = lightProjection * lightView;
+    //lightSpaceMatrix = glm::rotate(lightSpaceMatrix, timeValue, glm::vec3(0.0f, 1.0f, 0.0f));
     return lightSpaceMatrix;
 }
+
 
 void getRandModel(float time, std::vector<glm::mat4>& modelMatrices)
 {
@@ -275,13 +285,13 @@ int main()
 
     float planeVertices[] = {
         // positions          // texture Coords (note we set these higher than 1 (together with GL_REPEAT as texture wrapping mode). this will cause the floor texture to repeat)
-         5.0f, -0.5f,  5.0f,  1.0f, 0.0f,
-        -5.0f, -0.5f,  5.0f,  0.0f, 0.0f,
-        -5.0f, -0.5f, -5.0f,  0.0f, 1.0f,
+         5.0f, -0.5f,  5.0f,  0.0, 1.0, 0.0,  1.0f, 0.0f,
+        -5.0f, -0.5f,  5.0f,  0.0, 1.0, 0.0,  0.0f, 0.0f,
+        -5.0f, -0.5f, -5.0f,  0.0, 1.0, 0.0,  0.0f, 1.0f,
 
-         5.0f, -0.5f,  5.0f,  1.0f, 0.0f,
-        -5.0f, -0.5f, -5.0f,  0.0f, 1.0f,
-         5.0f, -0.5f, -5.0f,  1.0f, 1.0f
+         5.0f, -0.5f,  5.0f,  0.0, 1.0, 0.0,  1.0f, 0.0f,
+        -5.0f, -0.5f, -5.0f,  0.0, 1.0, 0.0,  0.0f, 1.0f,
+         5.0f, -0.5f, -5.0f,  0.0, 1.0, 0.0,  1.0f, 1.0f
     };
 
     float transparentVertices[] = {
@@ -451,6 +461,8 @@ int main()
 
     MyShader debugDepthQuad("./Shader/debugDepthQuad.vs", "./Shader/debugDepthQuad.fs");
 
+    MyShader planeShader("./Shader/plane.vs", "./Shader/plane.fs");
+
     unsigned int lightVAO;
     unsigned int VBO;
 
@@ -494,9 +506,11 @@ int main()
     glBindBuffer(GL_ARRAY_BUFFER, planeVBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(planeVertices), &planeVertices, GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
     glBindVertexArray(0);
 
 
@@ -745,9 +759,15 @@ int main()
         view = camera->getViewMat();
         projection = camera->getProjectionMat();
 
+       /* std::cout << "cameraPos = [" << camera->getCameraPos().x << " " <<
+            camera->getCameraPos().y << " " <<
+            camera->getCameraPos().z << " ] \r";*/
+        writeGlmVec3("camerafront", camera->getCameraFront());
+
         glm::mat4 model;
         glm::mat4 lightModel;
         glm::mat4 boxModel;
+        glm::mat4 lightSpaceMatrix = getLightSpaceMat(0.0);
 
         if (true)
         {
@@ -757,8 +777,7 @@ int main()
             glEnable(GL_DEPTH_TEST);
 
             simpleShodowShader.use();
-            model = glm::mat4(1.0f);
-            glm::mat4 lightSpaceMatrix = getLightSpaceMat();
+            //model = glm::mat4(1.0f);
             simpleShodowShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
             //simpleShodowShader.setMat4("model", model);
 
@@ -766,17 +785,17 @@ int main()
             //renderCube(simpleShodowShader, cubeVAO, model);
 
             ///放置一个箱子,但沿用grassShader
-            grassShader.use();
+            //grassShader.use();
             glBindVertexArray(cubeVAO);
-            glBindTexture(GL_TEXTURE_2D, boxTexture);
+            //glBindTexture(GL_TEXTURE_2D, boxTexture);
             boxModel = glm::mat4(1.0f);
             boxModel = glm::translate(boxModel, glm::vec3(-0.2f));
-            boxModel = glm::scale(boxModel, glm::vec3(0.2f));
-            boxModel = glm::rotate(boxModel, timeValue, glm::vec3(0.0f, 1.0f, 0.0f));
+            boxModel = glm::scale(boxModel, glm::vec3(1.2f));
+            //boxModel = glm::rotate(boxModel, timeValue, glm::vec3(0.0f, 1.0f, 0.0f));
 
-            grassShader.setMat4("model", boxModel);
-            grassShader.setMat4("view", view);
-            grassShader.setMat4("projection", projection);
+            simpleShodowShader.setMat4("model", boxModel);
+            //grassShader.setMat4("view", view);
+            //grassShader.setMat4("projection", projection);
 
             //glBindVertexArray(lightVAO);
             glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -871,15 +890,22 @@ int main()
 
         if (true)
         {
-            frameShader.use();
+            planeShader.use();
             glBindVertexArray(planeVAO);
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, boxTexture);
+
+            glActiveTexture(GL_TEXTURE1);
             glBindTexture(GL_TEXTURE_2D, depthMap);
 
-            glm::mat4 frameModel;
-            frameModel = glm::mat4(1.0f);
-            frameShader.setMat4("view", view);
-            frameShader.setMat4("projection", projection);
-            frameShader.setMat4("model", frameModel);
+            glm::mat4 planeModel;
+            planeModel = glm::mat4(1.0f);
+            planeShader.setMat4("view", view);
+            planeShader.setMat4("projection", projection);
+            planeShader.setMat4("model", planeModel);
+            planeShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
+            planeShader.setVec3("lightPos", lightPos);
+            planeShader.setVec3("viewPos", cameraPos);
 
             glDrawArrays(GL_TRIANGLES, 0, 6);
         }
@@ -1030,7 +1056,7 @@ int main()
                 boxModel = glm::mat4(1.0f);
                 boxModel = glm::translate(boxModel, glm::vec3(0.0f));
                 boxModel = glm::scale(boxModel, glm::vec3(0.2f));
-                boxModel = glm::rotate(boxModel, timeValue, glm::vec3(0.0f, 1.0f, 0.0f));
+                //boxModel = glm::rotate(boxModel, timeValue, glm::vec3(0.0f, 1.0f, 0.0f));
 
                 grassShader.setMat4("model", boxModel);
                 grassShader.setMat4("view", view);
@@ -1048,7 +1074,7 @@ int main()
                 boxModel = glm::mat4(1.0f);
                 boxModel = glm::translate(boxModel, glm::vec3(-0.2f));
                 boxModel = glm::scale(boxModel, glm::vec3(0.2f));
-                boxModel = glm::rotate(boxModel, timeValue, glm::vec3(0.0f, 1.0f, 0.0f));
+                //boxModel = glm::rotate(boxModel, timeValue, glm::vec3(0.0f, 1.0f, 0.0f));
 
                 grassShader.setMat4("model", boxModel);
                 grassShader.setMat4("view", view);
@@ -1058,16 +1084,22 @@ int main()
                 glDrawArrays(GL_TRIANGLES, 0, 36);
             }
 
-            glm::mat4 planeModel;
+            ///放置一个光源,但沿用grassShader
             lightShader.use();
-            planeModel = glm::mat4(1.0f);
-            lightShader.setVec3("lightColor", planeColor);
-            lightShader.setMat4("model", planeModel);
+            glBindVertexArray(cubeVAO);
+            glBindTexture(GL_TEXTURE_2D, boxTexture);
+            glm::mat4 lightModel = glm::mat4(1.0f);
+            lightModel = glm::translate(lightModel, lightPos);
+            lightModel = glm::scale(lightModel, glm::vec3(0.05f));
+            //lightModel = glm::rotate(lightModel, timeValue, glm::vec3(0.0f, 1.0f, 0.0f));
+
+            lightShader.setMat4("model", lightModel);
             lightShader.setMat4("view", view);
             lightShader.setMat4("projection", projection);
+            lightShader.setVec3("lightColor", lightColor);
 
-            //glBindVertexArray(planeVAO);
-            //glDrawArrays(GL_TRIANGLES, 0, 6);
+            //glBindVertexArray(lightVAO);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
         }
 
         //glStencilFunc(GL_NOTEQUAL, 1, 0xFF);

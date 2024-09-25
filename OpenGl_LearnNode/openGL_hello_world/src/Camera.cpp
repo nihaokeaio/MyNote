@@ -156,6 +156,16 @@ glm::vec3 Camera::getCameraPos() const
     return cameraPos;
 }
 
+glm::vec3 Camera::getCameraFront() const
+{
+    return cameraFront;
+}
+
+glm::vec3 Camera::getCameraUp() const
+{
+    return cameraUp;
+}
+
 void Camera::showFPS()
 {
     while (!glfwWindowShouldClose(window))

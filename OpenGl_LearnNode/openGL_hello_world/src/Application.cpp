@@ -17,13 +17,23 @@
 
 #include "Model.h"
 
+using VAOID = unsigned int;
+
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
 void mouse_callBack(GLFWwindow* window, double xPos, double yPos);
 void scroll_callBack(GLFWwindow* window, double xOffset, double yOffset);
+
+
+void renderScene(const MyShader& shader);
+void renderCube(MyShader shader, VAOID id, glm::mat4 model);
+void renderQuad(MyShader shader, VAOID id, glm::mat4 model);
+
 // settings
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
+
 std::shared_ptr<Camera> camera;
 
 //glm::vec3 lightPos(1.2f, 0.5f, 2.0f);
@@ -78,6 +88,15 @@ struct SpotLight
     float quadratic = 0.032;
 };
 
+
+glm::mat4 getLightSpaceMat()
+{
+    GLfloat near_plane = 1.0f, far_plane = 7.5f;
+    glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
+    glm::mat4 lightView = glm::lookAt(glm::vec3(-2.0f, 4.0f, -1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    glm::mat4 lightSpaceMatrix = lightProjection * lightView;
+    return lightSpaceMatrix;
+}
 
 void getRandModel(float time, std::vector<glm::mat4>& modelMatrices)
 {
@@ -256,13 +275,13 @@ int main()
 
     float planeVertices[] = {
         // positions          // texture Coords (note we set these higher than 1 (together with GL_REPEAT as texture wrapping mode). this will cause the floor texture to repeat)
-         5.0f, -0.5f,  5.0f,  2.0f, 0.0f,
+         5.0f, -0.5f,  5.0f,  1.0f, 0.0f,
         -5.0f, -0.5f,  5.0f,  0.0f, 0.0f,
-        -5.0f, -0.5f, -5.0f,  0.0f, 2.0f,
+        -5.0f, -0.5f, -5.0f,  0.0f, 1.0f,
 
-         5.0f, -0.5f,  5.0f,  2.0f, 0.0f,
-        -5.0f, -0.5f, -5.0f,  0.0f, 2.0f,
-         5.0f, -0.5f, -5.0f,  2.0f, 2.0f
+         5.0f, -0.5f,  5.0f,  1.0f, 0.0f,
+        -5.0f, -0.5f, -5.0f,  0.0f, 1.0f,
+         5.0f, -0.5f, -5.0f,  1.0f, 1.0f
     };
 
     float transparentVertices[] = {
@@ -426,6 +445,11 @@ int main()
     MyShader qurdIntsShader("./Shader/qurdInts.vs", "./Shader/qurdInts.fs");
 
     MyShader qurdRockIntsShader("./Shader/qurdPlantInts.vs", "./Shader/qurdPlantInts.fs");
+
+
+    MyShader simpleShodowShader("./Shader/simpleDepthShader.vs", "./Shader/simpleDepthShader.fs");
+
+    MyShader debugDepthQuad("./Shader/debugDepthQuad.vs", "./Shader/debugDepthQuad.fs");
 
     unsigned int lightVAO;
     unsigned int VBO;
@@ -682,6 +706,35 @@ int main()
         std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+    unsigned int depthMapFBO;
+    unsigned int depthMap;
+    const GLuint SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
+    {      
+        glGenFramebuffers(1, &depthMapFBO);
+        //glBindFramebuffer(GL_FRAMEBUFFER, shodowFramebuffer);
+        // 生成纹理
+        
+        glGenTextures(1, &depthMap);
+        glBindTexture(GL_TEXTURE_2D, depthMap);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        //glBindTexture(GL_TEXTURE_2D, 0);
+
+        // 将它附加到当前绑定的帧缓冲对象
+        glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
+        glDrawBuffer(GL_NONE);
+        glReadBuffer(GL_NONE);
+
+        if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+        {
+            std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
+        }
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
     float windowScale = 1.0;
     while (!glfwWindowShouldClose(window))
     {
@@ -691,202 +744,258 @@ int main()
         glm::mat4 view, projection;
         view = camera->getViewMat();
         projection = camera->getProjectionMat();
-        
 
-        
-        glViewport((int)SCR_WIDTH * (1.-windowScale)/2.0, (int)SCR_WIDTH * (1. - windowScale) / 2.0, 
-            (int)SCR_WIDTH * windowScale, (int)SCR_HEIGHT * windowScale);
-        glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // 我们现在不使用模板缓冲
-        glEnable(GL_DEPTH_TEST);
-       
-
-
-        shader.use();
-        shader.setMat4("projection", projection);
-        shader.setMat4("view", view);
-
-        //使用线条模式绘制
-        //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
-        model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
-        shader.setMat4("model", model);
-        modelLoader.Draw(shader);
-        //填充模式绘制
-        //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-
-        lightShader.use();
+        glm::mat4 model;
         glm::mat4 lightModel;
-        lightModel = glm::mat4(1.0f);
-        lightModel = glm::translate(lightModel, glm::vec3(1.0f));
-        lightModel = glm::scale(lightModel, glm::vec3(0.2f));
-        lightModel = glm::rotate(lightModel, timeValue, glm::vec3(0.0f, 1.0f, 0.0f));
- 
-        lightShader.setVec3("lightColor", lightColor);
-        lightShader.setMat4("model", lightModel);
-        lightShader.setMat4("view", view);
-        lightShader.setMat4("projection", projection);
-        
-        glBindVertexArray(lightVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-
-        ///放置一个箱子,但沿用grassShader
-        grassShader.use();
-        glBindVertexArray(cubeVAO);
-        glBindTexture(GL_TEXTURE_2D, boxTexture);
         glm::mat4 boxModel;
-        boxModel = glm::mat4(1.0f);
-        boxModel = glm::translate(boxModel, glm::vec3(0.0f));
-        boxModel = glm::scale(boxModel, glm::vec3(0.2f));
-        boxModel = glm::rotate(boxModel, timeValue, glm::vec3(0.0f, 1.0f, 0.0f));
 
-        grassShader.setMat4("model", boxModel);
-        grassShader.setMat4("view", view);
-        grassShader.setMat4("projection", projection);
-
-        //glBindVertexArray(lightVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-
-        std::sort(vegetation.begin(), vegetation.end(), [cameraPos](const glm::vec3& l, const glm::vec3& r)
-            {
-                return glm::length(l.z - cameraPos.z) > glm::length(r.z - cameraPos.z);
-            });
-        grassShader.use();
-        //启用混合
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        glBindVertexArray(transparentVAO);
-        glBindTexture(GL_TEXTURE_2D, transparentTexture);
-        grassShader.setMat4("view", view);
-        grassShader.setMat4("projection", projection);
-        for (unsigned int i = 0; i < vegetation.size(); i++)
+        if (true)
         {
-            model = glm::translate(model, vegetation[i]);
-            grassShader.setMat4("model", model);
-            
-            glDrawArrays(GL_TRIANGLES, 0, 6);
+            glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+            glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+            glClear(GL_DEPTH_BUFFER_BIT); // 我们现在不使用模板缓冲
+            glEnable(GL_DEPTH_TEST);
+
+            simpleShodowShader.use();
+            model = glm::mat4(1.0f);
+            glm::mat4 lightSpaceMatrix = getLightSpaceMat();
+            simpleShodowShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
+            //simpleShodowShader.setMat4("model", model);
+
+            //renderScene(simpleShodowShader);
+            //renderCube(simpleShodowShader, cubeVAO, model);
+
+            ///放置一个箱子,但沿用grassShader
+            grassShader.use();
+            glBindVertexArray(cubeVAO);
+            glBindTexture(GL_TEXTURE_2D, boxTexture);
+            boxModel = glm::mat4(1.0f);
+            boxModel = glm::translate(boxModel, glm::vec3(-0.2f));
+            boxModel = glm::scale(boxModel, glm::vec3(0.2f));
+            boxModel = glm::rotate(boxModel, timeValue, glm::vec3(0.0f, 1.0f, 0.0f));
+
+            grassShader.setMat4("model", boxModel);
+            grassShader.setMat4("view", view);
+            grassShader.setMat4("projection", projection);
+
+            //glBindVertexArray(lightVAO);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+
+            glBindFramebuffer(GL_FRAMEBUFFER, 0); // 返回默认
+
         }
-        glDisable(GL_BLEND);
+
+        if (false)
+        {
+            glViewport((int)SCR_WIDTH * (1. - windowScale) / 2.0, (int)SCR_WIDTH * (1. - windowScale) / 2.0,
+                (int)SCR_WIDTH * windowScale, (int)SCR_HEIGHT * windowScale);
+            glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+            glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // 我们现在不使用模板缓冲
+            glEnable(GL_DEPTH_TEST);
 
 
+            shader.use();
+            shader.setMat4("projection", projection);
+            shader.setMat4("view", view);
+
+            //使用线条模式绘制
+            //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            model = glm::mat4(1.0f);
+            model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
+            model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
+            shader.setMat4("model", model);
+            modelLoader.Draw(shader);
+            //填充模式绘制
+            //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+
+            lightShader.use();
+            lightModel = glm::mat4(1.0f);
+            lightModel = glm::translate(lightModel, glm::vec3(1.0f));
+            lightModel = glm::scale(lightModel, glm::vec3(0.2f));
+            lightModel = glm::rotate(lightModel, timeValue, glm::vec3(0.0f, 1.0f, 0.0f));
+
+            lightShader.setVec3("lightColor", lightColor);
+            lightShader.setMat4("model", lightModel);
+            lightShader.setMat4("view", view);
+            lightShader.setMat4("projection", projection);
+
+            glBindVertexArray(lightVAO);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+
+            ///放置一个箱子,但沿用grassShader
+            grassShader.use();
+            glBindVertexArray(cubeVAO);
+            glBindTexture(GL_TEXTURE_2D, boxTexture);
+            boxModel = glm::mat4(1.0f);
+            boxModel = glm::translate(boxModel, glm::vec3(0.0f));
+            boxModel = glm::scale(boxModel, glm::vec3(0.2f));
+            boxModel = glm::rotate(boxModel, timeValue, glm::vec3(0.0f, 1.0f, 0.0f));
+
+            grassShader.setMat4("model", boxModel);
+            grassShader.setMat4("view", view);
+            grassShader.setMat4("projection", projection);
+
+            //glBindVertexArray(lightVAO);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+
+            std::sort(vegetation.begin(), vegetation.end(), [cameraPos](const glm::vec3& l, const glm::vec3& r)
+                {
+                    return glm::length(l.z - cameraPos.z) > glm::length(r.z - cameraPos.z);
+                });
+            grassShader.use();
+            //启用混合
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            glBindVertexArray(transparentVAO);
+            glBindTexture(GL_TEXTURE_2D, transparentTexture);
+            grassShader.setMat4("view", view);
+            grassShader.setMat4("projection", projection);
+            for (unsigned int i = 0; i < vegetation.size(); i++)
+            {
+                model = glm::translate(model, vegetation[i]);
+                grassShader.setMat4("model", model);
+
+                glDrawArrays(GL_TRIANGLES, 0, 6);
+            }
+            glDisable(GL_BLEND);
+        }
 
         // 第二处理阶段
-        //glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
+        glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
         glBindFramebuffer(GL_FRAMEBUFFER, 0); // 返回默认
         glEnable(GL_DEPTH_TEST);
-        glClearColor(0.5f, 0.5f, 0.5f, 0.5f);
+        glClearColor(0.2f, 0.2f, 0.2f, 0.5f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        
+        if (true)
+        {
+            frameShader.use();
+            glBindVertexArray(planeVAO);
+            glBindTexture(GL_TEXTURE_2D, depthMap);
+
+            glm::mat4 frameModel;
+            frameModel = glm::mat4(1.0f);
+            frameShader.setMat4("view", view);
+            frameShader.setMat4("projection", projection);
+            frameShader.setMat4("model", frameModel);
+
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+        }
 
         //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        ///放置一个箱子,但沿用frameShader
-        frameShader.use();
-        glBindVertexArray(quadVAO);
-        glBindTexture(GL_TEXTURE_2D, texColorBuffer);
+        ///放置一个箱子,但沿用frameShader帧缓冲
+        if(false)
+        {
+            frameShader.use();
+            glBindVertexArray(quadVAO);
+            glBindTexture(GL_TEXTURE_2D, texColorBuffer);
 
-        glm::mat4 frameModel;
-        frameModel = glm::mat4(1.0f);
-        frameShader.setMat4("view", view);
-        frameShader.setMat4("projection", projection);
-        frameShader.setMat4("model", frameModel);
-        
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+            glm::mat4 frameModel;
+            frameModel = glm::mat4(1.0f);
+            frameShader.setMat4("view", view);
+            frameShader.setMat4("projection", projection);
+            frameShader.setMat4("model", frameModel);
+
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
 
 
         ///放置一个箱子,但沿用grassShader
-        reflectBoxShader.use();
-        glBindVertexArray(cubeVAO);
-        glBindTexture(GL_TEXTURE_2D, boxTexture);
-        //glBindTexture(GL_TEXTURE_CUBE_MAP, skyBoxTexture);
-        //glm::mat4 boxModel;
-
-        boxModel = glm::mat4(1.0f);
-        boxModel = glm::translate(boxModel, glm::vec3(1.0f));
-        boxModel = glm::scale(boxModel, glm::vec3(0.5f));
-        //boxModel = glm::rotate(boxModel, timeValue, glm::vec3(0.0f, 0.0f, 1.0f));
-
-        reflectBoxShader.setMat4("model", boxModel);
-        reflectBoxShader.setMat4("view", view);
-        reflectBoxShader.setMat4("projection", projection);
-        reflectBoxShader.setVec3("cameraPos", camera->getCameraPos());
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-
-        //glBindVertexArray(lightVAO);
-        normalShader.use();
-        glBindVertexArray(cubeVAO);
-        normalShader.setMat4("model", boxModel);
-        normalShader.setMat4("view", view);
-        normalShader.setMat4("projection", projection);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-
-        //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-        reflectBoxShader.use();
-        reflectBoxShader.setMat4("projection", projection);
-        reflectBoxShader.setMat4("view", view);
-
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
-        model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
-        reflectBoxShader.setMat4("model", model);
-        //modelLoader.Draw(reflectBoxShader);
-        normalShader.use();
-        normalShader.setMat4("model", model);
-        //modelLoader.Draw(normalShader);
-
-
-        pointsShader.use();
-        glBindVertexArray(pointVAO);
-        //glDrawArrays(GL_POINTS, 0, 4);
-
-
-        shader.use();
-        //使用线条模式绘制
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(2.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
-        model = glm::scale(model, glm::vec3(0.3f, 0.3f, 0.3f));	// it's a bit too big for our scene, so scale it down
-        shader.setMat4("model", model);
-        shader.setMat4("projection", projection);
-        shader.setMat4("view", view);
-        shader.setFloat("time", timeValue);
-        modelLoader.Draw(shader);
-
-        
-        qurdIntsShader.use();
-        //for (unsigned int i = 0; i < 100; i++)
-        //{
-        //    //DoSomePreparations(); // 绑定VAO，绑定纹理，设置uniform等
-
-        //     glBindVertexArray(qurdIntsVAO);
-        //    //qurdIntsShader.setVec2(("offsets[" + std::to_string(i) + "]").c_str(), translations[i]);
-        //}   
-        glBindVertexArray(qurdIntsVAO);
-        glDrawArraysInstanced(GL_TRIANGLES, 0, 6, 100);
-        
-
-        shader.use();
-        model = glm::translate(model, glm::vec3(0.0f, -3.0f, 0.0f));
-        model = glm::scale(model, glm::vec3(10.0f, 10.0f, 10.0f));
-        shader.setMat4("model", model);
-        plantLoader.Draw(shader);
-
-        // 绘制小行星
-        /*shader.use();
-        for (unsigned int i = 0; i < modelMatrices.size(); i++)
+        if (false)
         {
-            shader.setMat4("model", modelMatrices[i]);
-            rockLoader.Draw(shader);
-        }*/
-        qurdRockIntsShader.use();
-        model = glm::mat4(1.0);
-        qurdRockIntsShader.setMat4("projection", projection);
-        qurdRockIntsShader.setMat4("view", view);
-        rockLoader.DrawInts(qurdRockIntsShader, modelMatrices.size());
+            reflectBoxShader.use();
+            glBindVertexArray(cubeVAO);
+            glBindTexture(GL_TEXTURE_2D, boxTexture);
+            //glBindTexture(GL_TEXTURE_CUBE_MAP, skyBoxTexture);
+            //glm::mat4 boxModel;
 
+            boxModel = glm::mat4(1.0f);
+            boxModel = glm::translate(boxModel, glm::vec3(1.0f));
+            boxModel = glm::scale(boxModel, glm::vec3(0.5f));
+            //boxModel = glm::rotate(boxModel, timeValue, glm::vec3(0.0f, 0.0f, 1.0f));
+
+            reflectBoxShader.setMat4("model", boxModel);
+            reflectBoxShader.setMat4("view", view);
+            reflectBoxShader.setMat4("projection", projection);
+            reflectBoxShader.setVec3("cameraPos", camera->getCameraPos());
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+
+            //glBindVertexArray(lightVAO);
+            normalShader.use();
+            glBindVertexArray(cubeVAO);
+            normalShader.setMat4("model", boxModel);
+            normalShader.setMat4("view", view);
+            normalShader.setMat4("projection", projection);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+
+            //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+            reflectBoxShader.use();
+            reflectBoxShader.setMat4("projection", projection);
+            reflectBoxShader.setMat4("view", view);
+
+            model = glm::mat4(1.0f);
+            model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
+            model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
+            reflectBoxShader.setMat4("model", model);
+            //modelLoader.Draw(reflectBoxShader);
+            normalShader.use();
+            normalShader.setMat4("model", model);
+            //modelLoader.Draw(normalShader);
+
+
+            pointsShader.use();
+            glBindVertexArray(pointVAO);
+            //glDrawArrays(GL_POINTS, 0, 4);
+        }
+
+        if(false)
+        {
+            shader.use();
+            //使用线条模式绘制
+            model = glm::mat4(1.0f);
+            model = glm::translate(model, glm::vec3(2.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
+            model = glm::scale(model, glm::vec3(0.3f, 0.3f, 0.3f));	// it's a bit too big for our scene, so scale it down
+            shader.setMat4("model", model);
+            shader.setMat4("projection", projection);
+            shader.setMat4("view", view);
+            shader.setFloat("time", timeValue);
+            modelLoader.Draw(shader);
+
+
+            qurdIntsShader.use();
+            //for (unsigned int i = 0; i < 100; i++)
+            //{
+            //    //DoSomePreparations(); // 绑定VAO，绑定纹理，设置uniform等
+
+            //     glBindVertexArray(qurdIntsVAO);
+            //    //qurdIntsShader.setVec2(("offsets[" + std::to_string(i) + "]").c_str(), translations[i]);
+            //}   
+            glBindVertexArray(qurdIntsVAO);
+            glDrawArraysInstanced(GL_TRIANGLES, 0, 6, 100);
+
+
+            shader.use();
+            model = glm::translate(model, glm::vec3(0.0f, -3.0f, 0.0f));
+            model = glm::scale(model, glm::vec3(10.0f, 10.0f, 10.0f));
+            shader.setMat4("model", model);
+            plantLoader.Draw(shader);
+
+            // 绘制小行星
+            /*shader.use();
+            for (unsigned int i = 0; i < modelMatrices.size(); i++)
+            {
+                shader.setMat4("model", modelMatrices[i]);
+                rockLoader.Draw(shader);
+            }*/
+            qurdRockIntsShader.use();
+            model = glm::mat4(1.0);
+            qurdRockIntsShader.setMat4("projection", projection);
+            qurdRockIntsShader.setMat4("view", view);
+            rockLoader.DrawInts(qurdRockIntsShader, modelMatrices.size());
+        }
         ///放置一个skyBox,使用skyBoxShader
         //glDepthFunc(GL_LEQUAL);
         //skyBoxShader.use();
@@ -911,16 +1020,55 @@ int main()
         //glStencilFunc(GL_ALWAYS, 1, 0xFF); // 所有的片段都应该更新模板缓冲
         //glStencilMask(0xFF); // 启用模板缓冲写入
 
-        //glm::mat4 planeModel;
-        //lightShader.use();
-        //planeModel = glm::mat4(1.0f);
-        //lightShader.setVec3("lightColor", planeColor);
-        //lightShader.setMat4("model", planeModel);
-        //lightShader.setMat4("view", view);
-        //lightShader.setMat4("projection", projection);
+        if(true)
+        {
+            {
+                ///放置一个箱子,但沿用grassShader
+                grassShader.use();
+                glBindVertexArray(cubeVAO);
+                glBindTexture(GL_TEXTURE_2D, boxTexture);
+                boxModel = glm::mat4(1.0f);
+                boxModel = glm::translate(boxModel, glm::vec3(0.0f));
+                boxModel = glm::scale(boxModel, glm::vec3(0.2f));
+                boxModel = glm::rotate(boxModel, timeValue, glm::vec3(0.0f, 1.0f, 0.0f));
 
-        //glBindVertexArray(planeVAO);
-        //glDrawArrays(GL_TRIANGLES, 0, 6);
+                grassShader.setMat4("model", boxModel);
+                grassShader.setMat4("view", view);
+                grassShader.setMat4("projection", projection);
+
+                //glBindVertexArray(lightVAO);
+                glDrawArrays(GL_TRIANGLES, 0, 36);
+            }
+
+            {
+                ///放置一个箱子,但沿用grassShader
+                grassShader.use();
+                glBindVertexArray(cubeVAO);
+                glBindTexture(GL_TEXTURE_2D, boxTexture);
+                boxModel = glm::mat4(1.0f);
+                boxModel = glm::translate(boxModel, glm::vec3(-0.2f));
+                boxModel = glm::scale(boxModel, glm::vec3(0.2f));
+                boxModel = glm::rotate(boxModel, timeValue, glm::vec3(0.0f, 1.0f, 0.0f));
+
+                grassShader.setMat4("model", boxModel);
+                grassShader.setMat4("view", view);
+                grassShader.setMat4("projection", projection);
+
+                //glBindVertexArray(lightVAO);
+                glDrawArrays(GL_TRIANGLES, 0, 36);
+            }
+
+            glm::mat4 planeModel;
+            lightShader.use();
+            planeModel = glm::mat4(1.0f);
+            lightShader.setVec3("lightColor", planeColor);
+            lightShader.setMat4("model", planeModel);
+            lightShader.setMat4("view", view);
+            lightShader.setMat4("projection", projection);
+
+            //glBindVertexArray(planeVAO);
+            //glDrawArrays(GL_TRIANGLES, 0, 6);
+        }
 
         //glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
         //glStencilMask(0x00); // 禁止模板缓冲的写入
@@ -977,4 +1125,57 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     // make sure the viewport matches the new window dimensions; note that width and 
     // height will be significantly larger than specified on retina displays.
     glViewport(0, 0, width, height);
+}
+
+
+
+// renders the 3D scene
+// --------------------
+// meshes
+void renderScene(const MyShader& shader)
+{
+    //// floor
+    //glm::mat4 model = glm::mat4(1.0f);
+    //shader.setMat4("model", model);
+    //glBindVertexArray(planeVAO);
+    //glDrawArrays(GL_TRIANGLES, 0, 6);
+    //// cubes
+    //model = glm::mat4(1.0f);
+    //model = glm::translate(model, glm::vec3(0.0f, 1.5f, 0.0));
+    //model = glm::scale(model, glm::vec3(0.5f));
+    //shader.setMat4("model", model);
+    //renderCube();
+    //model = glm::mat4(1.0f);
+    //model = glm::translate(model, glm::vec3(2.0f, 0.0f, 1.0));
+    //model = glm::scale(model, glm::vec3(0.5f));
+    //shader.setMat4("model", model);
+    //renderCube();
+    //model = glm::mat4(1.0f);
+    //model = glm::translate(model, glm::vec3(-1.0f, 0.0f, 2.0));
+    //model = glm::rotate(model, glm::radians(60.0f), glm::normalize(glm::vec3(1.0, 0.0, 1.0)));
+    //model = glm::scale(model, glm::vec3(0.25));
+    //shader.setMat4("model", model);
+    //renderCube();
+}
+
+
+void renderCube(MyShader shader, VAOID id, glm::mat4 model)
+{
+    // render Cube
+    shader.use();
+    shader.setMat4("model", model);
+    glBindVertexArray(id);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
+    glBindVertexArray(0);
+}
+
+// renderQuad() renders a 1x1 XY quad in NDC
+// -----------------------------------------
+void renderQuad(MyShader shader, VAOID id, glm::mat4 model)
+{
+    shader.use();
+    shader.setMat4("Model", model);
+    glBindVertexArray(id);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    glBindVertexArray(0);
 }

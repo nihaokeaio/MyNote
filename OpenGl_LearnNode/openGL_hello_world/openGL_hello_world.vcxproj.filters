@@ -112,5 +112,9 @@
     <None Include="shader\qurdInts.vs" />
     <None Include="shader\qurdPlantInts.vs" />
     <None Include="shader\qurdPlantInts.fs" />
+    <None Include="shader\simpleDepthShader.vs" />
+    <None Include="shader\simpleDepthShader.fs" />
+    <None Include="shader\debugDepthQuad.vs" />
+    <None Include="shader\debugDepthQuad.fs" />
   </ItemGroup>
 </Project>

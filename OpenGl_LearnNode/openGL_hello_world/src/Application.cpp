@@ -723,7 +723,8 @@ int main()
 
     unsigned int depthMapFBO;
     unsigned int depthMap;
-    const GLuint SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
+    int shadowFactor = 4.0;
+    const GLuint SHADOW_WIDTH = 1024 * shadowFactor, SHADOW_HEIGHT = 1024 * shadowFactor;
     {      
         glGenFramebuffers(1, &depthMapFBO);
         //glBindFramebuffer(GL_FRAMEBUFFER, shodowFramebuffer);
@@ -777,29 +778,42 @@ int main()
             glClear(GL_DEPTH_BUFFER_BIT); // 我们现在不使用模板缓冲
             glEnable(GL_DEPTH_TEST);
 
-            simpleShodowShader.use();
-            //model = glm::mat4(1.0f);
-            simpleShodowShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
-            //simpleShodowShader.setMat4("model", model);
+            
+            {
+                simpleShodowShader.use();
+                simpleShodowShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
 
-            //renderScene(simpleShodowShader);
-            //renderCube(simpleShodowShader, cubeVAO, model);
+                ///放置一个箱子
+                //grassShader.use();
+                glBindVertexArray(cubeVAO);
+                boxModel = glm::mat4(1.0f);
+                boxModel = glm::translate(boxModel, glm::vec3(-0.2f));
+                boxModel = glm::scale(boxModel, glm::vec3(0.2f));
+                boxModel = glm::rotate(boxModel, timeValue, glm::vec3(0.0f, 1.0f, 0.0f));
 
-            ///放置一个箱子,但沿用grassShader
-            //grassShader.use();
-            glBindVertexArray(cubeVAO);
-            //glBindTexture(GL_TEXTURE_2D, boxTexture);
-            boxModel = glm::mat4(1.0f);
-            boxModel = glm::translate(boxModel, glm::vec3(-0.2f));
-            boxModel = glm::scale(boxModel, glm::vec3(0.2f));
-            //boxModel = glm::rotate(boxModel, timeValue, glm::vec3(0.0f, 1.0f, 0.0f));
+                simpleShodowShader.setMat4("model", boxModel);
+                glDrawArrays(GL_TRIANGLES, 0, 36);
+            }
 
-            simpleShodowShader.setMat4("model", boxModel);
-            //grassShader.setMat4("view", view);
-            //grassShader.setMat4("projection", projection);
 
-            //glBindVertexArray(lightVAO);
-            glDrawArrays(GL_TRIANGLES, 0, 36);
+            {
+                simpleShodowShader.use();
+                simpleShodowShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
+
+                ///放置一个箱子
+                //grassShader.use();
+                glBindVertexArray(cubeVAO);
+                boxModel = glm::mat4(1.0f);
+                boxModel = glm::translate(boxModel, glm::vec3(0.0f));
+                boxModel = glm::scale(boxModel, glm::vec3(0.2f));
+                boxModel = glm::rotate(boxModel, timeValue, glm::vec3(0.0f, 1.0f, 0.0f));
+
+                simpleShodowShader.setMat4("model", boxModel);
+                glDrawArrays(GL_TRIANGLES, 0, 36);
+
+            }
+
+
 
             glBindFramebuffer(GL_FRAMEBUFFER, 0); // 返回默认
 
@@ -1054,17 +1068,29 @@ int main()
         {
             {
                 ///放置一个箱子,但沿用grassShader
-                grassShader.use();
+                planeShader.use();
                 glBindVertexArray(cubeVAO);
+                //glBindTexture(GL_TEXTURE_2D, boxTexture);
+                glActiveTexture(GL_TEXTURE0);
                 glBindTexture(GL_TEXTURE_2D, boxTexture);
+
+                glActiveTexture(GL_TEXTURE1);
+                glBindTexture(GL_TEXTURE_2D, depthMap);
+
+                planeShader.setInt("diffuseTexture", 0); // 或者使用着色器类设置
+                planeShader.setInt("shadowMap", 1); // 或者使用着色器类设置
+
                 boxModel = glm::mat4(1.0f);
                 boxModel = glm::translate(boxModel, glm::vec3(0.0f));
                 boxModel = glm::scale(boxModel, glm::vec3(0.2f));
-                //boxModel = glm::rotate(boxModel, timeValue, glm::vec3(0.0f, 1.0f, 0.0f));
+                boxModel = glm::rotate(boxModel, timeValue, glm::vec3(0.0f, 1.0f, 0.0f));
 
-                grassShader.setMat4("model", boxModel);
-                grassShader.setMat4("view", view);
-                grassShader.setMat4("projection", projection);
+                planeShader.setMat4("model", boxModel);
+                planeShader.setMat4("view", view);
+                planeShader.setMat4("projection", projection);
+                planeShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
+                planeShader.setVec3("lightPos", lightPos);
+                planeShader.setVec3("viewPos", cameraPos);
 
                 //glBindVertexArray(lightVAO);
                 glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -1072,17 +1098,29 @@ int main()
 
             {
                 ///放置一个箱子,但沿用grassShader
-                grassShader.use();
+                planeShader.use();
                 glBindVertexArray(cubeVAO);
+                //glBindTexture(GL_TEXTURE_2D, boxTexture);
+                glActiveTexture(GL_TEXTURE0);
                 glBindTexture(GL_TEXTURE_2D, boxTexture);
+
+                glActiveTexture(GL_TEXTURE1);
+                glBindTexture(GL_TEXTURE_2D, depthMap);
+
+                planeShader.setInt("diffuseTexture", 0); // 或者使用着色器类设置
+                planeShader.setInt("shadowMap", 1); // 或者使用着色器类设置
+
                 boxModel = glm::mat4(1.0f);
                 boxModel = glm::translate(boxModel, glm::vec3(-0.2f));
                 boxModel = glm::scale(boxModel, glm::vec3(0.2f));
-                //boxModel = glm::rotate(boxModel, timeValue, glm::vec3(0.0f, 1.0f, 0.0f));
+                boxModel = glm::rotate(boxModel, timeValue, glm::vec3(0.0f, 1.0f, 0.0f));
 
-                grassShader.setMat4("model", boxModel);
-                grassShader.setMat4("view", view);
-                grassShader.setMat4("projection", projection);
+                planeShader.setMat4("model", boxModel);
+                planeShader.setMat4("view", view);
+                planeShader.setMat4("projection", projection);
+                planeShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
+                planeShader.setVec3("lightPos", lightPos);
+                planeShader.setVec3("viewPos", cameraPos);
 
                 //glBindVertexArray(lightVAO);
                 glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -1093,9 +1131,14 @@ int main()
             glBindVertexArray(cubeVAO);
             glBindTexture(GL_TEXTURE_2D, boxTexture);
             glm::mat4 lightModel = glm::mat4(1.0f);
+            glm::mat4 lightOriModel = glm::mat4(1.0f);
             lightModel = glm::translate(lightModel, lightPos);
             lightModel = glm::scale(lightModel, glm::vec3(0.05f));
-            //lightModel = glm::rotate(lightModel, timeValue, glm::vec3(0.0f, 1.0f, 0.0f));
+
+            glm::mat4 lightPosMat = glm::mat4(1.0f);
+            //lightPosMat = glm::scale(lightPosMat, glm::vec3(0.2f));
+            lightPosMat = glm::rotate(lightOriModel, sin(2*0.01f), glm::vec3(0.0f, 1.0f, 0.0f));
+            lightPos= lightPosMat* glm::vec4(lightPos,0.0);
 
             lightShader.setMat4("model", lightModel);
             lightShader.setMat4("view", view);

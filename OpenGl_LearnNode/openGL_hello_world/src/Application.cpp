@@ -36,7 +36,7 @@ const unsigned int SCR_HEIGHT = 600;
 
 std::shared_ptr<Camera> camera;
 
-glm::vec3 lightPos(1.2f, 0.5f, 2.0f);
+glm::vec3 lightPos(-1.0f, 1.0f, -2.0f);
 glm::vec3 lightColor(1.0f, 1.0f, 1.0f);
 glm::vec3 planeColor(0.5f, 0.5f, 0.5f);
 
@@ -98,10 +98,11 @@ void writeGlmVec3(const std::string& name, const glm::vec3& vec)
 
 glm::mat4 getLightSpaceMat(float timeValue = 0.0)
 {
-    GLfloat near_plane = 1.0f, far_plane = 4.5f;
-    glm::mat4 lightProjection = glm::ortho(-2.0f, 2.0f, -2.0f, 2.0f, near_plane, far_plane);
-    glm::vec3 front = glm::vec3(0.0f, -0.0f, 0.0f);
-    glm::mat4 lightView = glm::lookAt(lightPos, front, glm::vec3(0.0f, 1.0f, 0.0f));
+    GLfloat near_plane = 0.1f , far_plane = 10.0f ;
+    float orthoValu = 2.7;// *abs(cos(timeValue));
+    glm::mat4 lightProjection = glm::ortho(-orthoValu, orthoValu, -orthoValu, orthoValu, near_plane, far_plane);
+    glm::vec3 front = glm::vec3(0.0f, -0.0f, 0.0f); 
+    glm::mat4 lightView = glm::lookAt(lightPos, glm::normalize(front- lightPos), glm::vec3(0.0f, 1.0f, 0.0f));
     glm::mat4 lightSpaceMatrix = lightProjection * lightView;
     //lightSpaceMatrix = glm::rotate(lightSpaceMatrix, timeValue, glm::vec3(0.0f, 1.0f, 0.0f));
     return lightSpaceMatrix;
@@ -767,7 +768,7 @@ int main()
         glm::mat4 model;
         glm::mat4 lightModel;
         glm::mat4 boxModel;
-        glm::mat4 lightSpaceMatrix = getLightSpaceMat(0.0);
+        glm::mat4 lightSpaceMatrix = getLightSpaceMat(timeValue);
 
         if (true)
         {
@@ -790,7 +791,7 @@ int main()
             //glBindTexture(GL_TEXTURE_2D, boxTexture);
             boxModel = glm::mat4(1.0f);
             boxModel = glm::translate(boxModel, glm::vec3(-0.2f));
-            boxModel = glm::scale(boxModel, glm::vec3(1.2f));
+            boxModel = glm::scale(boxModel, glm::vec3(0.2f));
             //boxModel = glm::rotate(boxModel, timeValue, glm::vec3(0.0f, 1.0f, 0.0f));
 
             simpleShodowShader.setMat4("model", boxModel);
@@ -897,6 +898,9 @@ int main()
 
             glActiveTexture(GL_TEXTURE1);
             glBindTexture(GL_TEXTURE_2D, depthMap);
+
+            planeShader.setInt("diffuseTexture", 0); // 或者使用着色器类设置
+            planeShader.setInt("shadowMap", 1); // 或者使用着色器类设置
 
             glm::mat4 planeModel;
             planeModel = glm::mat4(1.0f);

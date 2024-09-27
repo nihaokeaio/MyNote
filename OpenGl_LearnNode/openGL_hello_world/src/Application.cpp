@@ -36,7 +36,7 @@ const unsigned int SCR_HEIGHT = 600;
 
 std::shared_ptr<Camera> camera;
 
-glm::vec3 lightPos(-1.0f, 1.0f, -2.0f);
+glm::vec3 lightPos(-1.0f, 2.0f, -2.0f);
 glm::vec3 lightColor(1.0f, 1.0f, 1.0f);
 glm::vec3 planeColor(0.5f, 0.5f, 0.5f);
 
@@ -98,8 +98,8 @@ void writeGlmVec3(const std::string& name, const glm::vec3& vec)
 
 glm::mat4 getLightSpaceMat(float timeValue = 0.0)
 {
-    GLfloat near_plane = 0.1f , far_plane = 10.0f ;
-    float orthoValu = 2.7;// *abs(cos(timeValue));
+    GLfloat near_plane = 0.1f , far_plane = 5.0f ;
+    float orthoValu = 4.5 * sqrt(2);// *abs(cos(timeValue));
     glm::mat4 lightProjection = glm::ortho(-orthoValu, orthoValu, -orthoValu, orthoValu, near_plane, far_plane);
     glm::vec3 front = glm::vec3(0.0f, -0.0f, 0.0f); 
     glm::mat4 lightView = glm::lookAt(lightPos, glm::normalize(front- lightPos), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -735,9 +735,15 @@ int main()
         glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        //glBindTexture(GL_TEXTURE_2D, 0);
+        /*glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);*/
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+        GLfloat borderColor[] = { 1.0, 1.0, 1.0, 1.0 };
+        glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+
+        glBindTexture(GL_TEXTURE_2D, 0);
 
         // 将它附加到当前绑定的帧缓冲对象
         glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
@@ -778,7 +784,7 @@ int main()
             glClear(GL_DEPTH_BUFFER_BIT); // 我们现在不使用模板缓冲
             glEnable(GL_DEPTH_TEST);
 
-            
+            //glCullFace(GL_FRONT);
             {
                 simpleShodowShader.use();
                 simpleShodowShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
@@ -787,7 +793,7 @@ int main()
                 //grassShader.use();
                 glBindVertexArray(cubeVAO);
                 boxModel = glm::mat4(1.0f);
-                boxModel = glm::translate(boxModel, glm::vec3(-0.2f));
+                boxModel = glm::translate(boxModel, glm::vec3(-0.4f));
                 boxModel = glm::scale(boxModel, glm::vec3(0.2f));
                 boxModel = glm::rotate(boxModel, timeValue, glm::vec3(0.0f, 1.0f, 0.0f));
 
@@ -812,7 +818,8 @@ int main()
                 glDrawArrays(GL_TRIANGLES, 0, 36);
 
             }
-
+            //glCullFace(GL_BACK);
+            //glDisable(GL_CULL_FACE);
 
 
             glBindFramebuffer(GL_FRAMEBUFFER, 0); // 返回默认
@@ -1111,7 +1118,7 @@ int main()
                 planeShader.setInt("shadowMap", 1); // 或者使用着色器类设置
 
                 boxModel = glm::mat4(1.0f);
-                boxModel = glm::translate(boxModel, glm::vec3(-0.2f));
+                boxModel = glm::translate(boxModel, glm::vec3(-0.4f));
                 boxModel = glm::scale(boxModel, glm::vec3(0.2f));
                 boxModel = glm::rotate(boxModel, timeValue, glm::vec3(0.0f, 1.0f, 0.0f));
 

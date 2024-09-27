@@ -16,13 +16,43 @@ uniform vec3 viewPos;
 
 float ShadowCalculation(vec4 fragPosLightSpace)
 {
-    vec3 projectCoords=fragPosLightSpace.xyz/fragPosLightSpace.w;
-    projectCoords = projectCoords * 0.5 + 0.5;          //xyz=>[-1,1]  ===> [0,1]
-    float closeDepth=texture(shadowMap,projectCoords.xy).r;
-    float currentDepth=projectCoords.z;
+     vec3 projectCoords=fragPosLightSpace.xyz/fragPosLightSpace.w;
+     projectCoords = projectCoords * 0.5 + 0.5;          //xyz=>[-1,1]  ===> [0,1]
+     float currentDepth=projectCoords.z;
 
-    float shadow=currentDepth > closeDepth? 1.0 : 0.0;
-    return shadow;
+     if(currentDepth > 1.0)
+            return 0.0;
+    //Ó²ÒõÓ°
+    if(false)
+    {     
+        float closeDepth=texture(shadowMap,projectCoords.xy).r;
+        
+
+        vec3 lightDir=normalize(lightPos-fs_in.FragPos);
+        //float bias=0.005;
+        float bias = max(0.05 * (1.0 - dot(fs_in.Normal, lightDir)), 0.005);
+        float shadow=currentDepth > closeDepth + bias? 1.0 : 0.0;
+        return shadow;
+    }
+    else
+    {
+        float shadow=0.0;
+
+        vec3 lightDir = normalize(lightPos - fs_in.FragPos);
+        float bias = max(0.05 * (1.0 - dot(fs_in.Normal, lightDir)), 0.005);
+
+        vec2 textlSize = 1.0 / textureSize(shadowMap, 0);
+        for (int x = -2; x <= 2; ++x)
+        {
+            for (int y = -2; y <= 2; ++y)
+            {
+                float closeDepth = texture(shadowMap, vec2(x, y) * textlSize + projectCoords.xy).r;
+                shadow += currentDepth > closeDepth + bias ? 1.0 : 0.0;
+            }
+        }
+        shadow /= 25.0;
+        return shadow;
+    }
 }
 
 void main()

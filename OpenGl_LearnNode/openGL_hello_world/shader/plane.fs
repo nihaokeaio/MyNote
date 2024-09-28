@@ -30,7 +30,7 @@ float ShadowCalculation(vec4 fragPosLightSpace)
 
         vec3 lightDir=normalize(lightPos-fs_in.FragPos);
         //float bias=0.005;
-        float bias = max(0.05 * (1.0 - dot(fs_in.Normal, lightDir)), 0.005);
+        float bias = max(0.005 * (1.0 - dot(fs_in.Normal, lightDir)), 0.001);
         float shadow=currentDepth > closeDepth + bias? 1.0 : 0.0;
         return shadow;
     }
@@ -39,7 +39,7 @@ float ShadowCalculation(vec4 fragPosLightSpace)
         float shadow=0.0;
 
         vec3 lightDir = normalize(lightPos - fs_in.FragPos);
-        float bias = max(0.05 * (1.0 - dot(fs_in.Normal, lightDir)), 0.005);
+        float bias = max(0.005 * (1.0 - dot(fs_in.Normal, lightDir)), 0.001);
 
         vec2 textlSize = 1.0 / textureSize(shadowMap, 0);
         for (int x = -2; x <= 2; ++x)

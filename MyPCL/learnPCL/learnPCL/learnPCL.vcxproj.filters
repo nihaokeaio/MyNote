@@ -18,8 +18,13 @@
     <ClCompile Include="src\hellpPcl.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="include\00DataStruct.hpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="PCL_D_x64.props" />
+    <ClInclude Include="include\00pcd_write.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

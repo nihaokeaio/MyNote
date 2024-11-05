@@ -3,6 +3,9 @@
 #include <pcl/io/io.h>
 #include <pcl/io/pcd_io.h>
 #include <vtkAutoInit.h>
+
+#include <00pcd_write.hpp>
+
 VTK_MODULE_INIT(vtkInteractionStyle);
 VTK_MODULE_INIT(vtkRenderingFreeType);
 VTK_MODULE_INIT(vtkRenderingOpenGL2);
@@ -33,10 +36,23 @@ void viewerPsycho(pcl::visualization::PCLVisualizer& viewer)
     user_data++;
 }
 
+bool run()
+{
+    Space00::run();
+
+
+
+    return false;
+}
+
+
 int main()
 {
-    pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGBA>);
-    pcl::io::loadPCDFile("rabbit.pcd", *cloud);
+    if (!run() && false)
+        return 0;
+
+    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>);
+    pcl::io::loadPCDFile("test.pcd", *cloud);
 
     pcl::visualization::CloudViewer viewer("Cloud Viewer");
 

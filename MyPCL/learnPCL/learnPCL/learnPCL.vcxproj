@@ -129,11 +129,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="include\00DataStruct.hpp" />
-    <ClCompile Include="src\hellpPcl.cpp" />
+    <ClCompile Include="include\Base00.hpp" />
+    <ClCompile Include="src\CreatePCL.cpp" />
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\ShowDebug.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\00pcd_write.hpp" />
+    <ClInclude Include="include\CreatePCL.h" />
+    <ClInclude Include="include\ShowDebug.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -15,15 +15,24 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\hellpPcl.cpp">
+    <ClCompile Include="src\main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="include\00DataStruct.hpp">
+    <ClCompile Include="include\Base00.hpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ShowDebug.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CreatePCL.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\00pcd_write.hpp">
+    <ClInclude Include="include\CreatePCL.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ShowDebug.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

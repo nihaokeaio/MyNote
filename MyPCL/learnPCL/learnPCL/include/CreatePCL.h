@@ -1,5 +1,5 @@
 #pragma once
-#include <pcl/io/pcd_io.h>
+#include "commonInclude.h"
 
 namespace Chapter00
 {
@@ -8,10 +8,9 @@ namespace Chapter00
 
 	public:
 
-		static auto createRadomPointCloud(const std::string& saveName = "") -> pcl::PointCloud<pcl::PointXYZ>::Ptr;
+		static auto createRadomPointCloud(int width, int height, const std::string& saveName = "")
+			-> pcl::PointCloud<pcl::PointXYZ>::Ptr;
 
-
-
-
+		static void printCloud(const pcl::PointCloud<pcl::PointXYZ>* pCloud, unsigned int size = 10);
 	};
 }

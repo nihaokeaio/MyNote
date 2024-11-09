@@ -130,12 +130,15 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="include\Base00.hpp" />
+    <ClCompile Include="src\KDTreeBase.cpp" />
     <ClCompile Include="src\CreatePCL.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\ShowDebug.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\commonInclude.h" />
     <ClInclude Include="include\CreatePCL.h" />
+    <ClInclude Include="include\KDTreeBase.h" />
     <ClInclude Include="include\ShowDebug.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

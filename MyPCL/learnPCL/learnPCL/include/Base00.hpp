@@ -35,7 +35,7 @@ namespace Base00
 
 			transform_2.rotate(Eigen::AngleAxisf(theta, Eigen::Vector3f::UnitZ()));
 
-			std::cout << transform_2.matrix() << std::endl;
+			//std::cout << transform_2.matrix() << std::endl;
 
 			pcl::transformPointCloud(*inCloud, *outCloud, transform_2);
 		}

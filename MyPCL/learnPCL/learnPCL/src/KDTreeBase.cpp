@@ -33,7 +33,7 @@ bool KDTreeBase::queryRadius(const pcl::PointXYZ& point, float radius, std::vect
 
 void KDTreeBase::demoQuery()
 {
-	auto cloud = Chapter00::CreateCloud::createRadomPointCloud(200, 100, "randCloud.pcd");
+	auto cloud = Chapter00::CreateCloud::createRandomPointCloud(200, 100, "randCloud.pcd");
 
 	pcl::PointXYZ point(5.0, 5.0, 5.0);
 

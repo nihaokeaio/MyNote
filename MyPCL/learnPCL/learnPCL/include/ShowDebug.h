@@ -5,7 +5,7 @@ class ShowDebug
 public:
 	ShowDebug();
 
-	void addPoints(const pcl::PointCloud<pcl::PointXYZ>::Ptr& cloud, const std::string& name = "cloud");
+	void addPoints(const pcl::PointCloud<pcl::PointXYZ>::Ptr& cloud, const std::string& name, const Eigen::Vector4f& rgba);
 
 	void run();
 

@@ -31,7 +31,7 @@ namespace Base00
 			float theta = M_PI_4;
 			Eigen::Affine3f transform_2 = Eigen::Affine3f::Identity();
 
-			transform_2.translation() << 2.5, 0.0, 0.0;
+			transform_2.translation() << 5.5, 0.0, 0.0;
 
 			transform_2.rotate(Eigen::AngleAxisf(theta, Eigen::Vector3f::UnitZ()));
 

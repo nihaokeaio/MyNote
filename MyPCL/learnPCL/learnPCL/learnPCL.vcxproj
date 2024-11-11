@@ -132,6 +132,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="include\Base00.hpp" />
+    <ClCompile Include="src\RandSampleConsensus.cpp" />
     <ClCompile Include="src\SimpleOpenNIViewer.cpp" />
     <ClCompile Include="src\OcTreeBase.cpp" />
     <ClCompile Include="src\KDTreeBase.cpp" />
@@ -143,6 +144,7 @@
     <ClInclude Include="include\commonInclude.h" />
     <ClInclude Include="include\CreatePCL.h" />
     <ClInclude Include="include\KDTreeBase.h" />
+    <ClInclude Include="include\RandSampleConsensus.h" />
     <ClInclude Include="include\OcTreeBase.h" />
     <ClInclude Include="include\ShowDebug.h" />
     <ClInclude Include="include\SimpleOpenNIViewer.h" />

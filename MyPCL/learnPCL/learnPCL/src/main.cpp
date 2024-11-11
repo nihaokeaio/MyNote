@@ -8,20 +8,25 @@
 #include <Base00.hpp>
 #include <ShowDebug.h>
 #include <KDTreeBase.h>
+#include "RandSampleConsensus.h"
 #include "OcTreeBase.h"
 #include "SimpleOpenNIViewer.h"
-
 
 VTK_MODULE_INIT(vtkInteractionStyle);
 VTK_MODULE_INIT(vtkRenderingFreeType);
 VTK_MODULE_INIT(vtkRenderingOpenGL2);
 
-
+void foo()
+{
+    RandSampleConsensus randSampleConsensus;
+    randSampleConsensus.demoSphere();
+}
 
 
 int main()
 {
-    auto originCloudPtr = Chapter00::CreateCloud::createRadomPointCloud(500, 200, "test.pcd");
+    foo();
+    auto originCloudPtr = Chapter00::CreateCloud::createRandomPointCloud(500, 200, "test.pcd");
 
     pcl::PointCloud<pcl::PointXYZ>::Ptr readCloudPtr(new pcl::PointCloud<pcl::PointXYZ>);
     pcl::io::loadPCDFile("test.pcd", *readCloudPtr);

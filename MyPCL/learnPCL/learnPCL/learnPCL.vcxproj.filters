@@ -30,6 +30,9 @@
     <ClCompile Include="src\KDTreeBase.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="src\RandSampleConsensus.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
     <ClCompile Include="src\OcTreeBase.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -48,6 +51,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="include\commonInclude.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="include\RandSampleConsensus.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="include\OcTreeBase.h">

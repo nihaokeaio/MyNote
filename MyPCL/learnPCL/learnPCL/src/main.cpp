@@ -8,6 +8,8 @@
 #include <Base00.hpp>
 #include <ShowDebug.h>
 #include <KDTreeBase.h>
+#include "OcTreeBase.h"
+#include "SimpleOpenNIViewer.h"
 
 
 VTK_MODULE_INIT(vtkInteractionStyle);
@@ -26,6 +28,16 @@ int main()
 
     pcl::PointCloud<pcl::PointXYZ>::Ptr transformCloud;
     Base00::ChapterDemo::transFormCloud(readCloudPtr, transformCloud);
+
+    {
+        //OcTree::ocTreeChangeDetection();
+    }
+
+    {
+        SimpleOpenNIViewer simpleOpenNIViewer;
+        simpleOpenNIViewer.run();
+    }
+
 
     ShowDebug showDebug;
     /*showDebug.addPoints(originCloudPtr, "sourceCloud");

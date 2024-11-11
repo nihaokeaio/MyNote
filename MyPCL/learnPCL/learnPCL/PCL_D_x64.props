@@ -1,21 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets" />
-  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Label="UserMacros">
+    <PCLVERSION>pcl-1.14</PCLVERSION>
+    <VTKVERSION>9.3</VTKVERSION>
+    <BOOSTVERSION>1_84</BOOSTVERSION>
+  </PropertyGroup>
   <PropertyGroup>
     <_PropertySheetDisplayName>PCL_D_x64</_PropertySheetDisplayName>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(PCLDIR)\include\pcl-1.13;$(PCLDIR)\3rdParty\Boost\include\boost-1_82;$(PCLDIR)\3rdParty\Eigen\eigen3;$(PCLDIR)\3rdParty\FLANN\include;$(PCLDIR)\3rdParty\OpenNI2\Include;$(PCLDIR)\3rdParty\Qhull\include;$(PCLDIR)\3rdParty\VTK\include\vtk-9.2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(PCLDIR)\include\$(PCLVERSION);$(PCLDIR)\3rdParty\VTK\include\vtk-$(VTKVERSION);$(PCLDIR)\3rdParty\Boost\include\boost-$(BOOSTVERSION);$(PCLDIR)\3rdParty\Eigen\eigen3;$(PCLDIR)\3rdParty\FLANN\include;$(PCLDIR)\3rdParty\OpenNI2\Include;$(PCLDIR)\3rdParty\Qhull\include;$(PCLDIR)\3rdParty\Eigen3\include\eigen3;$(OPENNIDir)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;
 _SCL_SECURE_NO_WARNINGS;
 _SILENCE_FPOS_SEEKPOS_DEPRECATION_WARNING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>$(PCLDIR)\3rdParty\VTK\lib;$(PCLDIR)\3rdParty\OpenNI2\Lib;$(PCLDIR)\3rdParty\Boost\lib;$(PCLDIR)\3rdParty\FLANN\lib;$(PCLDIR)\3rdParty\Qhull\lib;$(PCLDIR)\lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>pcl_commond.lib;pcl_featuresd.lib;pcl_filtersd.lib;pcl_io_plyd.lib;pcl_iod.lib;pcl_kdtreed.lib;pcl_keypointsd.lib;pcl_mld.lib;pcl_octreed.lib;pcl_outofcored.lib;pcl_peopled.lib;pcl_recognitiond.lib;pcl_registrationd.lib;pcl_sample_consensusd.lib;pcl_searchd.lib;pcl_segmentationd.lib;pcl_stereod.lib;pcl_surfaced.lib;pcl_trackingd.lib;pcl_visualizationd.lib;vtkCommonCore-9.2-gd.lib;vtkRenderingCore-9.2-gd.lib;vtkRenderingLOD-9.2-gd.lib;vtksys-9.2-gd.lib;vtkCommonExecutionModel-9.2-gd.lib;vtkFiltersSources-9.2-gd.lib;vtkInteractionStyle-9.2-gd.lib;vtkRenderingFreeType-9.2-gd.lib;vtkRenderingOpenGL2-9.2-gd.lib;opengl32.lib;vtkCommonDataModel-9.2-gd.lib;vtkCommonMath-9.2-gd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(PCLDIR)\3rdParty\VTK\lib;$(PCLDIR)\3rdParty\OpenNI2\Lib;$(PCLDIR)\3rdParty\Boost\lib;$(PCLDIR)\3rdParty\FLANN\lib;$(PCLDIR)\3rdParty\Qhull\lib;$(PCLDIR)\lib;$(OPENNIDir)\Lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>pcl_commond.lib;pcl_featuresd.lib;pcl_filtersd.lib;pcl_io_plyd.lib;pcl_iod.lib;pcl_kdtreed.lib;pcl_keypointsd.lib;pcl_mld.lib;pcl_octreed.lib;pcl_outofcored.lib;pcl_peopled.lib;pcl_recognitiond.lib;pcl_registrationd.lib;pcl_sample_consensusd.lib;pcl_searchd.lib;pcl_segmentationd.lib;pcl_stereod.lib;pcl_surfaced.lib;pcl_trackingd.lib;pcl_visualizationd.lib;vtkCommonCore-$(VTKVERSION)-gd.lib;vtkRenderingCore-$(VTKVERSION)-gd.lib;vtkRenderingLOD-$(VTKVERSION)-gd.lib;vtksys-$(VTKVERSION)-gd.lib;vtkCommonExecutionModel-$(VTKVERSION)-gd.lib;vtkFiltersSources-$(VTKVERSION)-gd.lib;vtkInteractionStyle-$(VTKVERSION)-gd.lib;vtkRenderingFreeType-$(VTKVERSION)-gd.lib;vtkRenderingOpenGL2-$(VTKVERSION)-gd.lib;opengl32.lib;vtkCommonDataModel-$(VTKVERSION)-gd.lib;vtkCommonMath-$(VTKVERSION)-gd.lib;OpenNI2.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <BuildMacro Include="PCLVERSION">
+      <Value>$(PCLVERSION)</Value>
+      <EnvironmentVariable>true</EnvironmentVariable>
+    </BuildMacro>
+    <BuildMacro Include="VTKVERSION">
+      <Value>$(VTKVERSION)</Value>
+      <EnvironmentVariable>true</EnvironmentVariable>
+    </BuildMacro>
+    <BuildMacro Include="BOOSTVERSION">
+      <Value>$(BOOSTVERSION)</Value>
+      <EnvironmentVariable>true</EnvironmentVariable>
+    </BuildMacro>
+  </ItemGroup>
 </Project>

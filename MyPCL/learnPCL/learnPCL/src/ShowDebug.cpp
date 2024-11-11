@@ -1,9 +1,9 @@
 #include <ShowDebug.h>
 #include <Base00.hpp>
 
-ShowDebug::ShowDebug()
+ShowDebug::ShowDebug(const std::string& viewerName)
 {
-	viewer_.setWindowName("viewer");
+	viewer_.setWindowName(viewerName);
 	viewer_.addCoordinateSystem(1.0, "cloud", 0);
 	viewer_.setBackgroundColor(0.01, 0.01, 0.01, 0); // Setting background to a dark grey
 	/*viewer_.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 2, "original_cloud");
@@ -59,6 +59,7 @@ void ShowDebug::run()
 	{ // Display the visualiser until 'q' key is pressed
 		viewer_.spinOnce();
 	}
+	viewer_.close();
 }
 
 void ShowDebug::demo(const pcl::PointCloud<pcl::PointXYZ>::Ptr& cloud)

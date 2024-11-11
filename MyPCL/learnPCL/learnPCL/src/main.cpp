@@ -39,12 +39,12 @@ int main()
     }
 
     {
-        SimpleOpenNIViewer simpleOpenNIViewer;
-        simpleOpenNIViewer.run();
+       /* SimpleOpenNIViewer simpleOpenNIViewer;
+        simpleOpenNIViewer.run();*/
     }
 
 
-    ShowDebug showDebug;
+    ShowDebug showDebug("DoubleSceen");
     /*showDebug.addPoints(originCloudPtr, "sourceCloud");
     showDebug.addPoints(transformCloud, "transformCloud");*/
     showDebug.demo(originCloudPtr);

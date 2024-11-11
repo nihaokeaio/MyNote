@@ -21,6 +21,7 @@ void SimpleOpenNIViewer::cloudCB(const pcl::PointCloud<pcl::PointXYZRGBA>::Ptr& 
 
 void SimpleOpenNIViewer::run()
 {
+	return;
 	bool showStatistics = true; //设置在标准设备上输出打印出压缩结果信息
 
 	// 压缩选项详情在: /io/include/pcl/compression/compression_profiles.h

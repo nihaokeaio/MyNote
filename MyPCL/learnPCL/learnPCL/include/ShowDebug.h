@@ -3,7 +3,7 @@
 class ShowDebug
 {
 public:
-	ShowDebug();
+	ShowDebug(const std::string& viewerName);
 
 	void addPoints(const pcl::PointCloud<pcl::PointXYZ>::Ptr& cloud, const std::string& name, const Eigen::Vector4f& rgba);
 

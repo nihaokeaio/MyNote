@@ -1,7 +1,11 @@
 #include "OcTreeBase.h"
 #include <ctime>
 
-void foo();
+namespace OcTreeSpace
+{
+    void foo();
+}
+
 
 OcTree::OcTree(const pcl::PointCloud<pcl::PointXYZ>::Ptr& cloud)
 {
@@ -42,11 +46,11 @@ bool OcTree::queryRadius(const pcl::PointXYZ& point, float radius, std::vector<i
 
 void OcTree::ocTreeChangeDetection()
 {
-    foo();
+    OcTreeSpace::foo();
 }
 
 
-void foo()
+void OcTreeSpace::foo()
 {
     srand((unsigned int)time(NULL)); //用系统时间初始化随机种子
 

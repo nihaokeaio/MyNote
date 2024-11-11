@@ -8,7 +8,7 @@
 
 RandSampleConsensus::RandSampleConsensus()
 {
-	viewer_.reset(new ShowDebug());
+	viewer_.reset(new ShowDebug("Viewer01"));
 }
 
 void RandSampleConsensus::demoSphere()
@@ -22,10 +22,12 @@ void RandSampleConsensus::demoSphere()
 	pcl::SampleConsensusModelSphere<pcl::PointXYZ>::Ptr modelSphere(new pcl::SampleConsensusModelSphere<pcl::PointXYZ>(sphereCloud));
 
 	std::vector<int> inliers;  //存储局内点集合的点的索引的向量
-	pcl::RandomSampleConsensus<pcl::PointXYZ> ransac(modelSphere);
-	ransac.setDistanceThreshold(0.01);
-	ransac.computeModel();
-	ransac.getInliers(inliers);
+	{
+		pcl::RandomSampleConsensus<pcl::PointXYZ> ransac(modelSphere);
+		ransac.setDistanceThreshold(0.01);
+		ransac.computeModel();
+		ransac.getInliers(inliers);
+	}
 
 
 	///赋值局内点
@@ -34,10 +36,10 @@ void RandSampleConsensus::demoSphere()
 
 	viewer_->addPoints(outCloud, "sampleCSphere", MyColor::Red);
 
-	pcl::PointCloud<pcl::PointXYZ>::Ptr transformCloud;
+	/*pcl::PointCloud<pcl::PointXYZ>::Ptr transformCloud;
 	Base00::ChapterDemo::transFormCloud(outCloud, transformCloud);
 
-	viewer_->addPoints(transformCloud, "TransSphere", MyColor::Blue);
+	viewer_->addPoints(transformCloud, "TransSphere", MyColor::Blue);*/
 
 	viewer_->run();
 }

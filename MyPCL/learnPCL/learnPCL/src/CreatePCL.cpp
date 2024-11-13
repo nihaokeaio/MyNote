@@ -23,7 +23,8 @@ auto Chapter00::CreateCloud::createRandomPointCloud(int width, int height, const
 	return cloud;
 }
 
-auto Chapter00::CreateCloud::createRandomSpherePointCloud(const Eigen::Vector3f& center, float radius, const std::string& saveName) -> pcl::PointCloud<pcl::PointXYZ>::Ptr
+auto Chapter00::CreateCloud::createRandomSpherePointCloud(const Eigen::Vector3f& center, float radius, 
+	const std::string& saveName, bool withNoise) -> pcl::PointCloud<pcl::PointXYZ>::Ptr
 {
 	pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>);
 	cloud->width = 50;
@@ -36,7 +37,7 @@ auto Chapter00::CreateCloud::createRandomSpherePointCloud(const Eigen::Vector3f&
 		float theta = rand() / (RAND_MAX + 1.0) * 2 * M_PI;
 		float phi = rand() / (RAND_MAX + 1.0) * 2 * M_PI;
 		float x, y, z;
-		if (i % 5 != 0)
+		if (i % 5 != 0 && withNoise)
 		{
 			x = 2 * radius * rand() / (RAND_MAX + 1.0) - radius;
 			y = 2 * radius * rand() / (RAND_MAX + 1.0) - radius;
@@ -65,18 +66,19 @@ auto Chapter00::CreateCloud::createRandomSpherePointCloud(const Eigen::Vector3f&
 	return cloud;
 }
 
-auto Chapter00::CreateCloud::createRandomPlanePointCloud(const Eigen::Vector3f& center, const Eigen::Vector3f& normal, const std::string& saveName) -> pcl::PointCloud<pcl::PointXYZ>::Ptr
+auto Chapter00::CreateCloud::createRandomPlanePointCloud(const Eigen::Vector3f& center, const Eigen::Vector3f& normal, 
+	const std::string& saveName, bool withNoise) -> pcl::PointCloud<pcl::PointXYZ>::Ptr
 {
 	pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>);
-	cloud->width = 50;
-	cloud->height = 50;
+	cloud->width = 500;
+	cloud->height = 500;
 	cloud->is_dense = false;
 	cloud->resize(cloud->width * cloud->height);
 	for (int i = 0; i < cloud->size(); ++i)
 	{
 		cloud->points[i].x = rand() / (RAND_MAX + 1.0);
 		cloud->points[i].y = rand() / (RAND_MAX + 1.0);
-		if (i % 5 != 0)
+		if (i % 5 != 0 && withNoise)
 			cloud->points[i].z = rand() / (RAND_MAX + 1.0);   //对应的局外点
 		else
 			cloud->points[i].z = (normal.transpose() * center - normal.x() * cloud->points[i].x - normal.y() * cloud->points[i].y) / (normal.z() + 0.001);

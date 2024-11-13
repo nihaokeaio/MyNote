@@ -12,12 +12,13 @@ namespace Chapter00
 			-> pcl::PointCloud<pcl::PointXYZ>::Ptr;
 
 		//创建一个带噪声的球形点云
-		static auto createRandomSpherePointCloud(const Eigen::Vector3f& center, float radius, const std::string& saveName = "")
+		static auto createRandomSpherePointCloud(const Eigen::Vector3f& center, float radius, const std::string& saveName = "", 
+			bool withNoise = false)
 			-> pcl::PointCloud<pcl::PointXYZ>::Ptr;
 
 		//创建一个带噪声的平面点云
 		static auto createRandomPlanePointCloud(const Eigen::Vector3f& center, const Eigen::Vector3f& normal
-			, const std::string& saveName = "")
+			, const std::string& saveName = "", bool withNoise = false)
 			-> pcl::PointCloud<pcl::PointXYZ>::Ptr;
 
 

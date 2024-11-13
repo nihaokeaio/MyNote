@@ -53,6 +53,19 @@ void ShowDebug::addPoints(const pcl::PointCloud<pcl::PointXYZ>::Ptr& cloud, cons
 
 }
 
+
+void ShowDebug::addPoints(const pcl::PointCloud<pcl::PointWithRange>::Ptr& cloud, const std::string& name,
+	const Eigen::Vector4f& rgba)
+{
+	//获取点云颜色
+	pcl::visualization::PointCloudColorHandlerCustom<pcl::PointWithRange> source_cloud_color_handler
+	(cloud, rgba.x() * 255.0, rgba.y() * 255.0, rgba.z() * 255.0);
+	viewer_.addPointCloud(cloud, source_cloud_color_handler, name);
+	viewer_.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 2, name);
+}
+
+
+
 void ShowDebug::run()
 {
 	while (!viewer_.wasStopped())

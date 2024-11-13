@@ -11,6 +11,7 @@
 #include "RandSampleConsensus.h"
 #include "OcTreeBase.h"
 #include "SimpleOpenNIViewer.h"
+#include "RangeImage.h"
 
 VTK_MODULE_INIT(vtkInteractionStyle);
 VTK_MODULE_INIT(vtkRenderingFreeType);
@@ -18,8 +19,19 @@ VTK_MODULE_INIT(vtkRenderingOpenGL2);
 
 void foo()
 {
-    RandSampleConsensus randSampleConsensus;
-    randSampleConsensus.demoSphere();
+    //采样一致性
+    if(false)
+    {
+        RandSampleConsensus randSampleConsensus;
+        randSampleConsensus.demoPlane();
+    }
+
+    //深度图
+    {
+        RangeImage rangeImage;
+        rangeImage.demo();
+    }
+    
 }
 
 

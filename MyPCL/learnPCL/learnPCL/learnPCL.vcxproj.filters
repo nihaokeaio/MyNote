@@ -39,6 +39,9 @@
     <ClCompile Include="src\SimpleOpenNIViewer.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="src\RangeImage.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\CreatePCL.h">
@@ -60,6 +63,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="include\SimpleOpenNIViewer.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="include\RangeImage.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

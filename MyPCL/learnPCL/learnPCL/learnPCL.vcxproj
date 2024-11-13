@@ -108,7 +108,6 @@
       <TreatSpecificWarningsAsErrors>
       </TreatSpecificWarningsAsErrors>
       <DisableSpecificWarnings>4819</DisableSpecificWarnings>
-      <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -133,6 +132,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="include\Base00.hpp" />
+    <ClCompile Include="src\RangeImage.cpp" />
     <ClCompile Include="src\RandSampleConsensus.cpp" />
     <ClCompile Include="src\SimpleOpenNIViewer.cpp" />
     <ClCompile Include="src\OcTreeBase.cpp" />
@@ -147,6 +147,7 @@
     <ClInclude Include="include\KDTreeBase.h" />
     <ClInclude Include="include\RandSampleConsensus.h" />
     <ClInclude Include="include\OcTreeBase.h" />
+    <ClInclude Include="include\RangeImage.h" />
     <ClInclude Include="include\ShowDebug.h" />
     <ClInclude Include="include\SimpleOpenNIViewer.h" />
   </ItemGroup>

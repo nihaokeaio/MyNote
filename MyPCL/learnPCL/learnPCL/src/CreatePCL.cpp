@@ -1,5 +1,6 @@
 #include "CreatePCL.h"
 #include <pcl/common/angles.h>
+#include <pcl/io/ply_io.h>
 
 auto Chapter00::CreateCloud::createRandomPointCloud(int width, int height, const std::string& saveName)
 -> pcl::PointCloud<pcl::PointXYZ>::Ptr
@@ -93,4 +94,13 @@ void Chapter00::CreateCloud::printCloud(const pcl::PointCloud<pcl::PointXYZ>* pC
 		<< " " << pCloud->points[i].y
 		<< " " << pCloud->points[i].z
 		<< std::endl;
+}
+
+pcl::PolygonMesh Chapter00::CreateCloud::loadPLYFile(const std::string& filePath)
+{
+	/*如果表头element face的值为0, 则表示该文件为点云文件*/
+	pcl::PolygonMesh mesh;
+	pcl::io::loadPLYFile("readName.ply", mesh);
+	pcl::io::savePLYFile("saveName.ply", mesh);
+	return mesh;
 }

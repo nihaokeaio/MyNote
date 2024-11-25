@@ -133,6 +133,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="include\Base00.hpp" />
+    <ClCompile Include="src\FilterBase.cpp" />
     <ClCompile Include="src\RangeImage.cpp" />
     <ClCompile Include="src\RandSampleConsensus.cpp" />
     <ClCompile Include="src\SimpleOpenNIViewer.cpp" />
@@ -145,6 +146,7 @@
   <ItemGroup>
     <ClInclude Include="include\commonInclude.h" />
     <ClInclude Include="include\CreatePCL.h" />
+    <ClInclude Include="include\FilterBase.h" />
     <ClInclude Include="include\KDTreeBase.h" />
     <ClInclude Include="include\RandSampleConsensus.h" />
     <ClInclude Include="include\OcTreeBase.h" />

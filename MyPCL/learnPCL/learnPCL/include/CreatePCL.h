@@ -23,5 +23,7 @@ namespace Chapter00
 
 
 		static void printCloud(const pcl::PointCloud<pcl::PointXYZ>* pCloud, unsigned int size = 10);
+
+		static pcl::PolygonMesh loadPLYFile(const std::string& filePath);
 	};
 }

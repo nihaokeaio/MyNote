@@ -38,7 +38,7 @@ void RangeImage::demo()
         if (borderDescription.points[i].traits[pcl::BORDER_TRAIT__VEIL_POINT])
             veil_points_ptr->points.push_back(rangeCloud->points[i]);
 
-        if (borderDescription.points[i].traits[pcl::BORDER_TRAIT__SHADOW_BORDER])
+        if (borderDescription.points[i].traits[pcl::BORDER_TRAIT__SHADOW_BORDER])   
             shadow_points_ptr->points.push_back(rangeCloud->points[i]);
     }
     viewer_->addPoints(border_points_ptr, "borderPCL", MyColor::Green);

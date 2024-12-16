@@ -30,7 +30,8 @@ Intersection BVHBuild::intersect(const Ray& ray)
 	if (!root)
 		return intersect;
 	intersect = getIntersect(root, ray);
-	intersect.index = intersect.object->id;
+	if(intersect.happened)
+		intersect.index = intersect.object->id;
 	return intersect;
 }
 

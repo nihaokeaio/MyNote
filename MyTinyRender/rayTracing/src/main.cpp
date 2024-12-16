@@ -11,7 +11,7 @@ int main()
 {
 	Scene scene(1280, 960);
 
-    std::shared_ptr<TriangleMesh> bunny=std::make_shared<TriangleMesh>("../Resource/models/bunny/bunny.obj");
+    std::shared_ptr<TriangleMesh> bunny=std::make_shared<TriangleMesh>("./Resource/models/bunny/bunny.obj");
     const auto& light1 = std::make_shared<Light>(Vec3f(-20, 70, 20), 1);
     const auto& light2 = std::make_shared<Light>(Vec3f(20, 70, 20), 1);
 
@@ -52,7 +52,7 @@ int main()
     scene.add(sph1);
     scene.add(sph2);
 
-    //scene.add(bunny);
+    scene.add(bunny);
     scene.add(light1);
     scene.add(light2);
     //scene.buildBVH();

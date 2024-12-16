@@ -12,6 +12,7 @@
 #include "OcTreeBase.h"
 #include "SimpleOpenNIViewer.h"
 #include "RangeImage.h"
+#include "FilterBase.h"
 
 VTK_MODULE_INIT(vtkInteractionStyle);
 VTK_MODULE_INIT(vtkRenderingFreeType);
@@ -27,9 +28,16 @@ void foo()
     }
 
     //…Ó∂»Õº
+    if (false)
     {
         RangeImage rangeImage;
         rangeImage.demo();
+    }
+
+    if (true)
+    {
+        FilterBase filterBase;
+        filterBase.demo();
     }
     
 }

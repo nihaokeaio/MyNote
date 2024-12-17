@@ -15,8 +15,10 @@ public:
     Vec3f m_color;
     Vec3f m_emission;
     float ior;
-    float Kd, Ks;
-    float specularExponent;
+    float Ka = 0.1;
+    float Kd = 0.7;
+    float Ks=0.2;
+    float specularExponent=25.0;
     //Texture tex;
 
     inline Material(MaterialType t = DIFFUSE_AND_GLOSSY, Vec3f c = Vec3f(1, 1, 1), Vec3f e = Vec3f(0, 0, 0));

@@ -45,7 +45,7 @@ void Scene::rayTracing()
         std::chrono::system_clock::now().time_since_epoch()
     );
 
-    Vec3f eye = { -1, 3, 10 };//摄像机位置
+    Vec3f eye = { 0, 0, 3 };//摄像机位置
 
     float imageAspectRatio = width_ / height_;
     float scale = tan(GamesMath::deg2rad(fov_ * 0.5));
@@ -116,7 +116,7 @@ Vec3f Scene::castRay(Ray ray, int depth)
         {
         case Material::REFLECTION_AND_REFRACTION:
         {
-            Vec3f reflectionDirection = GamesMath::reflect(-ray.dir, N).normalize();
+            Vec3f reflectionDirection = GamesMath::reflect(ray.dir, N).normalize();
             Vec3f refractionDirection = GamesMath::refract(ray.dir, N, m->ior).normalize();
             Vec3f reflectionRayOrig = (reflectionDirection.dot(N) < 0) ?
                 hitPoint - N * EPSILON :
@@ -125,20 +125,18 @@ Vec3f Scene::castRay(Ray ray, int depth)
                 hitPoint - N * EPSILON :
                 hitPoint + N * EPSILON;
             Vec3f reflectionColor = castRay(Ray(reflectionRayOrig, reflectionDirection), depth + 1);
-            Vec3f refractionColor = castRay(Ray(refractionRayOrig, refractionDirection), depth + 1);
-            float kr;
-            GamesMath::fresnel(ray.dir, N, m->ior, kr);
+            Vec3f refractionColor = castRay(Ray(refractionRayOrig, refractionDirection), depth + 1);          
+            float kr = GamesMath::fresnel(ray.dir, N, m->ior);
             hitColor = reflectionColor * kr + refractionColor * (1 - kr);
             break;
         }
         case Material::REFLECTION:
-        {
-            float kr;
-            GamesMath::fresnel(ray.dir, N, m->ior, kr);
+        {          
+            float kr = GamesMath::fresnel(ray.dir, N, m->ior);
             Vec3f reflectionDirection = GamesMath::reflect(ray.dir, N);
             Vec3f reflectionRayOrig = (reflectionDirection.dot(N) < 0) ?
-                hitPoint + N * EPSILON :
-                hitPoint - N * EPSILON;
+                hitPoint - N * EPSILON :
+                hitPoint + N * EPSILON;
             hitColor = castRay(Ray(reflectionRayOrig, reflectionDirection), depth + 1) * kr;
             break;
         }
@@ -150,8 +148,8 @@ Vec3f Scene::castRay(Ray ray, int depth)
             // [/comment]
             Vec3f lightAmt = 0, specularColor = 0;
             Vec3f shadowPointOrig = (ray.dir.dot(N) < 0) ?
-                hitPoint + ray.dir * EPSILON :
-                hitPoint - ray.dir * EPSILON;
+                hitPoint + N * EPSILON :
+                hitPoint - N * EPSILON;
             // [comment]
             // Loop over all lights in the scene and sum their contribution up
             // We also apply the lambert cosine law
@@ -160,6 +158,7 @@ Vec3f Scene::castRay(Ray ray, int depth)
             {
                 {
                     Vec3f lightDir = lights_[i]->position - hitPoint;
+                    Vec3f shadowPoint2lightDir = lights_[i]->position - shadowPointOrig;
                     // square of the distance between hitPoint and the light
                     float lightDistance2 = lightDir.norm2();
                     lightDir = lightDir.normalize();
@@ -167,18 +166,25 @@ Vec3f Scene::castRay(Ray ray, int depth)
                     Object* shadowHitObject = nullptr;
                     float tNearShadow = FLT_MAX;
                     // is the point in shadow, and is the nearest occluding object closer to the object than the light itself?
+                    // //以阴影处出发，向着光源方向发射光线，与场景中的物体求交，如果与物体相交，则说明其在物体下方，
+                    //表面被物体遮住了，是在阴影中
                     //bool inShadow = bvh->Intersect(Ray(shadowPointOrig, lightDir)).happened;
-                    bool inShadow = intersect(Ray(shadowPointOrig, lightDir)).happened;
-                    lightAmt += (1 - inShadow) * lights_[i]->intensity * LdotN;
+                    bool inShadow = intersect(Ray(shadowPointOrig, shadowPoint2lightDir)).happened;
+                    //lightAmt += (1 - inShadow) * lights_[i]->emissionColor * LdotN;
+                    lightAmt += (1 - inShadow) * lights_[i]->emissionColor * LdotN;
                     Vec3f reflectionDirection = GamesMath::reflect(-lightDir, N);
                     specularColor += powf(std::max(0.f, -reflectionDirection.dot(ray.dir)),
-                        m->specularExponent) * lights_[i]->intensity;
+                        m->specularExponent) * lights_[i]->emissionColor;
                 }
             }
             hitColor = lightAmt * (hitObject->evalDiffuseColor(st) * m->Kd + specularColor * m->Ks);
             break;
         }
         }
+    }
+    if (hitColor == Vec3f(0, 0, 0))
+    {
+        int x = 1;
     }
 
     return hitColor;

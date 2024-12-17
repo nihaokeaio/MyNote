@@ -27,22 +27,22 @@ int main()
     std::shared_ptr<Triangle> t1(new Triangle{ {x, y, -z},   {-x, y, -z }, {x, y, z},material });
 
 
-    auto sph1m = std::make_shared<Material>(Material::MaterialType::REFLECTION_AND_REFRACTION,
+    auto sph1m = std::make_shared<Material>(Material::MaterialType::REFLECTION,
         Vec3f(0.4, 0.4, 0.8), Vec3f(0, 0, 0));
-    sph1m->ior = 9.3;
-    auto sph1 = std::make_shared<Sphere>(Vec3f(-1, 5, -3), 2, sph1m.get());
+    sph1m->ior = 6.3;
+    auto sph1 = std::make_shared<Sphere>(Vec3f(-1, 0, -12), 2, sph1m.get());
 
     auto sph2m = std::make_shared<Material>(Material::MaterialType::REFLECTION_AND_REFRACTION,
         Vec3f(0.4, 0.4, 0.8), Vec3f(0, 0, 0));
     sph2m->ior = 1.5;
-    auto sph2 = std::make_shared<Sphere>(Vec3f(3.5, 3.5, -3), 1.5, sph2m.get());
+    auto sph2 = std::make_shared<Sphere>(Vec3f(0.5, -0.5, -8), 1.5, sph2m.get());
 
 
     Vec3Vector verts = { {-5,-3,-6}, {5,-3,-6}, {5,-3,-16}, {-5,-3,-16} };
     std::vector<uint> vertIndex = { 0, 1, 3, 2, 3, 1 };
     std::vector<Vec2f> st= { {0, 0}, {1, 0}, {1, 1}, {0, 1} };
     auto mesh = std::make_shared<TriangleMesh>(verts, vertIndex, st);
-    //mesh->m->m_type = Material::MaterialType::DIFFUSE_AND_GLOSSY;
+    mesh->m->m_type = Material::MaterialType::DIFFUSE_AND_GLOSSY;
 
     scene.add(mesh);
     
@@ -52,7 +52,7 @@ int main()
     scene.add(sph1);
     scene.add(sph2);
 
-    scene.add(bunny);
+    //scene.add(bunny);
     scene.add(light1);
     scene.add(light2);
     //scene.buildBVH();

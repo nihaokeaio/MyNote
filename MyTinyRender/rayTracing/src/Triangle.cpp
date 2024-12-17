@@ -63,6 +63,10 @@ float Triangle::getArea()
 
 TriangleMesh::TriangleMesh(const std::string& fileName, std::shared_ptr<Material> material)
 {
+	if (!material)
+	{
+		material.reset(new Material);
+	}
 	m = material;
 	LoaderMesh::LoaderMesh load;
 	load.loadObjFile(fileName);
@@ -129,6 +133,7 @@ TriangleMesh::TriangleMesh(const std::vector<Vec3f>& v, const std::vector<uint>&
 			material->Ks = 0.0;
 			material->specularExponent = 32;
 		}
+		this->m = material;
 		std::unique_ptr<Triangle> triangle(new Triangle(vets[0], vets[1], vets[2], material));
 		triangle->setCoordTextures(sts);
 		triangles.emplace_back(std::move(triangle));

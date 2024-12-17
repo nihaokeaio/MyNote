@@ -39,7 +39,7 @@ void Sphere::getSurfaceProperties(const Vec3f& P, const Vec3f& I, const uint32_t
 
 Vec3f Sphere::evalDiffuseColor(const Vec2f&) const
 {
-	return Vec3f();
+    return m->m_color;
 }
 
 Bounds3 Sphere::getBounds()

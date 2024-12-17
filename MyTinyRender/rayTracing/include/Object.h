@@ -18,7 +18,7 @@ public:
 
 struct Light
 {
-	Light(const Vec3f& p, const Vec3f& I) :position(p), intensity(I) {}
+	Light(const Vec3f& p, const Vec3f& I) :position(p), emissionColor(I) {}
 	Vec3f position;
-	Vec3f intensity;
+	Vec3f emissionColor;
 };

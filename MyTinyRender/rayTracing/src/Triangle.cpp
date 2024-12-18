@@ -1,5 +1,7 @@
 #include "Triangle.h"
+#include "Material.h"
 #include <LoaderMesh.h>
+#include <BVHBuild.h>
 
 Intersection Triangle::intersect(const Ray& ray)
 {
@@ -19,7 +21,7 @@ Intersection Triangle::intersect(const Ray& ray)
 	u = tvec.dot(pvec) * det_inv;
 	if (u < 0 || u > 1)
 		return inter;
-	Vec3f qvec = tvec.dot(e1);
+	Vec3f qvec = tvec.cross(e1);
 	v = ray.dir.dot(qvec) * det_inv;
 	if (v < 0 || u + v > 1)
 		return inter;
@@ -28,8 +30,10 @@ Intersection Triangle::intersect(const Ray& ray)
 	inter.happened = true;
 	inter.intsCoords = ray.ori + ray.dir * t_tmp;
 	inter.normal = normal.normalize();
-	inter.m = this->m;
+	inter.m = this->m.get();
 	inter.object = this;
+	inter.index = 0;
+	inter.st = { (float)u,(float)v };
 	inter.distance = t_tmp;
 
 	return inter;
@@ -47,13 +51,24 @@ Vec3f Triangle::evalDiffuseColor(const Vec2f&) const
 
 Bounds3 Triangle::getBounds()
 {
-	return Bounds3(points[0], points[1]) + Bounds3(points[2]);
+	return Bounds3(points[0]) + Bounds3(points[1]) + Bounds3(points[2]);
 }
 
-TriangleMesh::TriangleMesh(const std::string& fileName, Material* material)
+float Triangle::getArea()
 {
+	Vec3f e1 = points[1] - points[0];
+	Vec3f e2 = points[2] - points[0];
+	return e1.cross(e2).norm() * 0.5;
+}
+
+TriangleMesh::TriangleMesh(const std::string& fileName, std::shared_ptr<Material> material)
+{
+	if (!material)
+	{
+		material.reset(new Material);
+	}
 	m = material;
-	LoaderMesh load;
+	LoaderMesh::LoaderMesh load;
 	load.loadObjFile(fileName);
 	assert(load.LoadedMeshes_.size() == 1);
 
@@ -68,43 +83,81 @@ TriangleMesh::TriangleMesh(const std::string& fileName, Material* material)
 
 	for (int i = 0; i < numVertex; i += 3)
 	{
-		std::array<Vec3f, 0>vets;
+		std::vector<Vec3f>vets(3, 0);
 		std::vector<Vec2f>sts(3, 0);
 		for (int j = 0; j < 3; ++j)
 		{
-			auto pos = mesh->vertices_[i + j].position_;
+			auto pos = mesh->vertices_[i + j].position_ * 30.f;
 			auto st = mesh->vertices_[i + j].textureCoordinate_;
-			vets[i] = pos;
-			sts[i] = st;
+			vets[j] = pos;
+			sts[j] = st;
 			bMin = Vec3f(std::min(bMin.x, pos.x), std::min(bMin.y, pos.y), std::min(bMin.z, pos.z));
 			bMax = Vec3f(std::max(bMax.x, pos.x), std::max(bMax.y, pos.y), std::max(bMax.z, pos.z));
 		}
-		Triangle triangle(vets[0], vets[1], vets[2]);
-		triangle.setCoordTextures(sts);
-		triangles.push_back(&triangle);
+
+		auto material = std::make_shared<Material>(Material::MaterialType::DIFFUSE_AND_GLOSSY,
+			Vec3f(0.5, 0.5, 0.5), Vec3f(0, 0, 0));
+		material->Kd = 0.6;
+		material->Ks = 0.0;
+		material->specularExponent = 32;
+
+		std::unique_ptr<Triangle> triangle(new Triangle(vets[0], vets[1], vets[2], material));
+		triangle->setCoordTextures(sts);
+		triangle->id = triangles.size();
+		triangles.emplace_back(std::move(triangle));
 	}
 	bounds3 = Bounds3(bMin, bMax);
+	if (!bvhBuild)
+	{
+		bvhBuild = std::make_shared<BVHBuild>(this);
+	}
+}
+
+TriangleMesh::TriangleMesh(const std::vector<Vec3f>& v, const std::vector<uint>& indexs, const std::vector<Vec2f>& st, std::shared_ptr<Material> material)
+{
+	for (int i = 0; i < indexs.size(); i += 3)
+	{
+		std::vector<Vec3f>vets(3, 0);
+		std::vector<Vec2f>sts(3, 0);
+		for (int j = 0; j < 3; ++j)
+		{
+			vets[j] = v[indexs[i + j]];
+			sts[j] = st[indexs[i + j]];
+		}
+
+		if (!material)
+		{
+			material = std::make_shared<Material>(Material::MaterialType::DIFFUSE_AND_GLOSSY,
+				Vec3f(0.5, 0.5, 0.5), Vec3f(0, 0, 0));
+			material->Kd = 0.6;
+			material->Ks = 0.0;
+			material->specularExponent = 32;
+		}
+		this->m = material;
+		std::unique_ptr<Triangle> triangle(new Triangle(vets[0], vets[1], vets[2], material));
+		triangle->setCoordTextures(sts);
+		triangles.emplace_back(std::move(triangle));
+	}
 }
 
 Intersection TriangleMesh::intersect(const Ray& ray)
 {
 	Intersection intersect;
-	//to do
-	for (auto& triangle : triangles)
+	
+	if (bvhBuild)
 	{
-		const auto& ret = triangle->intersect(ray);
-		if (ret.distance < intersect.distance)
-		{
-			intersect = ret;
-		}
+		intersectByBVH(ray, intersect);
 	}
-
+	else
+	{
+		intersectByOrders(ray, intersect);
+	}
 	return intersect;
 }
 
 void TriangleMesh::getSurfaceProperties(const Vec3f& P, const Vec3f& I, const uint32_t& index, const Vec2f& uv, Vec3f& N, Vec2f& st) const
 {
-	Triangle* triangle = triangles[index];
+	Triangle* triangle = triangles[index].get();
 	
 	N = triangle->normal;
 
@@ -116,7 +169,7 @@ void TriangleMesh::getSurfaceProperties(const Vec3f& P, const Vec3f& I, const ui
 
 Vec3f TriangleMesh::evalDiffuseColor(const Vec2f& st) const
 {
-	float scale = 5;
+	float scale = 10;
 	float pattern =
 		(fmodf(st.x * scale, 1) > 0.5) ^ (fmodf(st.y * scale, 1) > 0.5);
 	return Vec3f::lerp(Vec3f(0.815, 0.235, 0.031),
@@ -126,4 +179,26 @@ Vec3f TriangleMesh::evalDiffuseColor(const Vec2f& st) const
 Bounds3 TriangleMesh::getBounds()
 {
 	return bounds3;
+}
+
+float TriangleMesh::getArea()
+{
+	return area;
+}
+
+void TriangleMesh::intersectByOrders(const Ray& ray, Intersection& intersect)
+{
+	for (auto& triangle : triangles)
+	{
+		const auto& ret = triangle->intersect(ray);
+		if (ret.distance < intersect.distance)
+		{
+			intersect = ret;
+		}
+	}
+}
+
+void TriangleMesh::intersectByBVH(const Ray& ray, Intersection& intersect)
+{
+	intersect =  bvhBuild->intersect(ray);
 }

@@ -5,6 +5,14 @@
 class Bounds3
 {
 public:
+
+	enum MaxDim
+	{
+		XDim = 0,
+		YDim = 1,
+		ZDim = 2
+	};
+
 	Bounds3()
 	{
 		constexpr float minNum = std::numeric_limits<float>::lowest();
@@ -48,22 +56,54 @@ public:
 		return a + b;
 	}
 
+	MaxDim getMaxDim()
+	{
+		Vec3f d = pMax - pMin;
+		if (d.x > d.y && d.x > d.z)
+		{
+			return XDim;
+		}
+		else if (d.y > d.x)
+		{
+			return YDim;
+		}
+		else
+			return ZDim;
+	}
+
 	///是否与包围盒相交
-	bool interset(Ray ray)
+	bool interset(const Ray& ray) const
 	{
 		float txMin = (pMin.x - ray.ori.x) / ray.dir.x;
-		float txMax = (pMin.x - ray.ori.x) / ray.dir.x;
+		float txMax = (pMax.x - ray.ori.x) / ray.dir.x;
 		float tyMin = (pMin.y - ray.ori.y) / ray.dir.y;
-		float tyMax = (pMin.y - ray.ori.y) / ray.dir.y;
+		float tyMax = (pMax.y - ray.ori.y) / ray.dir.y;
 		float tzMin = (pMin.z - ray.ori.z) / ray.dir.z;
-		float tzMax = (pMin.z - ray.ori.z) / ray.dir.z;
+		float tzMax = (pMax.z - ray.ori.z) / ray.dir.z;
 
-		if (txMin > txMax)std::swap(txMax, txMax);
+		if (txMin == txMax)
+		{
+			txMin = 0;
+			txMax = std::numeric_limits<float>::infinity();
+		}
+		if (tyMin == tyMax)
+		{
+			tyMin = 0;
+			tyMax = std::numeric_limits<float>::infinity();
+		}
+		if (tzMin == tzMax)
+		{
+			tzMin = 0;
+			tzMax = std::numeric_limits<float>::infinity();
+		}
+
+		if (txMin > txMax)std::swap(txMin, txMax);
 		if (tyMin > tyMax)std::swap(tyMin, tyMax);
 		if (tzMin > tzMax)std::swap(tzMin, tzMax);
 
-		float tEnter = fmax(fmax(txMin, tyMin), tzMin);
-		float tExit = fmin(fmin(txMax, tyMax), tzMax);
+		float tEnter = std::max(std::max(txMin, tyMin), tzMin);
+		float tExit = std::min(std::min(txMax, tyMax), tzMax);
+		
 		if (tEnter < tExit && tExit >= 0)
 		{
 			return true;

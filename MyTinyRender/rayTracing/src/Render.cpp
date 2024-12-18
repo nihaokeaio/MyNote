@@ -3,6 +3,7 @@
 
 void Render::addScene(Scene* scene, RenderWay way)
 {
+	scene->setRenderWay(way);
 	scenes.push_back(scene);
 }
 

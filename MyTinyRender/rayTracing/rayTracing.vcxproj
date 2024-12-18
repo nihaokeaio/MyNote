@@ -109,6 +109,8 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>../sdk/include;./include;$(EigenRoot);$(OpenCV_DIR)\include</AdditionalIncludeDirectories>
       <SDLCheck>true</SDLCheck>
+      <OpenMPSupport>true</OpenMPSupport>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -135,6 +137,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\BVHBuild.cpp" />
     <ClCompile Include="src\Render.cpp" />
     <ClCompile Include="src\sphere.cpp" />
     <ClCompile Include="src\Triangle.cpp" />
@@ -142,8 +145,10 @@
     <ClCompile Include="src\scene.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\BVHBuild.h" />
     <ClInclude Include="include\Bounds3.h" />
     <ClInclude Include="include\Intersection.h" />
+    <ClInclude Include="include\Material.h" />
     <ClInclude Include="include\Object.h" />
     <ClInclude Include="include\Ray.h" />
     <ClInclude Include="include\Render.h" />

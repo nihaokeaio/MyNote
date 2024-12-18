@@ -1,11 +1,15 @@
 #pragma once
 
-#include <Vector.hpp>
 #include <Object.h>
-#include <Ray.h>
 
-struct Vertex;
-struct Material;
+
+namespace LoaderMesh
+{
+	struct Vertex;
+};
+
+class Material;
+struct BVHBuild;
 
 class Triangle :public Object
 {
@@ -14,11 +18,11 @@ public:
 	Vec3f normal;
 	Vec3f colors[3];
 	Vec2f coordTextures[3];	
-	Material* m;
-
+	std::shared_ptr<Material> m;
 public:
 
-	Triangle(const Vec3f& v0, const Vec3f& v1, const Vec3f& v2, Material* material = nullptr)
+
+	Triangle(const Vec3f& v0, const Vec3f& v1, const Vec3f& v2, std::shared_ptr<Material> material = nullptr)
 	{
 		points[0] = v0;
 		points[1] = v1;
@@ -40,29 +44,32 @@ public:
 	void getSurfaceProperties(const Vec3f& P, const Vec3f& I, const uint32_t& index, const Vec2f& uv, Vec3f& N, Vec2f& st)const override;
 	Vec3f evalDiffuseColor(const Vec2f&) const override;
 	Bounds3 getBounds()override;
+	float getArea() override;
 };
 
 class TriangleMesh : public Object
 {
 public:
-	Material* m = nullptr;
-	std::vector<Triangle*>triangles;
-	std::vector<Vertex*>vertexs;
+	std::shared_ptr<Material> m;
+	std::vector<std::unique_ptr<Triangle>>triangles;
+	std::vector<LoaderMesh::Vertex*>vertexs;
 	std::vector<uint>vertexIndexs;
 	Bounds3 bounds3;
-
+	float area;
+	std::shared_ptr<BVHBuild> bvhBuild;
 public:
-	TriangleMesh(const std::string& fileName, Material* material = nullptr);
+	TriangleMesh(const std::string& fileName, std::shared_ptr<Material> material = nullptr);
 
-	TriangleMesh(const std::vector<Vertex*>&v, const std::vector<uint>&indexs)
-	{
-		vertexs = v;
-		vertexIndexs = indexs;
-	}
+	TriangleMesh(const std::vector<Vec3f>& v, const std::vector<uint>& indexs, const std::vector<Vec2f>& st,
+		std::shared_ptr<Material> material = nullptr);
 
 	Intersection intersect(const Ray& ray) override;
 	void getSurfaceProperties(const Vec3f& P, const Vec3f& I, const uint32_t& index, const Vec2f& uv, Vec3f& N, Vec2f& st)const override;
 	Vec3f evalDiffuseColor(const Vec2f& st) const override;
 	Bounds3 getBounds()override;
+	float getArea() override;
+
+	void intersectByOrders(const Ray& ray, Intersection& intersect);
+	void intersectByBVH(const Ray& ray, Intersection& intersect);
 
 };

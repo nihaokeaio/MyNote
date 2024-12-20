@@ -30,9 +30,6 @@
     <ClInclude Include="include\Shader.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\sdk\include\LoaderMesh.h">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="include\TriangleMesh.h" />
   </ItemGroup>
   <ItemGroup>

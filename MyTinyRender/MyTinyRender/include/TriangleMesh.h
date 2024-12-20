@@ -5,7 +5,7 @@
 
 class Triangle;
 
-class TriangleMesh :public Mesh
+class TriangleMesh :public LoaderMeshSpace::Mesh
 {
 public:
     enum  RenderWay
@@ -15,7 +15,7 @@ public:
     };
     TriangleMesh() = default;
 
-    TriangleMesh(Mesh* m)
+    TriangleMesh(LoaderMeshSpace::Mesh* m)
     {
         vertices_ = m->vertices_;
         indices_ = m->indices_;
@@ -28,7 +28,7 @@ public:
     void addTriangle(const Triangle* t);
 
 
-    TriangleMesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices) :Mesh(vertices, indices)
+    TriangleMesh(const std::vector<LoaderMeshSpace::Vertex>& vertices, const std::vector<unsigned int>& indices) :LoaderMeshSpace::Mesh(vertices, indices)
     {
         modelMatrix_.identity();
     }

@@ -19,7 +19,6 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\sdk\include\LoaderMesh.h" />
     <ClInclude Include="include\Camera.h" />
     <ClInclude Include="include\Geometry.h" />
     <ClInclude Include="include\Shader.h" />

@@ -68,7 +68,7 @@ TriangleMesh::TriangleMesh(const std::string& fileName, std::shared_ptr<Material
 		material.reset(new Material);
 	}
 	m = material;
-	LoaderMesh::LoaderMesh load;
+	LoaderMeshSpace::LoaderMesh load;
 	load.loadObjFile(fileName);
 	assert(load.LoadedMeshes_.size() == 1);
 

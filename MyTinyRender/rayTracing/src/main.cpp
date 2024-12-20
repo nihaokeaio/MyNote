@@ -27,7 +27,7 @@ int main()
     std::shared_ptr<Triangle> t1(new Triangle{ {x, y, -z},   {-x, y, -z }, {x, y, z},material });
 
 
-    auto sph1m = std::make_shared<Material>(Material::MaterialType::REFLECTION,
+    auto sph1m = std::make_shared<Material>(Material::MaterialType::DIFFUSE_AND_GLOSSY,
         Vec3f(0.4, 0.4, 0.8), Vec3f(0, 0, 0));
     sph1m->ior = 6.3;
     auto sph1 = std::make_shared<Sphere>(Vec3f(-1, 0, -12), 2, sph1m.get());

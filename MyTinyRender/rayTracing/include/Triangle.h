@@ -3,7 +3,7 @@
 #include <Object.h>
 
 
-namespace LoaderMesh
+namespace LoaderMeshSpace
 {
 	struct Vertex;
 };
@@ -52,7 +52,7 @@ class TriangleMesh : public Object
 public:
 	std::shared_ptr<Material> m;
 	std::vector<std::unique_ptr<Triangle>>triangles;
-	std::vector<LoaderMesh::Vertex*>vertexs;
+	std::vector<LoaderMeshSpace::Vertex*>vertexs;
 	std::vector<uint>vertexIndexs;
 	Bounds3 bounds3;
 	float area;

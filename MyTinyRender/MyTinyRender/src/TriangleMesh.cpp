@@ -16,7 +16,7 @@ void TriangleMesh::addTriangle(const Triangle* t)
 {
     for (int i = 0; i < 3; ++i)
     {
-        Vertex v;
+        LoaderMeshSpace::Vertex v;
         v.position_ = t->vertexs(i);
         v.normal_ = t->getNormal(i);
         v.textureCoordinate_ = t->getTexCoord(i);

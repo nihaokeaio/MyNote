@@ -18,7 +18,6 @@ public:
 	Vec3f normal;
 	Vec3f colors[3];
 	Vec2f coordTextures[3];	
-	std::shared_ptr<Material> m;
 public:
 
 
@@ -44,13 +43,14 @@ public:
 	void getSurfaceProperties(const Vec3f& P, const Vec3f& I, const uint32_t& index, const Vec2f& uv, Vec3f& N, Vec2f& st)const override;
 	Vec3f evalDiffuseColor(const Vec2f&) const override;
 	Bounds3 getBounds()override;
+	bool hasEmit() override;
+	void sample(Intersection& ints, float& pdf) override;
 	float getArea() override;
 };
 
 class TriangleMesh : public Object
 {
 public:
-	std::shared_ptr<Material> m;
 	std::vector<std::unique_ptr<Triangle>>triangles;
 	std::vector<LoaderMeshSpace::Vertex*>vertexs;
 	std::vector<uint>vertexIndexs;
@@ -67,6 +67,8 @@ public:
 	void getSurfaceProperties(const Vec3f& P, const Vec3f& I, const uint32_t& index, const Vec2f& uv, Vec3f& N, Vec2f& st)const override;
 	Vec3f evalDiffuseColor(const Vec2f& st) const override;
 	Bounds3 getBounds()override;
+	bool hasEmit() override;
+	void sample(Intersection& ints, float& pdf) override;
 	float getArea() override;
 
 	void intersectByOrders(const Ray& ray, Intersection& intersect);

@@ -9,53 +9,34 @@
 
 int main()
 {
-	Scene scene(1280, 960);
+	Scene scene(784, 784);
 
-    std::shared_ptr<TriangleMesh> bunny=std::make_shared<TriangleMesh>("./Resource/models/bunny/bunny.obj");
-    const auto& light1 = std::make_shared<Light>(Vec3f(-20, 70, 20), 1);
-    const auto& light2 = std::make_shared<Light>(Vec3f(20, 70, 20), 1);
+    std::shared_ptr<Material> red(new Material(Material::DIFFUSE_AND_GLOSSY, Vec3f(0.0f)));
+    red->Kd = Vec3f(0.63f, 0.065f, 0.05f);
+    std::shared_ptr<Material> green(new Material(Material::DIFFUSE_AND_GLOSSY, Vec3f(0.0f)));
+    green->Kd = Vec3f(0.14f, 0.45f, 0.091f);
+    std::shared_ptr<Material> white(new Material(Material::DIFFUSE_AND_GLOSSY, Vec3f(0.0f)));
+    white->Kd = Vec3f(0.725f, 0.71f, 0.68f);
+    std::shared_ptr<Material> lightM(new Material(Material::DIFFUSE_AND_GLOSSY, 
+        (8.0f * Vec3f(0.747f + 0.058f, 0.747f + 0.258f, 0.747f) + 
+            15.6f * Vec3f(0.740f + 0.287f, 0.740f + 0.160f, 0.740f) + 
+            18.4f * Vec3f(0.737f + 0.642f, 0.737f + 0.159f, 0.737f))));
+    lightM->Kd = Vec3f(0.65f);
 
-    float x = 15;
-    float y = -0;
-    float z = 15;
-    auto material = std::make_shared<Material>(Material::MaterialType::DIFFUSE_AND_GLOSSY,
-        Vec3f(0.5, 0.5, 0.5), Vec3f(0, 0, 0));
-    material->Kd = 0.6;
-    material->Ks = 0.0;
-    material->specularExponent = 32;
-    std::shared_ptr<Triangle> t0(new Triangle{ {-x, y, -z},   {-x, y, z},  {x, y, z},material });
-    std::shared_ptr<Triangle> t1(new Triangle{ {x, y, -z},   {-x, y, -z }, {x, y, z},material });
+    std::shared_ptr<TriangleMesh> floor(new TriangleMesh("./Resource/models/cornellbox/floor.obj", white));
+    std::shared_ptr<TriangleMesh> shortbox(new TriangleMesh("./Resource/models/cornellbox/shortbox.obj", white));
+    std::shared_ptr<TriangleMesh> tallbox(new TriangleMesh("./Resource/models/cornellbox/tallbox.obj", white));
+    std::shared_ptr<TriangleMesh> left(new TriangleMesh("./Resource/models/cornellbox/left.obj", red));
+    std::shared_ptr<TriangleMesh> right(new TriangleMesh("./Resource/models/cornellbox/right.obj", green));
+    std::shared_ptr<TriangleMesh> light(new TriangleMesh("./Resource/models/cornellbox/light.obj", lightM));
 
-
-    auto sph1m = std::make_shared<Material>(Material::MaterialType::DIFFUSE_AND_GLOSSY,
-        Vec3f(0.4, 0.4, 0.8), Vec3f(0, 0, 0));
-    sph1m->ior = 6.3;
-    auto sph1 = std::make_shared<Sphere>(Vec3f(-1, 0, -12), 2, sph1m.get());
-
-    auto sph2m = std::make_shared<Material>(Material::MaterialType::REFLECTION_AND_REFRACTION,
-        Vec3f(0.4, 0.4, 0.8), Vec3f(0, 0, 0));
-    sph2m->ior = 1.5;
-    auto sph2 = std::make_shared<Sphere>(Vec3f(0.5, -0.5, -8), 1.5, sph2m.get());
-
-
-    Vec3Vector verts = { {-5,-3,-6}, {5,-3,-6}, {5,-3,-16}, {-5,-3,-16} };
-    std::vector<uint> vertIndex = { 0, 1, 3, 2, 3, 1 };
-    std::vector<Vec2f> st= { {0, 0}, {1, 0}, {1, 1}, {0, 1} };
-    auto mesh = std::make_shared<TriangleMesh>(verts, vertIndex, st);
-    mesh->m->m_type = Material::MaterialType::DIFFUSE_AND_GLOSSY;
-
-    scene.add(mesh);
-    
-    /*scene.add(t0);
-    scene.add(t1);*/
-
-    scene.add(sph1);
-    scene.add(sph2);
-
-    //scene.add(bunny);
-    scene.add(light1);
-    scene.add(light2);
-    //scene.buildBVH();
+    scene.add(floor);
+    scene.add(shortbox);
+    scene.add(tallbox);
+    scene.add(left);
+    scene.add(right);
+    scene.add(light);
+    scene.buildBVH();
 
     Render r;
 

@@ -1,17 +1,18 @@
 #include <BVHBuild.h>
 #include <Triangle.h>
+#include <global.hpp>
 #include <Timer.h>
 
 BVHBuild::BVHBuild(TriangleMesh* mesh)
 {
-	std::vector<Object*> obj(mesh->triangles.size(), nullptr);
+	std::vector<std::shared_ptr<Object>> obj(mesh->triangles.size(), nullptr);
 	/*for (const auto& t : mesh->triangles)
 	{
 		obj.push_back(t);
 	}*/
 	std::transform(mesh->triangles.begin(), mesh->triangles.end(), obj.begin(), [](const std::unique_ptr<Triangle>& t)
 		{
-			return static_cast<Object*>(t.get());
+			return std::shared_ptr<Object>(t.get());
 		});
 	Timer timer;
 	root = buildBVH(obj);
@@ -19,9 +20,14 @@ BVHBuild::BVHBuild(TriangleMesh* mesh)
 	std::cout << "BVH Generation complete: \nTime Taken: " << ms << " microsecond \n\n";
 }
 
-BVHBuildNode* BVHBuild::buildBVH(std::vector<Object*> triangles)
+
+BVHBuildNode* BVHBuild::buildBVH(std::vector<std::shared_ptr<Object>> triangles)
 {
-	return recursiveBuild(triangles);
+	Timer timer;
+	root = recursiveBuild(triangles);
+	float ms = timer.stop();
+	std::cout << "BVH Generation complete: \nTime Taken: " << ms << " microsecond \n\n";
+	return root;
 }
 
 Intersection BVHBuild::intersect(const Ray& ray)
@@ -54,7 +60,32 @@ Intersection BVHBuild::getIntersect(const BVHBuildNode* node ,const Ray& ray)
 	return intersect;
 }
 
-BVHBuildNode* BVHBuild::recursiveBuild(std::vector<Object*> objects)
+void BVHBuild::getSample(BVHBuildNode* node, float p, Intersection& ints, float& pdf)
+{
+	if (node->left == nullptr || node->right == nullptr)
+	{
+		node->obj->sample(ints, pdf);
+		pdf *= node->obj->getArea();
+		return;
+	}
+	if (p < node->left->area)
+	{
+		getSample(node->left, p, ints, pdf);
+	}
+	else
+	{
+		getSample(node->right, p, ints, pdf);
+	}
+}
+
+void BVHBuild::sample(Intersection& ints, float& pdf)
+{
+	float p = GamesMath::getRandomFloat() * root->area;
+	getSample(root, p, ints, pdf);
+	pdf /= root->area;	
+}
+
+BVHBuildNode* BVHBuild::recursiveBuild(std::vector<std::shared_ptr<Object>> objects)
 {
 	BVHBuildNode* node = new BVHBuildNode();
 
@@ -86,21 +117,21 @@ BVHBuildNode* BVHBuild::recursiveBuild(std::vector<Object*> objects)
 		{
 			case Bounds3::MaxDim::XDim:
 			{
-				std::sort(objects.begin(), objects.end(), [](Object* obj1, Object* obj2) {
+				std::sort(objects.begin(), objects.end(), [](const std::shared_ptr<Object>& obj1, const std::shared_ptr<Object>& obj2) {
 					return obj1->getBounds().Centroid().x > obj2->getBounds().Centroid().x;
 					});
 				break;
 			}
 			case Bounds3::MaxDim::YDim:
 			{
-				std::sort(objects.begin(), objects.end(), [](Object* obj1, Object* obj2) {
+				std::sort(objects.begin(), objects.end(), [](const std::shared_ptr<Object>& obj1, const std::shared_ptr<Object>& obj2) {
 					return obj1->getBounds().Centroid().y > obj2->getBounds().Centroid().y;
 					});
 				break;
 			}
 			default:
 			{
-				std::sort(objects.begin(), objects.end(), [](Object* obj1, Object* obj2) {
+				std::sort(objects.begin(), objects.end(), [](const std::shared_ptr<Object>& obj1, const std::shared_ptr<Object>& obj2) {
 					return obj1->getBounds().Centroid().z > obj2->getBounds().Centroid().z;
 					});
 				break;
@@ -108,8 +139,8 @@ BVHBuildNode* BVHBuild::recursiveBuild(std::vector<Object*> objects)
 		}
 		auto midObjIndex = objects.size() / 2;
 
-		auto leftObjects = std::vector<Object*>(objects.begin(), objects.begin() + midObjIndex);
-		auto rightObjects = std::vector<Object*>(objects.begin() + midObjIndex, objects.end());
+		auto leftObjects = std::vector<std::shared_ptr<Object>>(objects.begin(), objects.begin() + midObjIndex);
+		auto rightObjects = std::vector<std::shared_ptr<Object>>(objects.begin() + midObjIndex, objects.end());
 		assert(objects.size() == (leftObjects.size() + rightObjects.size()));
 
 		node->left = recursiveBuild(leftObjects);

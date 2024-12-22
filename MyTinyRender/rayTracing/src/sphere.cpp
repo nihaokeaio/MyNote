@@ -9,7 +9,7 @@ Intersection Sphere::intersect(const Ray& ray)
     Vec3f L = ray.ori - center;
     float a = ray.dir.norm2();
     float b = 2 * ray.dir.dot(L);
-    float c = L.norm2() - ridus * ridus;
+    float c = L.norm2() - radius * radius;
     float t0, t1;
     if (!GamesMath::solveQuadratic(a, b, c, t0, t1)) return result;
     if (t0 < 0) t0 = t1;
@@ -39,17 +39,33 @@ void Sphere::getSurfaceProperties(const Vec3f& P, const Vec3f& I, const uint32_t
 
 Vec3f Sphere::evalDiffuseColor(const Vec2f&) const
 {
-    return m->m_color;
+    return m->Kd;
 }
 
 Bounds3 Sphere::getBounds()
 {
-	Vec3f pMax = center + ridus;
-	Vec3f pMin = center - ridus;
+	Vec3f pMax = center + radius;
+	Vec3f pMin = center - radius;
 	return Bounds3(pMin, pMax);
+}
+
+bool Sphere::hasEmit()
+{
+    return m->hasEmission();
+}
+
+void Sphere::sample(Intersection& ints, float& pdf)
+{
+    float theta = 2 * M_PI * GamesMath::getRandomFloat();
+    float phi = M_PI * GamesMath::getRandomFloat();
+    Vec3f dir = { std::cos(phi), std::sin(phi) * std::cos(theta), std::sin(phi) * std::sin(theta) };
+    ints.intsCoords = center + dir * radius;
+    ints.normal = dir;
+    ints.emitColor = this->m->getEmission();
+    pdf = 1 / getArea();
 }
 
 float Sphere::getArea()
 {
-    return 4 * M_PI * ridus * ridus;
+    return 4 * M_PI * radius * radius;
 }

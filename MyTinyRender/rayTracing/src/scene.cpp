@@ -5,8 +5,9 @@
 #include <LoaderMesh.h>
 #include <opencv2/highgui.hpp>
 #include <atomic>
+#include "BVHBuild.h"
 
-//#define USEPARALLEL
+#define USEPARALLEL
 
 
 Scene::Scene(int width, int height):width_(width),height_(height)
@@ -45,13 +46,14 @@ void Scene::rayTracing()
         std::chrono::system_clock::now().time_since_epoch()
     );
 
-    Vec3f eye = { 0, 0, 3 };//摄像机位置
+    cameraPos_ = { 278, 273, -800 };//摄像机位置
 
     float imageAspectRatio = width_ / height_;
     float scale = tan(GamesMath::deg2rad(fov_ * 0.5));
 
     //std::atomic<int> count = 0
     int count = 0;
+    int spp = 16;
     std::mutex m;
 
 #ifdef USEPARALLEL
@@ -65,10 +67,10 @@ void Scene::rayTracing()
             float x = (2 * (i + 0.5) / width_ - 1) *
                 imageAspectRatio * scale;
             float y = (1 - 2 * (j + 0.5) / height_) * scale;
-            Vec3f dir = Vec3f(x, y, -1).normalize();
+            Vec3f dir = Vec3f(-x, y, 1).normalize();
 
-            Ray ray(eye, dir);
-            Vec3f ret = castRay(ray, 0);
+            Ray ray(cameraPos_, dir);
+            Vec3f ret = castRaySPP(ray, spp);
             frameBuffer_[getIndex(i,j)] = Vec3f(ret.z, ret.y, ret.x);
         }
         std::lock_guard<std::mutex>lm(m);
@@ -93,13 +95,14 @@ void Scene::rayTracing()
     
 }
 
-Vec3f Scene::castRay(Ray ray, int depth)
+
+Vec3f Scene::castRay(const Ray& ray, int depth)
 {
     if (depth > this->maxDepth_) {
         return Vec3f(0.0, 0.0, 0.0);
     }
     Intersection intersection = intersect(ray);
-    Material* m = intersection.m;
+    const auto& m = intersection.m;
     Object* hitObject = intersection.object;
     Vec3f hitColor = this->backgroundColor_;
     //    float tnear = kInfinity;
@@ -190,18 +193,122 @@ Vec3f Scene::castRay(Ray ray, int depth)
     return hitColor;
 }
 
+Vec3f Scene::castRaySPP(const Ray& ray, int spp)
+{
+    Vec3f res;
+    for (int k = 0; k < spp; k++) {
+        res += pathTracing(ray) / spp;
+    }
+    return res;
+}
+
+Vec3f Scene::pathTracing(const Ray& ray)
+{
+    Vec3f lDir, lInDIr;
+    Intersection intersection = intersect(ray);
+    if (intersection.happened)
+    {
+        //lDir
+        if (intersection.m->hasEmission())
+        {
+            int x = 1;
+        }
+        for (const auto& light: lights_)
+        {
+            Vec3f hitPos = intersection.intsCoords;
+            Vec3f lightDir = hitPos - light->position;
+            float light2Dis = lightDir.norm();
+            lightDir = lightDir.normalize();
+            if (intersection.m->hasEmission())
+            {
+                lDir = intersection.m->getEmission();
+                break;
+            }
+
+            Intersection intsect = intersect(Ray(light->position, lightDir));
+            if (intsect.happened && abs(intsect.distance - light2Dis) < 0.1f)
+            {
+                //直接光照
+                Vec3f norm = intersection.normal;
+                float costh1 =-lightDir.dot(norm);
+                float pdf;
+                sampleLight(intsect, pdf);
+                float costh2 =Vec3f::dotProduct(lightDir, intsect.normal);
+                Vec3f wo = intersection.m->sample(-lightDir, norm);
+                lDir = light->emissionColor * intersection.m->eval(-lightDir, wo, norm) *
+                    costh1 * costh2 / light2Dis / light2Dis / pdf;
+            }
+
+        }
+        //间接光照
+        {
+            float p_RR = P_RR();
+            if (p_RR != 0 && p_RR > 0.3)
+            {
+                Vec3f outRaydir = intersection.m->sample(ray.dir, intersection.normal);
+                auto outRay = Ray(intersection.intsCoords, outRaydir);
+                Intersection intsect = intersect(outRay);
+                if (intsect.happened && !intsect.m->hasEmission())
+                {
+                    Vec3f norm = intersection.normal;
+                    Vec3f hitPos = intsect.intsCoords;
+                    Vec3f dir =(hitPos - cameraPos_).normalize();
+
+                    Vec3f wo = intersection.m->sample(-outRaydir, norm);
+                    float pdfHemi = 0.5 / M_PI;
+                    float costh =Vec3f::dotProduct(outRaydir, norm);
+                    lInDIr = pathTracing(Ray(cameraPos_, dir)) * intersection.m->eval(outRaydir, wo, norm) *
+                        costh / pdfHemi / p_RR;
+                }
+            }
+        }
+    }
+    return lDir + lInDIr;
+}
+
+
+
+
+
+
 Intersection Scene::intersect(const Ray& ray)
 {
     Intersection intersect;
-    for (uint32_t k = 0; k < objects_.size(); ++k) {
-        const auto & ret = objects_[k]->intersect(ray);
-        if (ret.distance < intersect.distance)
+    if (bvhNode_)
+    {
+        intersect = bvhNode_->intersect(ray);
+    }
+    else
+    {
+        for (uint32_t k = 0; k < objects_.size(); ++k)
         {
-            intersect = ret;
-            intersect.object = objects_[k].get();
+            const auto& ret = objects_[k]->intersect(ray);
+            if (ret.distance < intersect.distance)
+            {
+                intersect = ret;
+                intersect.object = objects_[k].get();
+            }
+        }
+    }  
+    return intersect;
+}
+
+void Scene::buildBVH()
+{
+    if (!bvhNode_)
+    {
+        bvhNode_.reset(new BVHBuild);
+        bvhNode_->buildBVH(objects_);
+    }
+
+    for (uint32_t k = 0; k < objects_.size(); ++k) {
+        if (objects_[k]->hasEmit()) {
+            Intersection pos;
+            float pdf;
+            objects_[k]->sample(pos, pdf);
+            lights_.push_back(std::shared_ptr<Light>(new Light(pos.intsCoords, objects_[k]->m->m_emission)));
         }
     }
-    return intersect;
 }
 
 void Scene::add(const std::shared_ptr<Object>& obj)
@@ -212,6 +319,38 @@ void Scene::add(const std::shared_ptr<Object>& obj)
 void Scene::add(const std::shared_ptr<Light>& light)
 {
 	lights_.push_back(light);
+}
+
+void Scene::sampleLight(Intersection& pos, float& pdf) const
+{
+    float emitAreaSum = 0;
+    for (uint32_t k = 0; k < objects_.size(); ++k) {
+        if (objects_[k]->hasEmit()) {
+            emitAreaSum += objects_[k]->getArea();
+        }
+    }
+    float p = GamesMath::getRandomFloat() * emitAreaSum;
+    emitAreaSum = 0;
+    for (uint32_t k = 0; k < objects_.size(); ++k) {
+        if (objects_[k]->hasEmit()) {
+            emitAreaSum += objects_[k]->getArea();
+            if (p <= emitAreaSum) {
+                objects_[k]->sample(pos, pdf);
+                break;
+            }
+        }
+    }
+}
+
+float Scene::P_RR() const
+{
+    float q = GamesMath::getRandomFloat();
+    float p = GamesMath::getRandomFloat();
+    if (p > q)
+    {
+        return p;
+    }
+    return 0;
 }
 
 int Scene::getIndex(int x, int y) const

@@ -11,7 +11,7 @@ struct BVHBuildNode
 {
 	BVHBuildNode* left;
 	BVHBuildNode* right;
-	Object* obj;
+	std::shared_ptr<Object> obj;
 	Bounds3 bound;
 	float area;
 };
@@ -24,15 +24,19 @@ public:
 	BVHBuild(TriangleMesh* mesh);
 
 
-	BVHBuildNode* buildBVH(std::vector<Object*> triangles);
+	BVHBuildNode* buildBVH(std::vector<std::shared_ptr<Object>> triangles);
 
 	Intersection intersect(const Ray& ray);
 
 	Intersection getIntersect(const BVHBuildNode* node ,const Ray& ray);
 
+	void getSample(BVHBuildNode* node, float p, Intersection& ints, float& pdf);
+
+	void sample(Intersection& ints, float& pdf);
+private:
 	BVHBuildNode* root;
 
 private:
 	// BVHAccel Private Methods
-	BVHBuildNode* recursiveBuild(std::vector<Object*> objects);
+	BVHBuildNode* recursiveBuild(std::vector<std::shared_ptr<Object>> objects);
 };

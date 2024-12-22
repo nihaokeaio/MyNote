@@ -30,7 +30,7 @@ Intersection Triangle::intersect(const Ray& ray)
 	inter.happened = true;
 	inter.intsCoords = ray.ori + ray.dir * t_tmp;
 	inter.normal = normal.normalize();
-	inter.m = this->m.get();
+	inter.m = this->m;
 	inter.object = this;
 	inter.index = 0;
 	inter.st = { (float)u,(float)v };
@@ -54,6 +54,20 @@ Bounds3 Triangle::getBounds()
 	return Bounds3(points[0]) + Bounds3(points[1]) + Bounds3(points[2]);
 }
 
+bool Triangle::hasEmit()
+{
+	return m->hasEmission();
+}
+
+void Triangle::sample(Intersection& ints, float& pdf)
+{
+	float x = GamesMath::getRandomFloat(), y = GamesMath::getRandomFloat();
+	ints.intsCoords = points[0] * (1.0f - x) + points[1] * (x * (1.0f - y)) + points[2] * (x * y);
+	ints.normal = this->normal;
+	ints.emitColor = this->m->getEmission();
+	pdf = 1.0f / getArea();
+}
+
 float Triangle::getArea()
 {
 	Vec3f e1 = points[1] - points[0];
@@ -65,7 +79,11 @@ TriangleMesh::TriangleMesh(const std::string& fileName, std::shared_ptr<Material
 {
 	if (!material)
 	{
-		material.reset(new Material);
+		material = std::make_shared<Material>(Material::MaterialType::DIFFUSE_AND_GLOSSY,
+			Vec3f(0, 0, 0));
+		material->Kd = 0.6;
+		material->Ks = 0.0;
+		material->specularExponent = 32;
 	}
 	m = material;
 	LoaderMeshSpace::LoaderMesh load;
@@ -87,7 +105,7 @@ TriangleMesh::TriangleMesh(const std::string& fileName, std::shared_ptr<Material
 		std::vector<Vec2f>sts(3, 0);
 		for (int j = 0; j < 3; ++j)
 		{
-			auto pos = mesh->vertices_[i + j].position_ * 30.f;
+			auto pos = mesh->vertices_[i + j].position_ * 1.f;
 			auto st = mesh->vertices_[i + j].textureCoordinate_;
 			vets[j] = pos;
 			sts[j] = st;
@@ -95,15 +113,10 @@ TriangleMesh::TriangleMesh(const std::string& fileName, std::shared_ptr<Material
 			bMax = Vec3f(std::max(bMax.x, pos.x), std::max(bMax.y, pos.y), std::max(bMax.z, pos.z));
 		}
 
-		auto material = std::make_shared<Material>(Material::MaterialType::DIFFUSE_AND_GLOSSY,
-			Vec3f(0.5, 0.5, 0.5), Vec3f(0, 0, 0));
-		material->Kd = 0.6;
-		material->Ks = 0.0;
-		material->specularExponent = 32;
-
-		std::unique_ptr<Triangle> triangle(new Triangle(vets[0], vets[1], vets[2], material));
+		std::unique_ptr<Triangle> triangle(new Triangle(vets[0], vets[1], vets[2], m));
 		triangle->setCoordTextures(sts);
 		triangle->id = triangles.size();
+		area += triangle->getArea();
 		triangles.emplace_back(std::move(triangle));
 	}
 	bounds3 = Bounds3(bMin, bMax);
@@ -128,7 +141,7 @@ TriangleMesh::TriangleMesh(const std::vector<Vec3f>& v, const std::vector<uint>&
 		if (!material)
 		{
 			material = std::make_shared<Material>(Material::MaterialType::DIFFUSE_AND_GLOSSY,
-				Vec3f(0.5, 0.5, 0.5), Vec3f(0, 0, 0));
+				Vec3f(0, 0, 0));
 			material->Kd = 0.6;
 			material->Ks = 0.0;
 			material->specularExponent = 32;
@@ -136,6 +149,7 @@ TriangleMesh::TriangleMesh(const std::vector<Vec3f>& v, const std::vector<uint>&
 		this->m = material;
 		std::unique_ptr<Triangle> triangle(new Triangle(vets[0], vets[1], vets[2], material));
 		triangle->setCoordTextures(sts);
+		area += triangle->getArea();
 		triangles.emplace_back(std::move(triangle));
 	}
 }
@@ -179,6 +193,20 @@ Vec3f TriangleMesh::evalDiffuseColor(const Vec2f& st) const
 Bounds3 TriangleMesh::getBounds()
 {
 	return bounds3;
+}
+
+bool TriangleMesh::hasEmit()
+{
+	return m->hasEmission();
+}
+
+void TriangleMesh::sample(Intersection& ints, float& pdf)
+{
+	if (bvhBuild)
+	{
+		bvhBuild->sample(ints, pdf);
+		ints.emitColor = m->getEmission();
+	}
 }
 
 float TriangleMesh::getArea()

@@ -25,7 +25,8 @@ public:
 
 	Vec3f intsCoords;
 	Vec3f normal;
+	Vec3f emitColor;
 	uint index;
 	Vec2f st;
-	Material* m;
+	std::shared_ptr<Material> m;
 };

@@ -6,6 +6,7 @@
 
 class Object;
 struct Light;
+class BVHBuild;
 
 
 class Scene
@@ -27,12 +28,22 @@ public:
 	void setRenderWay(Render::RenderWay way);
 
 	void rayTracing();
-	Vec3f castRay(Ray ray, int depth);
+
+	Vec3f castRay(const Ray& ray, int depth);
+
+
+	Vec3f castRaySPP(const Ray& ray, int spp);
+
+	Vec3f pathTracing(const Ray& ray);
 
 	Intersection intersect(const Ray& ray);
+	void buildBVH();
 
 	void add(const std::shared_ptr<Object>& obj);
 	void add(const std::shared_ptr<Light>& light);
+
+	void sampleLight(Intersection& ints, float& pdf) const;
+	float P_RR() const;
 
 	//µÃµ½Ë÷Òý
 	int getIndex(int x, int y) const;
@@ -53,6 +64,7 @@ private:
 
 	int Mass_;
 	int maxDepth_ = 5;
+	Vec3f cameraPos_;
 	Vec3f backgroundColor_{ 0.235294, 0.67451, 0.843137 };
 	//Vec3f backgroundColor_{ 0, 0, 0 };
 
@@ -61,5 +73,7 @@ private:
 
 	std::vector<std::shared_ptr<Object>> objects_;
 	std::vector<std::shared_ptr<Light> > lights_;
+
+	std::shared_ptr<BVHBuild> bvhNode_;
 
 };

@@ -12,4 +12,8 @@ namespace MyColor
 	const Eigen::Vector4f Blue = Eigen::Vector4f(0.0, 0.0, 1.0, 1.0);
 	const Eigen::Vector4f White = Eigen::Vector4f(1.0, 1.0, 1.0, 1.0);
 	const Eigen::Vector4f Black = Eigen::Vector4f(0.0, 0.0, 0.0, 1.0);
+	const Eigen::Vector4f Yellow = Eigen::Vector4f(1.0f, 1.0f, 0.0f, 1.0f);
+	const Eigen::Vector4f Cyan = Eigen::Vector4f(0.0f, 1.0f, 1.0f, 1.0f);
+	const Eigen::Vector4f Magenta = Eigen::Vector4f(1.0f, 0.0f, 1.0f, 1.0f);
+	const Eigen::Vector4f Gray = Eigen::Vector4f(0.5f, 0.5f, 0.5f, 1.0f);
 };

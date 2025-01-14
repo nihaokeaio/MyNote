@@ -154,6 +154,60 @@ TriangleMesh::TriangleMesh(const std::vector<Vec3f>& v, const std::vector<uint>&
 	}
 }
 
+void TriangleMesh::setScale(float factor)
+{
+	Vec3f bMin(std::numeric_limits<float>::max());
+	Vec3f bMax(-std::numeric_limits<float>::max());
+	area = 0;
+	bvhBuild.reset();
+	for (int i = 0; i < triangles.size(); i += 3)
+	{
+		std::vector<Vec3f>vets(3, 0);
+		std::vector<Vec2f>sts(3, 0);
+		for (int j = 0; j < 3; ++j)
+		{
+			auto& pos = triangles[i]->points[j];
+			pos *= factor;
+			vets[j] = pos;
+			bMin = Vec3f(std::min(bMin.x, pos.x), std::min(bMin.y, pos.y), std::min(bMin.z, pos.z));
+			bMax = Vec3f(std::max(bMax.x, pos.x), std::max(bMax.y, pos.y), std::max(bMax.z, pos.z));
+		}
+		area += triangles[i]->getArea();
+	}
+	bounds3 = Bounds3(bMin, bMax);
+	if (!bvhBuild)
+	{
+		bvhBuild = std::make_shared<BVHBuild>(this);
+	}
+}
+
+void TriangleMesh::setMove(const Vec3f& vec)
+{
+	Vec3f bMin(std::numeric_limits<float>::max());
+	Vec3f bMax(-std::numeric_limits<float>::max());
+	area = 0;
+	bvhBuild.reset();
+	for (int i = 0; i < triangles.size(); i += 3)
+	{
+		std::vector<Vec3f>vets(3, 0);
+		std::vector<Vec2f>sts(3, 0);
+		for (int j = 0; j < 3; ++j)
+		{
+			auto& pos = triangles[i]->points[j];
+			pos += vec;
+			vets[j] = pos;
+			bMin = Vec3f(std::min(bMin.x, pos.x), std::min(bMin.y, pos.y), std::min(bMin.z, pos.z));
+			bMax = Vec3f(std::max(bMax.x, pos.x), std::max(bMax.y, pos.y), std::max(bMax.z, pos.z));
+		}
+		area += triangles[i]->getArea();
+	}
+	bounds3 = Bounds3(bMin, bMax);
+	if (!bvhBuild)
+	{
+		bvhBuild = std::make_shared<BVHBuild>(this);
+	}
+}
+
 Intersection TriangleMesh::intersect(const Ray& ray)
 {
 	Intersection intersect;

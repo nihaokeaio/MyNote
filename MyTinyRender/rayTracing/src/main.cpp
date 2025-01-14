@@ -9,7 +9,7 @@
 
 int main()
 {
-	Scene scene(784, 784);
+	Scene scene(1280, 960);
 
     std::shared_ptr<Material> red(new Material(Material::DIFFUSE_AND_GLOSSY, Vec3f(0.0f)));
     red->Kd = Vec3f(0.63f, 0.065f, 0.05f);
@@ -29,11 +29,16 @@ int main()
     std::shared_ptr<TriangleMesh> left(new TriangleMesh("./Resource/models/cornellbox/left.obj", red));
     std::shared_ptr<TriangleMesh> right(new TriangleMesh("./Resource/models/cornellbox/right.obj", green));
     std::shared_ptr<TriangleMesh> light(new TriangleMesh("./Resource/models/cornellbox/light.obj", lightM));
+    std::shared_ptr<TriangleMesh> bunny(new TriangleMesh("./Resource/models/bunny/bunny.obj", white));
+
+    bunny->setScale(1000.0);
+    bunny->setMove(Vec3f(250));
 
     scene.add(floor);
-    scene.add(shortbox);
-    scene.add(tallbox);
+    //scene.add(shortbox);
+    //scene.add(tallbox);
     scene.add(left);
+    scene.add(bunny);
     scene.add(right);
     scene.add(light);
     scene.buildBVH();

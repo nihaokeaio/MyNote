@@ -63,6 +63,9 @@ public:
 	TriangleMesh(const std::vector<Vec3f>& v, const std::vector<uint>& indexs, const std::vector<Vec2f>& st,
 		std::shared_ptr<Material> material = nullptr);
 
+	void setScale(float factor);
+	void setMove(const Vec3f& vec);
+
 	Intersection intersect(const Ray& ray) override;
 	void getSurfaceProperties(const Vec3f& P, const Vec3f& I, const uint32_t& index, const Vec2f& uv, Vec3f& N, Vec2f& st)const override;
 	Vec3f evalDiffuseColor(const Vec2f& st) const override;

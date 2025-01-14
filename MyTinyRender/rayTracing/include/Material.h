@@ -16,8 +16,8 @@ public:
     Vec3f m_emission;
     float ior;
     Vec3f Ka = 0.0;
-    Vec3f Kd = 0.0;
-    Vec3f Ks=0.0;
+    Vec3f Kd = 0.6;
+    Vec3f Ks=0.1;
     float specularExponent = 25.0;
     //Texture tex;
 

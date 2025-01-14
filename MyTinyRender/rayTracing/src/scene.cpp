@@ -53,7 +53,7 @@ void Scene::rayTracing()
 
     //std::atomic<int> count = 0
     int count = 0;
-    int spp = 16;
+    int spp = 1;
     std::mutex m;
 
 #ifdef USEPARALLEL
@@ -209,10 +209,6 @@ Vec3f Scene::pathTracing(const Ray& ray)
     if (intersection.happened)
     {
         //lDir
-        if (intersection.m->hasEmission())
-        {
-            int x = 1;
-        }
         for (const auto& light: lights_)
         {
             Vec3f hitPos = intersection.intsCoords;
@@ -257,7 +253,7 @@ Vec3f Scene::pathTracing(const Ray& ray)
                     Vec3f wo = intersection.m->sample(-outRaydir, norm);
                     float pdfHemi = 0.5 / M_PI;
                     float costh =Vec3f::dotProduct(outRaydir, norm);
-                    lInDIr = pathTracing(Ray(cameraPos_, dir)) * intersection.m->eval(outRaydir, wo, norm) *
+                    lInDIr = castRay(Ray(cameraPos_, dir),0) * intersection.m->eval(outRaydir, wo, norm) *
                         costh / pdfHemi / p_RR;
                 }
             }

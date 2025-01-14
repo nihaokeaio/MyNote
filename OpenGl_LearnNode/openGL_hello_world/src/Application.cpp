@@ -98,10 +98,10 @@ void writeGlmVec3(const std::string& name, const glm::vec3& vec)
 
 glm::mat4 getLightSpaceMat(float timeValue = 0.0)
 {
-    GLfloat near_plane = 0.1f , far_plane = 5.f ;
+    GLfloat near_plane = 0.1f , far_plane = 15.f ;
     float orthoValu = 4.5 * sqrt(2);// *abs(cos(timeValue));
-    //glm::mat4 lightProjection = glm::ortho(-orthoValu, orthoValu, -orthoValu, orthoValu, near_plane, far_plane);
-    glm::mat4 lightProjection = glm::perspective(glm::radians(45.0f), 1.0f, near_plane, far_plane);
+    glm::mat4 lightProjection = glm::ortho(-orthoValu, orthoValu, -orthoValu, orthoValu, near_plane, far_plane);
+    //glm::mat4 lightProjection = glm::perspective(glm::radians(45.0f), 1.0f, near_plane, far_plane);
     glm::vec3 front = glm::vec3(0.0f, -0.0f, 0.0f); 
     glm::mat4 lightView = glm::lookAt(lightPos, glm::normalize(front- lightPos), glm::vec3(0.0f, 1.0f, 0.0f));
     glm::mat4 lightSpaceMatrix = lightProjection * lightView;
@@ -724,7 +724,7 @@ int main()
 
     unsigned int depthMapFBO;
     unsigned int depthMap;
-    int shadowFactor = 1.0;
+    int shadowFactor = 4.0;
     const GLuint SHADOW_WIDTH = 1024 * shadowFactor, SHADOW_HEIGHT = 1024 * shadowFactor;
     {      
         glGenFramebuffers(1, &depthMapFBO);
@@ -764,6 +764,7 @@ int main()
         processInput(window);
         float timeValue = glfwGetTime();
         camera->setMoveSpeed(timeValue);
+        timeValue = 0.0;
         glm::mat4 view, projection;
         view = camera->getViewMat();
         projection = camera->getProjectionMat();
@@ -1145,7 +1146,7 @@ int main()
 
             glm::mat4 lightPosMat = glm::mat4(1.0f);
             //lightPosMat = glm::scale(lightPosMat, glm::vec3(0.2f));
-            lightPosMat = glm::rotate(lightOriModel, sin(2*0.01f), glm::vec3(0.0f, 1.0f, 0.0f));
+            lightPosMat = glm::rotate(lightOriModel, timeValue, glm::vec3(0.0f, 1.0f, 0.0f));
             lightPos= lightPosMat* glm::vec4(lightPos,0.0);
 
             lightShader.setMat4("model", lightModel);

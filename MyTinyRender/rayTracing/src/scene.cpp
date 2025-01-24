@@ -46,7 +46,7 @@ void Scene::rayTracing()
         std::chrono::system_clock::now().time_since_epoch()
     );
 
-    cameraPos_ = { 278, 273, -800 };//ÉãÏñ»úÎ»ÖÃ
+    cameraPos_ = { 278, 273, -800 };//æ‘„åƒæœºä½ç½®
 
     float imageAspectRatio = width_ / height_;
     float scale = tan(GamesMath::deg2rad(fov_ * 0.5));
@@ -63,7 +63,7 @@ void Scene::rayTracing()
     {
         for (int j = 0; j < height_; j++)
         {
-            //´Ó×óÏÂ½Ç¿ªÊ¼
+            //ä»å·¦ä¸‹è§’å¼€å§‹
             float x = (2 * (i + 0.5) / width_ - 1) *
                 imageAspectRatio * scale;
             float y = (1 - 2 * (j + 0.5) / height_) * scale;
@@ -169,8 +169,8 @@ Vec3f Scene::castRay(const Ray& ray, int depth)
                     Object* shadowHitObject = nullptr;
                     float tNearShadow = FLT_MAX;
                     // is the point in shadow, and is the nearest occluding object closer to the object than the light itself?
-                    // //ÒÔÒõÓ°´¦³ö·¢£¬Ïò×Å¹âÔ´·½Ïò·¢Éä¹âÏß£¬Óë³¡¾°ÖĞµÄÎïÌåÇó½»£¬Èç¹ûÓëÎïÌåÏà½»£¬ÔòËµÃ÷ÆäÔÚÎïÌåÏÂ·½£¬
-                    //±íÃæ±»ÎïÌåÕÚ×¡ÁË£¬ÊÇÔÚÒõÓ°ÖĞ
+                    // //ä»¥é˜´å½±å¤„å‡ºå‘ï¼Œå‘ç€å…‰æºæ–¹å‘å‘å°„å…‰çº¿ï¼Œä¸åœºæ™¯ä¸­çš„ç‰©ä½“æ±‚äº¤ï¼Œå¦‚æœä¸ç‰©ä½“ç›¸äº¤ï¼Œåˆ™è¯´æ˜å…¶åœ¨ç‰©ä½“ä¸‹æ–¹ï¼Œ
+                    //è¡¨é¢è¢«ç‰©ä½“é®ä½äº†ï¼Œæ˜¯åœ¨é˜´å½±ä¸­
                     //bool inShadow = bvh->Intersect(Ray(shadowPointOrig, lightDir)).happened;
                     bool inShadow = intersect(Ray(shadowPointOrig, shadowPoint2lightDir)).happened;
                     //lightAmt += (1 - inShadow) * lights_[i]->emissionColor * LdotN;
@@ -224,7 +224,7 @@ Vec3f Scene::pathTracing(const Ray& ray)
             Intersection intsect = intersect(Ray(light->position, lightDir));
             if (intsect.happened && abs(intsect.distance - light2Dis) < 0.1f)
             {
-                //Ö±½Ó¹âÕÕ
+                //ç›´æ¥å…‰ç…§
                 Vec3f norm = intersection.normal;
                 float costh1 =-lightDir.dot(norm);
                 float pdf;
@@ -236,7 +236,7 @@ Vec3f Scene::pathTracing(const Ray& ray)
             }
 
         }
-        //¼ä½Ó¹âÕÕ
+        //é—´æ¥å…‰ç…§
         {
             float p_RR = P_RR();
             if (p_RR != 0 && p_RR > 0.3)
@@ -291,11 +291,11 @@ Intersection Scene::intersect(const Ray& ray)
 
 void Scene::buildBVH()
 {
-    if (!bvhNode_)
+    /*if (!bvhNode_)
     {
         bvhNode_.reset(new BVHBuild);
         bvhNode_->buildBVH(objects_);
-    }
+    }*/
 
     for (uint32_t k = 0; k < objects_.size(); ++k) {
         if (objects_[k]->hasEmit()) {

@@ -73,6 +73,10 @@ OccPlaneHistoryWidget#OccPlaneHistoryToolWidget
 	```
 这也是常用的生成阴影的方式。但我在使用过程中经常显示不出任何东西。这里需要注意**background:rgb(247, 247, 247)**，如果shadowFrame_没有设置颜色，那么不光shadowFrame_不会显示，连阴影也没显示。其外，还需要注意shadowFrame_的大小需要和this的带下一致。有时若出现不一致的情况，需要重写resizeEvent。
 
+## 例三 描述QPushButton的两个信号clicked以及toggled
+
+对于前者，我看到的描述是否是checkable的，只要点击按钮，信号就会被出发。对于后者，只有按钮处于isCheckable状态，信号才会触发。这两者的区别主要在于。对于单次按钮，比如重置，关闭等操作，使用clicked比较好。对于表述某种状态的，比如静音按钮，一般都是有状态的，使用后者的信号比较好。
+
 
 
 

@@ -2,11 +2,14 @@
 #define MYSCENE_H
 
 #include <memory>
+#include <string>
 
 class MyScene
 {
 public:
-	MyScene();
+	MyScene(const std::string& windowTitle, int width, int height);
+
+	void run();
 
 	~MyScene();
 private:

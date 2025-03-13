@@ -170,6 +170,8 @@ void initImGui(GLFWwindow* window) {
 
 int main()
 {
+    MyScene myScene("hello Scene", 800, 600);
+    
     // glfw: initialize and configure
     // ------------------------------
     glfwInit();
@@ -782,7 +784,7 @@ int main()
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
     float windowScale = 1.0;
-    initImGui(window);
+    //initImGui(window);
 
     // Our state
     bool show_demo_window = true;
@@ -792,6 +794,7 @@ int main()
 
     while (!glfwWindowShouldClose(window))
     {
+        myScene.run();
         if (glfwGetWindowAttrib(window, GLFW_ICONIFIED) != 0)
         {
             ImGui_ImplGlfw_Sleep(10);

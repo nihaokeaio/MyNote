@@ -1,7 +1,6 @@
 ﻿#include "MyScene.h"
 #include "Camera.h"
 
-#include <string>
 #include <iostream>
 
 #include <glad/glad.h>
@@ -17,7 +16,9 @@
 class MyScene::PImpl
 {
 public:
-    void init(const std::string& windowTitle = "window");
+    PImpl(const std::string& windowTitle, int width, int height);
+
+    void init();
 
     //初始化上下文
     void initContext();
@@ -34,6 +35,7 @@ private:
     bool initGlfwContext();
     bool initImguiContext();
 
+    void framebufferSizeCallback(int width, int height);
     void mouseCallback(double xPos, double yPos);
     void scrollCallBack(double xOffset, double yOffset);
     void processHandler(GLFWwindow* window);
@@ -52,19 +54,39 @@ public:
     std::unique_ptr<Camera> camera_;
 };
 
-MyScene::MyScene()
+MyScene::MyScene(const std::string& windowTitle, int width, int height)
 {
-	impl_.reset(new PImpl);
+    impl_.reset(new PImpl(windowTitle, width, height));
+}
+
+void MyScene::run()
+{
+    if (!glfwWindowShouldClose(impl_->window_))
+    {
+        // 处理事件
+        glfwPollEvents();
+
+        // 渲染逻辑
+        // ...
+    }
 }
 
 MyScene::~MyScene() = default;
 
-void MyScene::PImpl::init(const std::string& windowTitle)
+MyScene::PImpl::PImpl(const std::string& windowTitle, int width, int height)
 {
     windowTitle_ = windowTitle;
+    scrWidth_ = width;
+    scrHeight_ = height;
+    init();
+}
+
+void MyScene::PImpl::init()
+{
     initContext();
     registerCallBackFun();
     setInputMode();
+    addCamera();
 }
 
 void MyScene::PImpl::initContext()
@@ -80,8 +102,6 @@ void MyScene::PImpl::registerCallBackFun()
     glfwSetWindowUserPointer(window_, this);
 
     // 设置回调函数
-    //glfwSetCursorPosCallback(window_, mouseCallback);
-
     glfwSetFramebufferSizeCallback(window_, framebufferSizeCallback);
     glfwSetCursorPosCallback(window_, mouseCallback);
     glfwSetScrollCallback(window_, scrollCallBack);
@@ -147,6 +167,12 @@ bool MyScene::PImpl::initImguiContext()
     return false;
 }
 
+void MyScene::PImpl::framebufferSizeCallback(int width, int height)
+{
+    glfwMakeContextCurrent(window_);
+    glViewport(0, 0, width, height); // 更新 OpenGL 视口
+}
+
 void MyScene::PImpl::mouseCallback(double xPos, double yPos)
 {
     camera_->mouse_callBack(xPos, yPos);
@@ -166,7 +192,11 @@ void MyScene::PImpl::processHandler(GLFWwindow* window)
 
 void MyScene::PImpl::framebufferSizeCallback(GLFWwindow* window, int width, int height)
 {
-    glViewport(0, 0, width, height);
+    MyScene::PImpl* instance = static_cast<MyScene::PImpl*>(glfwGetWindowUserPointer(window));
+    if (instance)
+    {
+        instance->framebufferSizeCallback(width, height);
+    }
 }
 
 void MyScene::PImpl::mouseCallback(GLFWwindow* window, double xPos, double yPos)

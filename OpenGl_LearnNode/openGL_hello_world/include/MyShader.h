@@ -1,24 +1,19 @@
-#pragma once
+ï»¿#pragma once
 
-#include <glad/glad.h>
 #include <glm/glm.hpp>
-#include <glm/gtc/type_ptr.hpp>
 
 #include <string>
-#include <iostream>
-#include <fstream>
-#include <sstream>
 #include <vector>
 
 class MyShader
 {
 public:
-	//³ÌĞòId
+	//ç¨‹åºId
 	unsigned int ID;
-	//¹¹ÔìÊı¾İ
+	//æ„é€ æ•°æ®
 	MyShader(const char* vertexPath, const char* fragmentPath);
 	bool attachShader(const char* shaderPath, int GLuint);
-	//Ê¹ÓÃ£¨active£©×ÅÉ«Æ÷
+	//ä½¿ç”¨ï¼ˆactiveï¼‰ç€è‰²å™¨
 	void use();
 	static void loadTexture(const std::string& filename, unsigned int& texture);
 	static void loadCubeTexture(const std::vector<std::string>& cubeFileName, unsigned int& texture);

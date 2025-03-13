@@ -1,6 +1,6 @@
-#include "Mesh.h"
-
+ï»¿#include "Mesh.h"
 #include <glad/glad.h>
+
 
 
 Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices, const std::vector<Texture>& textures)
@@ -18,7 +18,7 @@ void Mesh::setupMesh()
 	glGenBuffers(1, &EBO);
 
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	//´«Èë¾ßÌåµÄÊı¾İ£¬×¢ÒâÒ»¶¨ÒªÏÈ°ó¶¨ºÃ¶ÔÏó£¬ÕâÊÇ¹ı³ÌÊ½±à³ÌµÄÀíÄî
+	//ä¼ å…¥å…·ä½“çš„æ•°æ®ï¼Œæ³¨æ„ä¸€å®šè¦å…ˆç»‘å®šå¥½å¯¹è±¡ï¼Œè¿™æ˜¯è¿‡ç¨‹å¼ç¼–ç¨‹çš„ç†å¿µ
 	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
@@ -43,8 +43,8 @@ void Mesh::draw(const MyShader& shader) const
 	unsigned int specularNr = 1;
 	for (unsigned int i = 0; i < textures.size(); i++)
 	{
-		glActiveTexture(GL_TEXTURE0 + i); // ÔÚ°ó¶¨Ö®Ç°¼¤»îÏàÓ¦µÄÎÆÀíµ¥Ôª
-		// »ñÈ¡ÎÆÀíĞòºÅ£¨diffuse_textureN ÖĞµÄ N£©
+		glActiveTexture(GL_TEXTURE0 + i); // åœ¨ç»‘å®šä¹‹å‰æ¿€æ´»ç›¸åº”çš„çº¹ç†å•å…ƒ
+		// è·å–çº¹ç†åºå·ï¼ˆdiffuse_textureN ä¸­çš„ Nï¼‰
 		std::string number;
 		std::string name = textures[i].type;
 		if (name == "texture_diffuse")
@@ -58,7 +58,7 @@ void Mesh::draw(const MyShader& shader) const
 	}
 	glActiveTexture(GL_TEXTURE0);
 	
-	///»æÖÆ
+	///ç»˜åˆ¶
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
@@ -72,8 +72,8 @@ void Mesh::drawInts(const MyShader& shader, int intsCount) const
 	unsigned int specularNr = 1;
 	for (unsigned int i = 0; i < textures.size(); i++)
 	{
-		glActiveTexture(GL_TEXTURE0 + i); // ÔÚ°ó¶¨Ö®Ç°¼¤»îÏàÓ¦µÄÎÆÀíµ¥Ôª
-		// »ñÈ¡ÎÆÀíĞòºÅ£¨diffuse_textureN ÖĞµÄ N£©
+		glActiveTexture(GL_TEXTURE0 + i); // åœ¨ç»‘å®šä¹‹å‰æ¿€æ´»ç›¸åº”çš„çº¹ç†å•å…ƒ
+		// è·å–çº¹ç†åºå·ï¼ˆdiffuse_textureN ä¸­çš„ Nï¼‰
 		std::string number;
 		std::string name = textures[i].type;
 		if (name == "texture_diffuse")
@@ -87,7 +87,7 @@ void Mesh::drawInts(const MyShader& shader, int intsCount) const
 	}
 	glActiveTexture(GL_TEXTURE0);
 
-	///»æÖÆ
+	///ç»˜åˆ¶
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	//glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
@@ -102,7 +102,7 @@ void Mesh::attachAttribPointer(const std::vector<glm::mat4>& nums)
 	glGenBuffers(1, &buffer);
 	glBindBuffer(GL_ARRAY_BUFFER, buffer);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::mat4) * nums.size(), nums.data(), GL_STATIC_DRAW);
-	// ¶¥µãÊôĞÔ
+	// é¡¶ç‚¹å±æ€§
 	GLsizei vec4Size = sizeof(glm::vec4);
 	glBindVertexArray(VAO);
 	glEnableVertexAttribArray(3);

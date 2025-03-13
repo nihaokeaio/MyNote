@@ -1,4 +1,9 @@
-﻿#include <glad/glad.h>
+﻿#include "Camera.h"
+#include "Model.h"
+#include "MyShader.h"
+#include "MyScene.h"
+
+#include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -8,14 +13,14 @@
 #include <memory>
 #include "stb_image.h"
 
-#include <MyShader.h>
-#include <Camera.h>
+//#include <assimp/Importer.hpp>
+//#include <assimp/scene.h>
+//#include <assimp/postprocess.h>
+#include "imgui.h"
+#include "backends/imgui_impl_opengl3.h"
+#include "backends/imgui_impl_glfw.h"
+#include "misc/cpp/imgui_stdlib.h"
 
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
-
-#include "Model.h"
 
 using VAOID = unsigned int;
 
@@ -98,10 +103,10 @@ void writeGlmVec3(const std::string& name, const glm::vec3& vec)
 
 glm::mat4 getLightSpaceMat(float timeValue = 0.0)
 {
-    GLfloat near_plane = 0.1f , far_plane = 5.f ;
+    GLfloat near_plane = 0.1f , far_plane = 15.f ;
     float orthoValu = 4.5 * sqrt(2);// *abs(cos(timeValue));
-    //glm::mat4 lightProjection = glm::ortho(-orthoValu, orthoValu, -orthoValu, orthoValu, near_plane, far_plane);
-    glm::mat4 lightProjection = glm::perspective(glm::radians(45.0f), 1.0f, near_plane, far_plane);
+    glm::mat4 lightProjection = glm::ortho(-orthoValu, orthoValu, -orthoValu, orthoValu, near_plane, far_plane);
+    //glm::mat4 lightProjection = glm::perspective(glm::radians(45.0f), 1.0f, near_plane, far_plane);
     glm::vec3 front = glm::vec3(0.0f, -0.0f, 0.0f); 
     glm::mat4 lightView = glm::lookAt(lightPos, glm::normalize(front- lightPos), glm::vec3(0.0f, 1.0f, 0.0f));
     glm::mat4 lightSpaceMatrix = lightProjection * lightView;
@@ -145,8 +150,28 @@ void getRandModel(float time, std::vector<glm::mat4>& modelMatrices)
 //glm::vec3 cubeColor(1.0f, 0.5f, 0.31f);
 //glm::vec3 cubeColor(1.0f, 0.5f, 0.31f);
 
+// 初始化 ImGui
+void initImGui(GLFWwindow* window) {
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    (void)io;
+
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
+    // 设置 ImGui 样式
+    ImGui::StyleColorsDark();
+
+    // 初始化 ImGui 的 GLFW 和 OpenGL3 后端
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init("#version 330 core");
+}
+
 int main()
 {
+    MyScene myScene("hello Scene", 800, 600);
+    
     // glfw: initialize and configure
     // ------------------------------
     glfwInit();
@@ -177,7 +202,7 @@ int main()
     }
 
     //聚焦光标
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
     //stbi_set_flip_vertically_on_load(true);
 
@@ -724,7 +749,7 @@ int main()
 
     unsigned int depthMapFBO;
     unsigned int depthMap;
-    int shadowFactor = 1.0;
+    int shadowFactor = 4.0;
     const GLuint SHADOW_WIDTH = 1024 * shadowFactor, SHADOW_HEIGHT = 1024 * shadowFactor;
     {      
         glGenFramebuffers(1, &depthMapFBO);
@@ -759,14 +784,58 @@ int main()
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
     float windowScale = 1.0;
+    //initImGui(window);
+
+    // Our state
+    bool show_demo_window = true;
+    bool show_another_window = false;
+
+    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+
     while (!glfwWindowShouldClose(window))
     {
+        myScene.run();
+        if (glfwGetWindowAttrib(window, GLFW_ICONIFIED) != 0)
+        {
+            ImGui_ImplGlfw_Sleep(10);
+            continue;
+        }
+
         processInput(window);
         float timeValue = glfwGetTime();
         camera->setMoveSpeed(timeValue);
+        timeValue = 0.0;
         glm::mat4 view, projection;
         view = camera->getViewMat();
         projection = camera->getProjectionMat();
+
+        // 开始 ImGui 帧
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+        if (show_demo_window)
+            ImGui::ShowDemoWindow(&show_demo_window);
+        {
+            ImGui::Begin("Hello, ImGui!");
+            ImGui::Text("Hello, world %d", 123);
+            if (ImGui::Button("Save"))
+                std::cout << "Save" << std::endl;
+            static std::string s;
+            static float f;
+            ImGui::InputText("string", &s);
+            ImGui::SliderFloat("float", &timeValue, 0.0f, 1.0f);
+            ImGui::End();
+        }
+
+        if (show_another_window)
+        {
+            ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
+            ImGui::Text("Hello from another window!");
+            if (ImGui::Button("Close Me"))
+                show_another_window = false;
+            ImGui::End();
+        }
 
        /* std::cout << "cameraPos = [" << camera->getCameraPos().x << " " <<
             camera->getCameraPos().y << " " <<
@@ -1145,7 +1214,7 @@ int main()
 
             glm::mat4 lightPosMat = glm::mat4(1.0f);
             //lightPosMat = glm::scale(lightPosMat, glm::vec3(0.2f));
-            lightPosMat = glm::rotate(lightOriModel, sin(2*0.01f), glm::vec3(0.0f, 1.0f, 0.0f));
+            lightPosMat = glm::rotate(lightOriModel, timeValue, glm::vec3(0.0f, 1.0f, 0.0f));
             lightPos= lightPosMat* glm::vec4(lightPos,0.0);
 
             lightShader.setMat4("model", lightModel);
@@ -1177,10 +1246,16 @@ int main()
         //glEnable(GL_DEPTH_TEST);
         //glDisable(GL_STENCIL_TEST);
         //glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
+
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
 
     glfwTerminate();
     return 0;

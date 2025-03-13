@@ -1,8 +1,10 @@
-#include "Model.h"
+ï»¿#include "Model.h"
+#include <iostream>
 
+#include <scene.h>
 #include <Importer.hpp>
 #include <postprocess.h>
-#include <scene.h>
+
 
 void Model::Draw(const MyShader& shader)
 {
@@ -67,13 +69,13 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 	{
 		Vertex vertex;
 		glm::vec3 vec;
-		///¶¥µãÎ»ÖÃ
+		///é¡¶ç‚¹ä½ç½®
 		vec.x = mesh->mVertices[i].x;
 		vec.y = mesh->mVertices[i].y;
 		vec.z = mesh->mVertices[i].z;
 		vertex.position = vec;
 
-		///¶¥µã·¨ÏòÁ¿
+		///é¡¶ç‚¹æ³•å‘é‡
 		if (mesh->HasNormals())
 		{
 			vec.x = mesh->mNormals[i].x;
@@ -82,7 +84,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 			vertex.normal = vec;
 		}
 
-		///¶¥µãÌùÍ¼Ë÷Òý
+		///é¡¶ç‚¹è´´å›¾ç´¢å¼•
 		if (mesh->mTextureCoords[0])
 		{
 			glm::vec2 vec2;

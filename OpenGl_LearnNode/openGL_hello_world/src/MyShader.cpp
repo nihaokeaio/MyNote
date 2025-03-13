@@ -1,7 +1,11 @@
-#include "MyShader.h"
-
+ï»¿#include "MyShader.h"
+#include <glad/glad.h>
+#include <glm/gtc/type_ptr.hpp>
 #include "stb_image.h"
 
+#include <iostream>
+#include <fstream>
+#include <sstream>
 
 MyShader::MyShader(const char* vertexPath, const char* fragmentPath)
 {
@@ -36,7 +40,7 @@ MyShader::MyShader(const char* vertexPath, const char* fragmentPath)
     const char* vShaderCode = vertexCode.c_str();
     const char* fShaderCode = fragmentCode.c_str();
 
-    // 2 ±àÒë×ÅÉ«Æ÷
+    // 2 ç¼–è¯‘ç€è‰²å™¨
     unsigned int vertex, fragment;
     int success;
     char infoLog[512];
@@ -53,7 +57,7 @@ MyShader::MyShader(const char* vertexPath, const char* fragmentPath)
         std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
     }
 
-    //±àÒë¶Î×ÅÉ«Æ÷
+    //ç¼–è¯‘æ®µç€è‰²å™¨
     fragment = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragment, 1, &fShaderCode, nullptr);
     glCompileShader(fragment);
@@ -82,7 +86,7 @@ MyShader::MyShader(const char* vertexPath, const char* fragmentPath)
 
 bool MyShader::attachShader(const char* shaderPath, int GLuint)
 {
-    //¶ÁÈ¡ÎÄ¼ş
+    //è¯»å–æ–‡ä»¶
     std::string shaderCode;
     std::ifstream shaderFile;
     shaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
@@ -104,7 +108,7 @@ bool MyShader::attachShader(const char* shaderPath, int GLuint)
     }
     const char* vShaderCode = shaderCode.c_str();
 
-    // 2 ±àÒë×ÅÉ«Æ÷
+    // 2 ç¼–è¯‘ç€è‰²å™¨
     unsigned int shader;
     int success;
     char infoLog[512];
@@ -143,8 +147,8 @@ bool MyShader::attachShader(const char* shaderPath, int GLuint)
 
 void MyShader::use()
 {
-    //Ö¸¶¨³ÌĞò¶ÔÏóµÄ¾ä±ú£¬¸Ã³ÌĞò¶ÔÏóµÄ¿ÉÖ´ĞĞÎÄ¼ş½«ÓÃ×÷µ±Ç°äÖÈ¾×´Ì¬µÄÒ»²¿·Ö£¬ÒâÎ¶×ÅÒ»µ©Ê¹ÓÃµÄĞÂ¶ÔÏó£¬Ôò»á
-    //Çå³ıÖ®Ç°µÄ»º´æ¶ÔÏó£¬ÓÖÊÇ¹ı³ÌÊ½±à³ÌÓïÑÔ£¬±³¹ø°É
+    //æŒ‡å®šç¨‹åºå¯¹è±¡çš„å¥æŸ„ï¼Œè¯¥ç¨‹åºå¯¹è±¡çš„å¯æ‰§è¡Œæ–‡ä»¶å°†ç”¨ä½œå½“å‰æ¸²æŸ“çŠ¶æ€çš„ä¸€éƒ¨åˆ†ï¼Œæ„å‘³ç€ä¸€æ—¦ä½¿ç”¨çš„æ–°å¯¹è±¡ï¼Œåˆ™ä¼š
+    //æ¸…é™¤ä¹‹å‰çš„ç¼“å­˜å¯¹è±¡ï¼Œåˆæ˜¯è¿‡ç¨‹å¼ç¼–ç¨‹è¯­è¨€ï¼ŒèƒŒé”…å§
     glUseProgram(ID);
 }
 
@@ -153,7 +157,7 @@ void MyShader::loadTexture(const std::string& filename, unsigned int& texture)
     //create texture object;
     glGenTextures(1, &texture);
 
-    //pngÓĞËÄ¸öÍ¨µÀ
+    //pngæœ‰å››ä¸ªé€šé“
     //create texture
     int width, height, nChannal;
     unsigned char* data = stbi_load(filename.c_str(), &width, &height, &nChannal, 0);

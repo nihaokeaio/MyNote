@@ -1,11 +1,8 @@
-#pragma once
+ï»¿#pragma once
 #include <string>
 #include <types.h>
 #include <vector>
 #include "MyShader.h"
-#include <windows.h>
-
-#include "glm/vec3.hpp"
 
 struct Vertex
 {
@@ -26,12 +23,12 @@ struct Texture
 class Mesh
 {
 public:
-	///Íø¸ñÊı¾İ
+	///ç½‘æ ¼æ•°æ®
 	std::vector<Vertex>vertices;
 	std::vector<unsigned int>indices;
 	std::vector<Texture>textures;
 
-	///º¯Êı
+	///å‡½æ•°
 	Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices, const std::vector<Texture>& textures);
 
 	void draw(const MyShader& shader) const;

@@ -1,9 +1,7 @@
-#pragma once
+ï»¿#pragma once
 #include <material.h>
 #include <vector>
-
 #include "Mesh.h"
-
 
 struct aiMaterial;
 struct aiNode;
@@ -13,7 +11,7 @@ struct aiScene;
 class Model
 {
 public:
-    /*  º¯Êı   */
+    /*  å‡½æ•°   */
     Model(const char* path)
     {
         loadModel(path);
@@ -23,12 +21,12 @@ public:
 
     void attachAttribPointer(const std::vector<glm::mat4>& nums);
 private:
-    /// Ä£ĞÍÊı¾İ  
+    /// æ¨¡å‹æ•°æ®  
     std::vector<Mesh> meshes_;
     std::vector<Texture>loadTextures_;
 
     std::string directory;
-    ///º¯Êı
+    ///å‡½æ•°
     void loadModel(const std::string& path);
     void processNode(aiNode* node, const aiScene* scene);
     Mesh processMesh(aiMesh* mesh, const aiScene* scene);

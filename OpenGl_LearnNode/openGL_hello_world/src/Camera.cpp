@@ -1,6 +1,5 @@
-#include "Camera.h"
+ï»¿#include "Camera.h"
 #include <glm/gtc/matrix_transform.hpp>
-//#include <functional>
 #include <iostream>
 #include <thread>
 
@@ -41,7 +40,7 @@ void Camera::processInput()
     {
         cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
     }
-    ///Ô­ÉñË®ÏÂÒÆ¶¯Íæ·¨
+    ///åŽŸç¥žæ°´ä¸‹ç§»åŠ¨çŽ©æ³•
     if(glfwGetKey(window,GLFW_KEY_SPACE)==GLFW_PRESS)
     {
         cameraPos += cameraUp * cameraSpeed;
@@ -56,7 +55,7 @@ void Camera::processInput()
 
 void Camera::mouse_callBack(double xPos, double yPos)
 {
-    if (firstMouse) // Õâ¸öbool±äÁ¿³õÊ¼Ê±ÊÇÉè¶¨ÎªtrueµÄ
+    if (firstMouse) // è¿™ä¸ªboolå˜é‡åˆå§‹æ—¶æ˜¯è®¾å®šä¸ºtrueçš„
     {
         lastX = xPos;
         lastY = yPos;
@@ -64,7 +63,7 @@ void Camera::mouse_callBack(double xPos, double yPos)
         return;
     }
     float xOffset = xPos - lastX;
-    float yOffset = lastY - yPos;//ÓÉÓÚÕâÀï×óÏÂ½ÇÎª£¨0£¬0£©£¬Óë´«Í³µÄ×ø±êÏµÍ³²»Í¬£¬Òò´ËyÖáÐèÒªÈ¡·´
+    float yOffset = lastY - yPos;//ç”±äºŽè¿™é‡Œå·¦ä¸‹è§’ä¸ºï¼ˆ0ï¼Œ0ï¼‰ï¼Œä¸Žä¼ ç»Ÿçš„åæ ‡ç³»ç»Ÿä¸åŒï¼Œå› æ­¤yè½´éœ€è¦å–å
     lastX = xPos;
     lastY = yPos;
     float sensitivity = 0.05f;
@@ -74,7 +73,7 @@ void Camera::mouse_callBack(double xPos, double yPos)
     pitch += yOffset;
     yaw += xOffset;
 
-    //Ìí¼ÓÒ»Ð©ÏÞÖÆ£¬·ÀÖ¹ÊÓ½Ç³öÏÖÆæ¹ÖµÄÏÖÏó
+    //æ·»åŠ ä¸€äº›é™åˆ¶ï¼Œé˜²æ­¢è§†è§’å‡ºçŽ°å¥‡æ€ªçš„çŽ°è±¡
     if (pitch >= 89.0f)
     {
         pitch = 89.0f;

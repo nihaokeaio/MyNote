@@ -151,9 +151,11 @@ void getRandModel(float time, std::vector<glm::mat4>& modelMatrices)
 //glm::vec3 cubeColor(1.0f, 0.5f, 0.31f);
 
 // 初始化 ImGui
+ImGuiContext* imGuiContext;
 void initImGui(GLFWwindow* window) {
     IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
+    imGuiContext = ImGui::CreateContext();
+    ImGui::SetCurrentContext(imGuiContext);
     ImGuiIO& io = ImGui::GetIO();
     (void)io;
 
@@ -167,11 +169,22 @@ void initImGui(GLFWwindow* window) {
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 330 core");
 }
+std::vector<GLFWwindow*> windowsList;
+
+bool glfwWindowShouldOpen()
+{
+    bool shouldOpen = false;
+    for (const auto& w : windowsList)
+    {
+        shouldOpen = shouldOpen || !glfwWindowShouldClose(w);
+    }
+    return shouldOpen;
+}
 
 int main()
 {
     MyScene myScene("hello Scene", 800, 600);
-    
+    windowsList.push_back(myScene.getWindow());
     // glfw: initialize and configure
     // ------------------------------
     glfwInit();
@@ -784,7 +797,7 @@ int main()
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
     float windowScale = 1.0;
-    //initImGui(window);
+    initImGui(window);
 
     // Our state
     bool show_demo_window = true;
@@ -792,9 +805,19 @@ int main()
 
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
-    while (!glfwWindowShouldClose(window))
+    windowsList.push_back(window);
+
+    while (glfwWindowShouldOpen())
     {
         myScene.run();
+
+        glfwMakeContextCurrent(window);
+        ImGui::SetCurrentContext(imGuiContext);
+        // 开始 ImGui 帧
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
         if (glfwGetWindowAttrib(window, GLFW_ICONIFIED) != 0)
         {
             ImGui_ImplGlfw_Sleep(10);
@@ -808,12 +831,7 @@ int main()
         glm::mat4 view, projection;
         view = camera->getViewMat();
         projection = camera->getProjectionMat();
-
-        // 开始 ImGui 帧
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
-
+      
         if (show_demo_window)
             ImGui::ShowDemoWindow(&show_demo_window);
         {
@@ -1253,9 +1271,13 @@ int main()
         glfwPollEvents();
     }
 
+    glfwDestroyWindow(window);
+
+    ImGui::SetCurrentContext(imGuiContext);
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
+    ImGui::DestroyContext(imGuiContext);
+    
 
     glfwTerminate();
     return 0;

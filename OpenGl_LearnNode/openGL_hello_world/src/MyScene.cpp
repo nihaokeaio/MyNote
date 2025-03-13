@@ -11,7 +11,25 @@
 #include "backends/imgui_impl_glfw.h"
 #include "misc/cpp/imgui_stdlib.h"
 
+class ImGuiRender
+{
+public:
+    explicit ImGuiRender(ImGuiContext* imGuiContext)
+    {
+        ImGui::SetCurrentContext(imGuiContext);
+        // 开始 ImGui 帧
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+    }
 
+    ~ImGuiRender()
+    {
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    }
+
+};
 
 class MyScene::PImpl
 {
@@ -20,6 +38,9 @@ public:
 
     void init();
 
+    void run();
+
+    void destoryWindow();
     //初始化上下文
     void initContext();
 
@@ -51,6 +72,7 @@ public:
     int scrWidth_ = 800;
     int scrHeight_ = 800;
 	GLFWwindow* window_;
+    ImGuiContext* imGuiContext_;
     std::unique_ptr<Camera> camera_;
 };
 
@@ -59,16 +81,14 @@ MyScene::MyScene(const std::string& windowTitle, int width, int height)
     impl_.reset(new PImpl(windowTitle, width, height));
 }
 
+GLFWwindow* MyScene::getWindow()
+{
+    return impl_->window_;
+}
+
 void MyScene::run()
 {
-    if (!glfwWindowShouldClose(impl_->window_))
-    {
-        // 处理事件
-        glfwPollEvents();
-
-        // 渲染逻辑
-        // ...
-    }
+    impl_->run();
 }
 
 MyScene::~MyScene() = default;
@@ -87,6 +107,61 @@ void MyScene::PImpl::init()
     registerCallBackFun();
     setInputMode();
     addCamera();
+}
+
+void MyScene::PImpl::run()
+{
+    if (!window_)
+    {
+        return;
+    }
+
+    if (glfwWindowShouldClose(window_))
+    {
+        destoryWindow();
+        window_ = nullptr;
+        return;
+    }
+    glfwMakeContextCurrent(window_);
+
+    glClearColor(0.2f, 0.2f, 0.2f, 0.5f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    
+    {
+        ImGuiRender imGuiRender(imGuiContext_);
+        //设置imgui的上下文
+
+        bool show_demo_window = true;
+        if (show_demo_window)
+            ImGui::ShowDemoWindow(&show_demo_window);
+        {
+            ImGui::Begin("Hello,Scene ImGui!");
+            ImGui::Text("Hello, world %d", 123);
+            if (ImGui::Button("Save"))
+                std::cout << "Save" << std::endl;
+            static std::string s;
+            static float f;
+            ImGui::InputText("string", &s);
+            ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
+            ImGui::End();
+        }
+    }
+
+    // 处理事件
+    glfwSwapBuffers(window_);
+    glfwPollEvents();
+}
+
+void MyScene::PImpl::destoryWindow()
+{
+    //首先要销毁窗口
+    glfwDestroyWindow(window_);
+
+    //清除imGui上下文
+    ImGui::SetCurrentContext(imGuiContext_);
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext(imGuiContext_);  
 }
 
 void MyScene::PImpl::initContext()
@@ -154,7 +229,8 @@ bool MyScene::PImpl::initGlfwContext()
 bool MyScene::PImpl::initImguiContext()
 {
     IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
+    imGuiContext_ = ImGui::CreateContext();
+    ImGui::SetCurrentContext(imGuiContext_);
     ImGuiIO& io = ImGui::GetIO();
     (void)io;
 
@@ -170,6 +246,8 @@ bool MyScene::PImpl::initImguiContext()
 void MyScene::PImpl::framebufferSizeCallback(int width, int height)
 {
     glfwMakeContextCurrent(window_);
+    scrWidth_ = width;
+    scrHeight_ = height;
     glViewport(0, 0, width, height); // 更新 OpenGL 视口
 }
 

@@ -4,10 +4,14 @@
 #include <memory>
 #include <string>
 
+struct GLFWwindow;
+
 class MyScene
 {
 public:
 	MyScene(const std::string& windowTitle, int width, int height);
+
+	GLFWwindow* getWindow();
 
 	void run();
 
